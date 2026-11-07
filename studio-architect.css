@@ -125,3 +125,15 @@ body[data-arch-comfort=paper] .metric{filter:saturate(.55);}
 @media(max-width:980px){.arch-columns,.arch-backend-row{grid-template-columns:1fr}.arch-code-layout{grid-template-columns:1fr}.arch-files{display:flex;overflow-x:auto;max-height:86px}.arch-file{min-width:125px}.arch-graph{height:300px;}}
 @media(max-width:600px){.arch-head{padding:15px}.arch-head h2{font-size:19px!important}.arch-toolbar{padding:13px}.arch-stats{padding:10px}.arch-statline{padding:10px}.arch-content{padding:13px}.arch-steps{padding:11px}.arch-step{font-size:9px;padding:7px 9px}.arch-tabs{padding:9px}.arch-grid{grid-template-columns:1fr}.arch-graph{height:270px}.arch-btn{padding:9px}.arch-line>.arch-btn{flex:1}.arch-studio textarea{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.arch-studio *, .arch-studio *:before, .arch-studio *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* URL analysis: honest CORS fallback cards, no Node-install dead-end. */
+.arch-fallback{margin:0;padding:16px 20px;border-bottom:1px solid var(--arch-border);background:var(--arch-panel2);color:var(--arch-text);}
+.arch-fallback[hidden]{display:none!important}
+.arch-fallback>strong{display:block;font-size:12px;line-height:1.5;color:var(--arch-aqua);margin-bottom:7px;}
+.arch-fallback>p,.arch-fallback>small{display:block;font-size:11px;line-height:1.65;color:var(--arch-muted);margin:0 0 11px;overflow-wrap:anywhere;}
+.arch-fallback-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;}
+.arch-fallback-options .arch-btn{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;white-space:normal;padding:12px;min-width:0;background:var(--arch-panel);}
+.arch-fallback-options .arch-btn b{font-size:12px;font-weight:800;color:var(--arch-text);}
+.arch-fallback-options .arch-btn small{color:var(--arch-muted);font-size:10px;line-height:1.6;font-weight:500;}
+.arch-fallback-options .arch-btn:hover{border-color:var(--arch-aqua);}
+@media(max-width:660px){.arch-fallback{padding:13px}.arch-fallback-options{grid-template-columns:minmax(0,1fr)}}
