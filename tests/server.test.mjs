@@ -23,7 +23,7 @@ await setup();
 const base='http://127.0.0.1:'+port;
 test.after(()=>child.kill('SIGTERM'));
 test('Main page, CSS and JS are served',async()=>{
- for(const item of ['/','/studio-enhancements.css','/studio-reference.js','/studio-devtools.js','/studio-re.css','/studio-re-engineer.js']){
+ for(const item of ['/','/studio-enhancements.css','/studio-reference.js','/studio-devtools.js','/studio-re.css','/studio-re-engineer.js','/studio-flow.js']){
   const response=await fetch(base+item);
   assert.equal(response.status,200,item);
   assert.ok((await response.text()).length>100,item);
@@ -50,6 +50,7 @@ test('Public repository site includes module references',async()=>{
  assert.ok(source.includes('studio-enhancements.css'));
  assert.ok(source.includes('studio-re.css'));
  assert.ok(source.includes('studio-re-engineer.js'));
+ assert.ok(source.includes('studio-flow.js'));
  assert.ok(source.includes('DimensiaDevTools.instrument'));
 });
 
@@ -75,4 +76,12 @@ test('Source editor and RE features are present in delivered asset',async()=>{
    assert.ok(js.includes(marker),'Missing: '+marker);
  }
  assert.ok(css.includes('.re-workspace'));
+});
+
+test('Flow recorder captures preview-only interactions without form values',async()=>{
+ const js=await fetch(base+'/studio-flow.js').then(r=>r.text());
+ for(const phrase of ['DIMENSIA_FLOW_BRIDGE','DIMENSIA_FLOW_CONTROL','flowRecord','flowReplay','flowExport','form gönderme','Yalnızca tıklama']){
+  assert.ok(js.includes(phrase),'Missing flow feature: '+phrase);
+ }
+ assert.equal(js.includes('input.value'),false,'Flow recorder must not store typed form values.');
 });
