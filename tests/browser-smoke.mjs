@@ -257,31 +257,6 @@ try{
  checkNoErrors('GitHub Pages limited token');
  log('Launchpad permissions','Contents-only token works without Pages: read permission');
 
- // Repair a failed Perl job with OpenRouter mock and explicit, review-first approval.
- await page.locator('#polyResultGrid [data-result="perl"]').click();
- assert.ok((await page.locator('#polyOutput').innerText()).includes('Shared contract mismatch'));
- await page.locator('#orKey').fill('sk-or-'+'v1-'+'fake'.repeat(12));
- await page.route('https://openrouter.ai/api/v1/chat/completions',async route=>{
-  const proposed='#!/usr/bin/env perl\nuse strict;\nuse warnings;\nprint "DIMENSIA_RESULT:{\\"count\\":5,\\"sum\\":15}\\n";\n';
-  await route.fulfill({status:200,contentType:'application/json',
-   headers:{'access-control-allow-origin':'*'},
-   body:JSON.stringify({model:'mock/fix:free',choices:[{finish_reason:'stop',message:{content:proposed}}]})});
- });
- const beforeFix=await page.evaluate(()=>window.DimensiaPolyglot.getFiles().perl);
- await page.locator('#polyFix').click();
- await page.locator('#polyFixReview:not([hidden])').waitFor({timeout:13000});
- assert.equal(await page.evaluate(()=>window.DimensiaPolyglot.getFiles().perl),beforeFix,'AI cannot apply code before user approval');
- assert.ok((await page.locator('#polyFixCode').inputValue()).includes('DIMENSIA_RESULT'));
- page.once('dialog',dialog=>dialog.accept());
- await page.locator('#polyApplyFix').click();
- assert.ok((await page.evaluate(()=>window.DimensiaPolyglot.getFiles().perl)).includes('DIMENSIA_RESULT'));
- assert.equal(cloudUploads.length,9,'AI code repair cannot silently upload to public GitHub');
- assert.equal(await page.locator('#polyFixReview:not([hidden])').count(),0);
- await page.locator('#orForget').click();
- await page.unroute('https://openrouter.ai/api/v1/chat/completions');
- checkNoErrors('Polyglot repair');
- log('Polyglot repair','failed language diagnostics, AI suggestion review, explicit apply and zero silent uploads passed');
-
  await page.locator('#launchTokenForget').click();
  assert.equal(await page.locator('#launchToken').inputValue(),'');
  const deploymentMeta=await page.evaluate(()=>localStorage.getItem('dimensia-published-sites-v1')||'');
@@ -474,6 +449,33 @@ try{
  await page.locator('#launchTokenForget').click();
  checkNoErrors('Polyglot Cloud API');
  log('Polyglot cloud','9 GitHub file uploads, workflow_dispatch, seven real-format results and stdout drill-down passed');
+
+ // Repair a failed Perl job with OpenRouter mock and explicit, review-first approval.
+ await page.locator('#polyResultGrid [data-result="perl"]').click();
+ assert.ok((await page.locator('#polyOutput').innerText()).includes('Shared contract mismatch'));
+ await page.locator('#orKey').fill('sk-or-'+'v1-'+'fake'.repeat(12));
+ await page.route('https://openrouter.ai/api/v1/chat/completions',async route=>{
+  const proposed='#!/usr/bin/env perl\nuse strict;\nuse warnings;\nprint "DIMENSIA_RESULT:{\\"count\\":5,\\"sum\\":15}\\n";\n';
+  await route.fulfill({status:200,contentType:'application/json',
+   headers:{'access-control-allow-origin':'*'},
+   body:JSON.stringify({model:'mock/fix:free',choices:[{finish_reason:'stop',message:{content:proposed}}]})});
+ });
+ const beforeFix=await page.evaluate(()=>window.DimensiaPolyglot.getFiles().perl);
+ await page.locator('#polyFix').click();
+ await page.locator('#polyFixReview:not([hidden])').waitFor({timeout:13000});
+ assert.equal(await page.evaluate(()=>window.DimensiaPolyglot.getFiles().perl),beforeFix,'AI cannot apply code before user approval');
+ assert.ok((await page.locator('#polyFixCode').inputValue()).includes('DIMENSIA_RESULT'));
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#polyApplyFix').click();
+ assert.ok((await page.evaluate(()=>window.DimensiaPolyglot.getFiles().perl)).includes('DIMENSIA_RESULT'));
+ assert.equal(cloudUploads.length,9,'AI code repair cannot silently upload to public GitHub');
+ assert.equal(await page.locator('#polyFixReview:not([hidden])').count(),0);
+ await page.locator('#orForget').click();
+ await page.unroute('https://openrouter.ai/api/v1/chat/completions');
+ checkNoErrors('Polyglot repair');
+ log('Polyglot repair','failed language diagnostics, AI suggestion review, explicit apply and zero silent uploads passed');
+
+
 
 
 
