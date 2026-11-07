@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
-import {readFileSync,mkdtempSync,mkdirSync,writeFileSync,rmSync} from 'node:fs';
+import {readFileSync,mkdtempSync,mkdirSync,writeFileSync,rmSync,cpSync} from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import {fileURLToPath} from 'node:url';
@@ -17,11 +17,14 @@ const run=(lang,cwd=root)=>spawnSync(process.execPath,[runner,lang],{
 const report=(lang,cwd=root)=>JSON.parse(readFileSync(path.join(cwd,'polyglot-output',lang+'.json'),'utf8'));
 
 test('The seven-language cloud runner emits bounded truthful results on sample files',()=>{
+ const temp=mkdtempSync(path.join(os.tmpdir(),'dimensia-polyglot-samples-'));
+ try{
+ cpSync(path.join(root,'code-lab'),path.join(temp,'code-lab'),{recursive:true});
  for(const lang of ['web','javascript','python','rust','bash','perl','reactnative']){
   if(executables[lang]&&!hasExecutable(executables[lang]))continue;
-  const result=run(lang);
+  const result=run(lang,temp);
   assert.equal(result.status,0,lang+' script should complete with a report: '+result.stderr);
-  const data=report(lang);
+  const data=report(lang,temp);
   assert.equal(data.requestId,id);
   assert.equal(data.status,'passed',lang+' sample should pass: '+data.stderr);
   assert.ok(Array.isArray(data.steps));
@@ -31,6 +34,7 @@ test('The seven-language cloud runner emits bounded truthful results on sample f
   }
   assert.ok(data.stdout.length<=12000);
  }
+ }finally{rmSync(temp,{recursive:true,force:true})}
 });
 
 test('An incorrect result is recorded as mismatch, not falsely passed',()=>{
