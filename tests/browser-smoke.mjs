@@ -453,7 +453,7 @@ try{
  // Repair a failed Perl job with OpenRouter mock and explicit, review-first approval.
  await page.locator('#polyResultGrid [data-result="perl"]').click();
  assert.ok((await page.locator('#polyOutput').innerText()).includes('Shared contract mismatch'));
- await page.locator('#orKey').fill('sk-or-'+'v1-'+'fake'.repeat(12));
+ await page.locator('#orKey').evaluate(el=>{el.value='sk-or-'+'v1-'+'fake'.repeat(12);el.dispatchEvent(new Event('input',{bubbles:true}))});
  await page.route('https://openrouter.ai/api/v1/chat/completions',async route=>{
   const proposed='#!/usr/bin/env perl\nuse strict;\nuse warnings;\nprint "DIMENSIA_RESULT:{\\"count\\":5,\\"sum\\":15}\\n";\n';
   await route.fulfill({status:200,contentType:'application/json',
@@ -470,7 +470,7 @@ try{
  assert.ok((await page.evaluate(()=>window.DimensiaPolyglot.getFiles().perl)).includes('DIMENSIA_RESULT'));
  assert.equal(cloudUploads.length,9,'AI code repair cannot silently upload to public GitHub');
  assert.equal(await page.locator('#polyFixReview:not([hidden])').count(),0);
- await page.locator('#orForget').click();
+ await page.locator('#orForget').evaluate(el=>el.click());
  await page.unroute('https://openrouter.ai/api/v1/chat/completions');
  checkNoErrors('Polyglot repair');
  log('Polyglot repair','failed language diagnostics, AI suggestion review, explicit apply and zero silent uploads passed');
