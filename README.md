@@ -1,14 +1,30 @@
-# Dimensia AI Workspace 7.0.1 · Chat + Çok Dilli Kod Çalışma Alanı
+# Dimensia AI Workspace 7.1.0 · Ortak Veri + Çok Dilli Kod + AI Hata Düzeltme
 
 **AI destekli HTML/CSS/JavaScript oluştur, düzenle, önizle ve GitHub Pages'e yayınla.** Bu sürüm, kişisel deneyler ve statik web projeleri için çalışan açık kaynaklı bir stüdyodur. Bir SaaS platformunun tüm kurumsal özelliklerini veya dünya sıralamasında üstünlüğü iddia etmez.
 
 | | Bağlantı |
 |---|---|
-| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=7.0.1#home |
+| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=7.1.0#home |
 | **Gerçek yayınlanmış örnek** | https://ramiz28615.github.io/my_app/sites/aurora-demo/ |
 | **Örneğin kaynak kodu** | https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html |
 | **Otomatik testler** | https://github.com/ramiz28615/my_app/actions |
 
+
+## 7.1.0 — Aynı veriyle çalışan diller, AI hata onarma ve yerel taslak
+
+- **9. kaynak dosya:** \`numbers.txt\`, Python / Rust / Bash / Perl / JavaScript örneklerine ortak sayı verisi sağlar. Editörde "Ortak Veri" sekmesinden düzenlenebilir. Yalnızca 1–100 küçük tam sayı, en çok 10 KB kabul edilir.
+- **Gerçek diller arası doğrulama:** GitHub Actions her dili ayrı işte derler/çalıştırır. Beş dil de \`DIMENSIA_RESULT\` biçiminde \`count\` ve \`sum\` yazabilir; uygulama beklenen sayılarla karşılaştırıp **matched**, **mismatch** veya **not-reported** durumunu gösterir. Kullanıcı farklı amaçla kendi programını yazarsa sonuç bildirimi zorunlu değildir.
+- **İzinli, gerçek bulut çalıştırma:** "Tüm Dilleri Çalıştır" GitHub'a 9 dosyayı gönderir. Bu işlem **ayrı açık onay** gerektirir ve içerikler herkese açık depoya yazılır. Yedi Actions işi (HTML/CSS yapısal, JS Node, Python 3, Rust, Bash, Perl, React Native yapısal kontrolü) paralel başlar. Gerçek APK üretimi veya sürekli çalışan backend bu özellikte yoktur.
+- **Yerel taslak:** "Yerel taslağı kaydet / aç / sil" tuşları tarayıcının localStorage alanında 9 dosyanın anlık kopyasını **yalnızca açık kullanıcı onayıyla** tutar. GitHub'a göndermez. Anahtar gibi gizli bilgileri algılama sınırlıdır; hassas kaynak için JSON dosyasını güvenli bir yere indirmek daha uygundur.
+- **AI ile hatayı düzelt:** Seçilmiş dilin **gerçek başarısız çalışma raporu** ve kodu OpenRouter'a gönderilir. AI önerisini önce ayrı, **salt okunur kod inceleme alanında** gösterir. "Kodu onayla" komutundan önce mevcut dosyayı veya GitHub'ı değiştirmez. Düzeltmenin doğru olması garanti değildir; tekrar test etmek gerekir.
+- **Yedek uyumluluğu:** Yeni 9 dosyalı yedekler ile eski 8 dosyalı JSON yedekler okunur. Eski yedekte bulunmayan ortak veri dosyası varsayılan değerine döner.
+- **Doğrulama:** Node testleri gerçek Python, Rust, Bash, Perl ve JS örneklerini ortak girdi üzerinden çalıştırır; kasıtlı yanlış toplamın başarısız raporlandığını doğrular. Chromium tarayıcı testleri editör, GitHub izinleri, yerel taslak ve AI onayını sınar.
+
+### Kullanım
+
+Canlı uygulama: https://ramiz28615.github.io/my_app/?v=7.1.0#home . **⚡ Çoklu Diller** sekmesini aç → **Ortak Veri / numbers.txt** sayıları düzenle → her dilin kodunu incele → **Tüm Dilleri Çalıştır** ile yetkili GitHub depoda paralel test yap → sonuçları karşılaştır → başarısız dil seçilmişken **AI ile Düzelt** → AI önerisini incele ve onayla → yeniden çalıştır.
+
+**Güvenlik:** OpenRouter ve GitHub anahtarlarını sohbet, kaynak kod ve herkese açık dosyalara ekleme. ChatGPT sohbetinde daha önce paylaşılmış bir anahtar artık gizli sayılamaz; ilgili sağlayıcıdan iptal edilip yenilenmelidir. GitHub Actions çalıştırma işlerinde erişim sınırlandırılmıştır ancak bu çok kiracılı izolasyon garantisi değildir ve internet erişimi vardır. Ücretsiz GitHub Actions kotaları ve OpenRouter modelleri değişebilir.
 
 ## 7.0 — Python, Rust, Bash, Perl ve JavaScript bulut çalıştırma
 
@@ -54,7 +70,7 @@
 - **Mobil:** 390 piksel telefonlarda kod düzenleme ve önizleme dikey yerleşimle sunulur. Masaüstü geniş ekranlarda önizleme ve kod paneli yan yana açılır.
 - **Sınır:** GitHub Pages PHP, Python, Rust backend veya React Native APK çalıştırmaz. Burada çalışan kod tarayıcı HTML/CSS/JS'dir. Gerçek backend için uygun bir sunucu gerekir. Harici sitelerin CORS/giriş/sunucu kodları otomatik kopyalanmaz.
 
-**Kullanım:** https://ramiz28615.github.io/my_app/?v=7.0.1#home adresini aç → Ayarlar'da OpenRouter'ı bağla → **Site oluştur** modunda isteğini yaz → oluşturulan sitenin **Canlı önizleme** panelinde **⌘ Kodu düzenle** butonunu kullan → HTML/CSS/JS'yi değiştir → **▶ Çalıştır ve önizle** → butonlara tıkla, konsolu kontrol et → **Kaydet** veya **Yayınla**.
+**Kullanım:** https://ramiz28615.github.io/my_app/?v=7.1.0#home adresini aç → Ayarlar'da OpenRouter'ı bağla → **Site oluştur** modunda isteğini yaz → oluşturulan sitenin **Canlı önizleme** panelinde **⌘ Kodu düzenle** butonunu kullan → HTML/CSS/JS'yi değiştir → **▶ Çalıştır ve önizle** → butonlara tıkla, konsolu kontrol et → **Kaydet** veya **Yayınla**.
 
 ## 6.0.2 — Sohbet odaklı yeni ana ekran
 
