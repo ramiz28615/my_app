@@ -107,7 +107,52 @@ try{
  await page.locator('#orKey').waitFor();
  const testKey='sk-or-test-01234567890123456789012345';
  await page.locator('#orKey').fill(testKey);
- assert.ok((await page.locator('#aiModeBadge').innerText()).includes('OPENROUTER FREE'));
+ assert.ok((await page.locator('#aiModeBadge').innerText()).includes('API ANAHTARI GİRİLDİ'));
+ assert.ok((await page.locator('#apiStatusText').innerText()).includes('henüz doğrulanmadı'));
+ await page.route('https://openrouter.ai/api/v1/key',r=>r.fulfill({
+  status:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},
+  body:JSON.stringify({data:{is_free_tier:true,limit_remaining:0}})
+ }));
+ await page.locator('#orCheck').click();
+ await page.waitForFunction(()=>document.querySelector('#orStatus')?.textContent.includes('API anahtarı OpenRouter tarafından doğrulandı'));
+ assert.ok((await page.locator('#apiStatusText').innerText()).includes('OpenRouter API anahtarı doğrulandı'));
+ assert.equal(await page.evaluate(()=>window.DimensiaOpenRouter.getStatus().authentication),'valid');
+ let outputRequests=0;
+ await page.route('https://openrouter.ai/api/v1/chat/completions',async route=>{
+   outputRequests++;
+   const payload=route.request().postDataJSON();
+   assert.ok(payload.max_tokens>=512,'Connection model test must provide enough tokens');
+   assert.equal(payload.model,'openrouter/free');
+   const response=outputRequests===1?
+     {model:'free-reasoner:free',choices:[{finish_reason:'length',message:{content:''}}],usage:{completion_tokens:900,completion_tokens_details:{reasoning_tokens:899}}}:
+     {model:'mock/free:free',choices:[{finish_reason:'stop',message:{content:'TAMAM'}}],usage:{completion_tokens:9}};
+   await route.fulfill({status:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},body:JSON.stringify(response)});
+ });
+ await page.locator('#orReplyTest').click();
+ await page.waitForFunction(()=>document.querySelector('#orStatus')?.textContent.includes('model testi başarısız'));
+ assert.equal(await page.evaluate(()=>window.DimensiaOpenRouter.getStatus().model),'empty');
+ assert.ok((await page.locator('#orStatus').innerText()).includes('Düşünme tokenleri'));
+ assert.equal(await page.evaluate(()=>window.DimensiaOpenRouter.getStatus().authentication),'valid');
+ await page.locator('#orReplyTest').click();
+ await page.waitForFunction(()=>document.querySelector('#orStatus')?.textContent.includes('model yanıtı başarılı'));
+ assert.equal(await page.evaluate(()=>window.DimensiaOpenRouter.getStatus().model),'ok');
+ await page.route('https://openrouter.ai/api/v1/models?**',r=>r.fulfill({
+  status:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},
+  body:JSON.stringify({data:[
+   {id:'example/fast-code:free',name:'Fast Code Free',architecture:{output_modalities:['text']},pricing:{prompt:'0',completion:'0'}},
+   {id:'example/paid-model',name:'Paid Code',architecture:{output_modalities:['text']},pricing:{prompt:'0.000001',completion:'0.000001'}}
+  ]})
+ }));
+ await page.locator('#orRefresh').click();
+ await page.waitForFunction(()=>document.querySelector('#orModelHelp')?.textContent.includes('1 adet'));
+ assert.ok(await page.locator('#orModel option[value="example/fast-code:free"]').count());
+ assert.equal(await page.locator('#orModel option[value="example/paid-model"]').count(),0,'Paid models must not be listed');
+ await page.locator('#orModel').selectOption('custom');
+ await page.locator('#orCustomModel').fill('invalid');
+ assert.equal(await page.evaluate(()=>window.DimensiaOpenRouter.getStatus().selectedModel),'openrouter/free');
+ await page.locator('#orModel').selectOption('openrouter/free');
+ checkNoErrors('OpenRouter auth/inference');
+ log('OpenRouter auth','key verification, empty reasoning output, recovery and free-only model catalogue passed');
  await page.locator('#orForget').click();
  assert.equal(await page.locator('#orKey').inputValue(),'');
  checkNoErrors('OpenRouter settings');
