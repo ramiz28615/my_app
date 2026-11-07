@@ -182,3 +182,30 @@ test('Inline web IDE is linked, sandboxed and validates HTML before live executi
  assert.ok(js.includes('channel!==')&&js.includes('DIMENSIA_PREVIEW_V1'),'Only trusted preview window debug messages may be logged');
  assert.ok(!/sk-or-v1-[A-Za-z0-9_-]{40,}/.test(js),'Never embed OpenRouter API secrets in editor source');
 });
+
+
+test('Unified Polyglot UI supports 8 editable files, opt-in GitHub execution and JSON project backups',async()=>{
+ const [html,ui,style,launchpad]=await Promise.all([
+  readFile('index.html','utf8'),
+  readFile('studio-polyglot.js','utf8'),
+  readFile('studio-polyglot.css','utf8'),
+  readFile('studio-launchpad.js','utf8')
+ ]);
+ assert.ok(html.includes('studio-polyglot.js?v=7.0.1'));
+ assert.ok(html.includes('studio-polyglot.css?v=7.0.0'));
+ assert.ok(html.includes('studio-code-lab.js?v=7.0.1'));
+ for(const id of ['dimensiaPolyglot','polyFiles','polyEditor','polyPreview','polyCloud','polyConsent','polyReportDownload','polyBackup','polyRestoreFile']){
+  assert.ok(ui.includes(id),'Missing polyglot UI field: '+id);
+ }
+ for(const language of ['html','css','javascript','python','rust','bash','perl','reactnative']){
+  assert.ok(ui.includes("key:'"+language+"'"),'Missing supported language: '+language);
+ }
+ assert.ok(ui.includes('dimensia-multilang-project-v1'),'Backup schema required');
+ assert.ok(ui.includes('dimensia:codelab-changed'),'Source editors should synchronize');
+ assert.ok(ui.includes('ensureConsent()'),'Public GitHub uploads require consent');
+ assert.ok(ui.includes('startPolyglotRun(id)'),'Workflow dispatch must be used for real execution');
+ assert.ok(launchpad.includes('/actions/workflows/polyglot-execute.yml/dispatches'),'GitHub workflow dispatch endpoint missing');
+ assert.ok(launchpad.includes('savePolyglotFiles'),'Multi-source saving missing');
+ assert.ok(launchpad.includes('fetchPolyglotReport'),'Per-language report reader missing');
+ assert.ok(style.includes('.poly-result-grid'),'Each language should display separate result panel');
+});
