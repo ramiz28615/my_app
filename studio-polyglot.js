@@ -44,7 +44,10 @@ panel.innerHTML=
  '<textarea id="polyEditor" aria-label="Seçilen dile ait düzenlenebilir kaynak kod" spellcheck="false" wrap="off" autocorrect="off" autocomplete="off" autocapitalize="off"></textarea>'+
  '<div class="poly-toolbar"><button id="polyPreview" type="button" class="poly-button">◎ HTML/CSS/JS Önizle</button>'+
  '<button id="polyCloud" type="button" class="poly-button poly-primary">▶ Tüm Dilleri Çalıştır</button>'+
- '<button id="polySaveAll" type="button" class="poly-button">↑ Dosyaları GitHub’a Kaydet</button></div>'+
+ '<button id="polySaveAll" type="button" class="poly-button">↑ Dosyaları GitHub’a Kaydet</button>'+ 
+ '<button id="polyBackup" type="button" class="poly-button">↓ Proje yedeği</button>'+ 
+ '<button id="polyRestore" type="button" class="poly-button">↑ Yedek yükle</button>'+ 
+ '<input id="polyRestoreFile" type="file" accept=".json,application/json" hidden></div>'+
  '<div class="poly-ai"><label for="polyPrompt">✧ AI ile çok dilli proje üret</label>'+
  '<textarea id="polyPrompt" rows="2" maxlength="3500" placeholder="Örneğin: Python ile analiz, Rust ile hızlı hesaplama, Perl ile rapor, Bash ile otomasyon ve JS/HTML ile arayüz..."></textarea>'+
  '<div class="poly-actions"><button type="button" id="polyGenerate" class="poly-button">✦ Tüm Diller İçin Kod Öner</button>'+
@@ -106,6 +109,35 @@ function resetCurrent(){
  if(!confirm(selectedSpec().file+' dosyasındaki değişiklikler örnek kodla değiştirilsin mi?'))return;
  files[current]=original;lab().setFile(current,original);editor.value=original;updated.delete(current);
  renderFileList();count();message('Örnek kaynak geri yüklendi.');
+}
+function backupProject(){
+ try{
+  const all=collectFiles();
+  const doc={schema:'dimensia-multilang-project-v1',exportedAt:new Date().toISOString(),
+   notice:'Contains source code; keep it private if sensitive.',files:all};
+  const url=URL.createObjectURL(new Blob([JSON.stringify(doc,null,2)],{type:'application/json;charset=utf-8'}));
+  const a=document.createElement('a');a.href=url;a.download='dimensia-multilang-project.json';a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),3500);
+  message('✓ 8 kaynak dosyası JSON proje yedeği olarak indirildi. GitHub bağlantısı gerekmez.');
+ }catch(e){message('Yedekleme hatası: '+short(e.message,220),true)}
+}
+async function restoreProject(input){
+ if(!input)return;
+ if(input.size>900000)throw Error('Yedek dosyası en fazla 900 KB olabilir.');
+ const raw=await input.text(),doc=JSON.parse(raw);
+ if(doc?.schema!=='dimensia-multilang-project-v1'||!doc.files||typeof doc.files!=='object')throw Error('Bu dosya Dimensia çok dilli proje yedeği değil.');
+ const validated={};
+ for(const spec of SPECS){
+  const text=doc.files[spec.key];
+  if(typeof text!=='string'||new TextEncoder().encode(text).length>100000||secret(text))
+   throw Error('Yedekte geçersiz veya hassas kaynak var: '+spec.file);
+  validated[spec.key]=text;
+ }
+ if(!confirm('8 mevcut kod dosyan bu yedekteki sürümlerle değiştirilsin mi?'))return;
+ for(const spec of SPECS){
+  files[spec.key]=validated[spec.key];lab().setFile(spec.key,validated[spec.key]);updated.add(spec.key);
+ }
+ editor.value=files[current];renderFileList();count();message('✓ Proje yedeği yüklendi: 8 dosya değiştirildi. Henüz GitHub’a yüklenmedi.');
 }
 function previewWeb(){
  syncCurrent();
@@ -261,6 +293,15 @@ editor.addEventListener('keydown',e=>{
  if(e.key==='s'&&(e.ctrlKey||e.metaKey)){e.preventDefault();message('GitHub’a kaydetmek için sağdaki düğmeyi kullan; otomatik yükleme yapılmaz.')}
 });
 $('polyDownload').onclick=downloadCurrent;$('polyReset').onclick=resetCurrent;
+$('polyBackup').onclick=backupProject;
+$('polyRestore').onclick=()=>$('polyRestoreFile').click();
+$('polyRestoreFile').onchange=async e=>{
+ const file=e.target.files?.[0];
+ if(!file)return;
+ try{await restoreProject(file)}catch(error){message('Yedek yükleme hatası: '+short(error.message,240),true)}
+ finally{e.target.value=''}
+};
+
 $('polyPreview').onclick=previewWeb;$('polyCloud').onclick=runAll;$('polySaveAll').onclick=saveAll;
 $('polyGenerate').onclick=generateAI;$('polyReportDownload').onclick=downloadReport;
 $('polyOpenActions').onclick=()=>{
@@ -273,6 +314,13 @@ $('polyGotoToken').onclick=()=>{
  $('dimensiaLaunchpad')?.scrollIntoView({behavior:'smooth',block:'start'});
  $('launchToken')?.focus();
 };
+document.addEventListener('dimensia:codelab-changed',event=>{
+ const key=event.detail?.language,content=event.detail?.content;
+ if(!SPECS.some(x=>x.key===key)||typeof content!=='string'||files[key]===content)return;
+ files[key]=content;updated.add(key);
+ if(current===key){editor.value=content;count()}
+ renderFileList();
+});
 const chat=document.querySelector('#dhArtifact .dh-artifact-bottom');
 if(chat){
  const shortcut=document.createElement('button');shortcut.id='dhPolyglot';shortcut.className='dh-utility';shortcut.type='button';
