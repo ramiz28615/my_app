@@ -98,3 +98,24 @@ html.dim-handset .poly-result-grid{grid-template-columns:repeat(2,minmax(0,1fr))
 html.dim-handset .poly-head,html.dim-handset .poly-editor-area,html.dim-handset .poly-run-panel{padding:12px}
 html.dim-handset .polyglot-workspace #polyEditor{font-size:14px!important}
 @media(prefers-reduced-motion:reduce){.polyglot-workspace *{animation:none!important;transition:none!important}}
+
+/* 7.1 cross-language fixture and review-first AI repair. */
+.poly-contract{border:1px solid #4c706b;background:#1c3436;border-radius:10px;color:#b7e4d2;padding:12px 15px;margin:0 0 13px;font-size:11px;line-height:1.75;overflow-wrap:anywhere}
+.poly-contract.is-error{border-color:#986e6e;background:#402b32;color:#ffcbca}
+.poly-fix-review{background:#121c29;border:1px solid #577467;border-radius:12px;padding:14px;margin:14px 0;display:flex;flex-direction:column;gap:10px}
+.poly-fix-review[hidden]{display:none!important}
+.poly-fix-heading{display:flex;flex-direction:column;gap:4px}
+.poly-fix-heading strong{color:#a7e0cf;font-size:13px}
+.poly-fix-heading small{color:#b2c4d4;font-size:10px}
+.poly-fix-review textarea#polyFixCode{width:100%;min-height:210px;max-height:340px;padding:13px;resize:vertical;background:#0a1320;border:1px solid #465f6d;color:#cadde9;border-radius:9px;font:11px/1.65 ui-monospace,Consolas,monospace;white-space:pre;overflow:auto}
+.poly-fix-actions{display:flex;flex-wrap:wrap;gap:8px}
+.poly-fix-actions button{min-height:37px}
+.polyglot-workspace .poly-toolbar{flex-wrap:wrap}
+.polyglot-workspace .poly-toolbar button{min-height:37px}
+@media(max-width:600px){
+ .poly-contract{padding:10px 12px;font-size:11px}
+ .poly-fix-review{padding:10px}
+ .poly-fix-review textarea#polyFixCode{min-height:240px;font-size:12px}
+ .poly-fix-actions{flex-direction:column}
+ .polyglot-workspace .poly-toolbar button{flex:1 1 125px}
+}
