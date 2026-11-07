@@ -1,15 +1,15 @@
 {
   "name": "dimensia-studio",
-  "version": "7.1.0",
+  "version": "8.0.0",
   "private": true,
   "type": "module",
-  "description": "Dimensia 7.1: shared nine-file polyglot workspace, real cross-language result checks, browser-only snapshots and reviewed AI diagnostics",
+  "description": "Dimensia 8: chat-native Python Bash Perl PHP execution via read-only GitHub Actions, code blocks, editable snippets and inline stdout/stderr",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "start": "node server.mjs",
-    "check": "node --check server.mjs && node --check studio-reference.js && node --check studio-devtools.js && node --check studio-re-engineer.js && node --check studio-flow.js && node --check studio-launchpad.js && node --check architect-core.mjs && node --check backend-template.mjs && node --check studio-architect.js && node --check studio-code-lab.js && node --check scripts/cloud-scan.mjs && node --check studio-ai-agent.js && node --check studio-mobile-fix.js && node --check studio-chat.js && node --check studio-chat-editor.js && node --check studio-polyglot.js && node --check scripts/run-polyglot.mjs && node --check scripts/publish-polyglot.mjs",
+    "check": "node --check server.mjs && node --check studio-reference.js && node --check studio-devtools.js && node --check studio-re-engineer.js && node --check studio-flow.js && node --check studio-launchpad.js && node --check architect-core.mjs && node --check backend-template.mjs && node --check studio-architect.js && node --check studio-code-lab.js && node --check scripts/cloud-scan.mjs && node --check studio-ai-agent.js && node --check studio-mobile-fix.js && node --check studio-chat.js && node --check studio-chat-editor.js && node --check studio-polyglot.js && node --check scripts/run-polyglot.mjs && node --check scripts/publish-polyglot.mjs && node --check studio-chat-runner.js && node --check scripts/run-chat-code.mjs && node --check scripts/collect-chat-code.mjs",
     "test": "node --test tests/*.test.mjs"
   }
 }
