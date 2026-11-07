@@ -517,10 +517,10 @@ try{
  assert.ok((await page.locator('#dhrOutput').innerText()).includes('HELLO_CHAT_PHP'));
  assert.equal(cloudUploads.length,beforeUploads,'Chat run must not write submitted source into repository contents');
  assert.equal(await page.locator('#dhrDownload').isDisabled(),false);
+ page.once('dialog',dialog=>dialog.accept());
  await page.evaluate(()=>document.dispatchEvent(new CustomEvent('dimensia:chat-code-request',{
   detail:{sources:{python:'print("SINGLE_SNIPPET")'},chatId:window.DimensiaChatHub.getState().active}
  })));
- page.once('dialog',dialog=>dialog.accept());
  await page.waitForFunction(()=>window.DimensiaChatRunner.getState().hasReport&&
   !!window.DimensiaChatRunner.getState().results&&
   window.DimensiaChatRunner.getState().results.python?.status==='passed',{timeout:30000});
