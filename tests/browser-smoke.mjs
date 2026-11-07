@@ -408,6 +408,26 @@ try{
  await page.frameLocator('#dhPreview').locator('h1').waitFor();
  checkNoErrors('Chat inline code editor');
  log('Chat editor','HTML CSS JS edit, sandbox run, JS runtime logs, source sync, undo and redo passed');
+ await page.setViewportSize({width:390,height:844});
+ await page.locator('#dhEdit').evaluate(button=>button.click());
+ assert.ok(await page.locator('#dcePanel').isVisible(),'Editor should open on phone');
+ const mobileEditor=await page.evaluate(()=>{
+  const e=document.querySelector('#dcePanel').getBoundingClientRect(),
+   preview=document.querySelector('#dhFrameWrap').getBoundingClientRect();
+  return{
+   outer:document.documentElement.scrollWidth,viewport:innerWidth,
+   editorWidth:Math.round(e.width),editorX:Math.round(e.left),
+   previewWidth:Math.round(preview.width),previewX:Math.round(preview.left),
+   editorOpen:window.DimensiaChatEditor?.getState().opened
+  };
+ });
+ console.log('[EDITOR MOBILE]',JSON.stringify(mobileEditor));
+ assert.ok(mobileEditor.editorOpen&&mobileEditor.editorWidth>240,'Mobile source editor should be usable');
+ assert.ok(mobileEditor.outer<=mobileEditor.viewport+2,'Mobile editor causes horizontal overflow: '+JSON.stringify(mobileEditor));
+ assert.ok(mobileEditor.editorWidth<=mobileEditor.viewport+2&&mobileEditor.previewWidth<=mobileEditor.viewport+2,'Editor and preview must fit phone');
+ await page.locator('#dhEdit').evaluate(button=>button.click());
+ await page.setViewportSize({width:1440,height:950});
+ log('Chat editor mobile','mobile source editor and preview fit 390px screen');
  await page.locator('#dhSave').click();
  const projectSnapshot=await page.evaluate(()=>localStorage.getItem('dimensia-projects-v1')||'');
  assert.ok(projectSnapshot.includes('Conversation Site E2E'),'Saved project must persist generated source');
