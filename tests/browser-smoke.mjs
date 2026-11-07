@@ -297,6 +297,11 @@ try{
 
  await page.setViewportSize({width:390,height:844});
  await page.evaluate(()=>window.scrollTo(0,0));
+ const offenders=await page.evaluate(()=>{
+  const width=window.innerWidth;
+  return [...document.querySelectorAll('body *')].map(e=>({el:e.tagName.toLowerCase()+'.'+String(e.className||'').slice(0,70),width:Math.round(e.getBoundingClientRect().width),left:Math.round(e.getBoundingClientRect().left),right:Math.round(e.getBoundingClientRect().right)})).filter(x=>x.right>width+3&&x.width>0).sort((a,b)=>b.right-a.right).slice(0,18);
+ });
+ console.log('[MOBILE OFFENDERS]',JSON.stringify(offenders));
  const scroll=await page.evaluate(()=>({inner:innerWidth,scroll:document.documentElement.scrollWidth}));
  assert.ok(scroll.scroll<=scroll.inner+2,'Mobile horizontal overflow: '+JSON.stringify(scroll));
  checkNoErrors('Mobile');
