@@ -559,7 +559,7 @@
     return parsed;
   }
   async function saveCodeLabFile(language,filename,content){
-    const allow={html:'index.html',css:'style.css',javascript:'main.js',python:'main.py',rust:'main.rs',bash:'main.sh',perl:'main.pl',reactnative:'App.js'};
+    const allow={html:'index.html',css:'style.css',javascript:'main.js',python:'main.py',rust:'main.rs',bash:'main.sh',perl:'main.pl',reactnative:'App.js',shared:'numbers.txt'};
     if(!Object.prototype.hasOwnProperty.call(allow,language)||allow[language]!==filename)throw Error('Code Lab sadece güvenli dosya yollarına kaydedebilir.');
     if(typeof content!=='string'||new TextEncoder().encode(content).length>100000)throw Error('Kod en fazla 100 KB olabilir.');
     if(/(?:github_pat_[a-zA-Z0-9_]{15,}|ghp_[a-zA-Z0-9]{20,}|sk-or-v1-[a-zA-Z0-9_-]{16,})/.test(content))throw Error('Kodda gizli API tokeni bulunuyor. GitHub’a yüklenmesi engellendi.');
@@ -579,7 +579,7 @@
     return{path:filePath,sha:uploaded?.commit?.sha||'',url:'https://github.com/'+t.owner+'/'+t.repo+'/blob/'+connectedBranch+'/'+filePath};
   }
   async function savePolyglotFiles(projectFiles){
-    const allow={html:'index.html',css:'style.css',javascript:'main.js',python:'main.py',rust:'main.rs',bash:'main.sh',perl:'main.pl',reactnative:'App.js'};
+    const allow={html:'index.html',css:'style.css',javascript:'main.js',python:'main.py',rust:'main.rs',bash:'main.sh',perl:'main.pl',reactnative:'App.js',shared:'numbers.txt'};
     if(!projectFiles||typeof projectFiles!=='object')throw Error('Kaydedilecek proje dosyaları eksik.');
     const saved=[];
     for(const language of Object.keys(allow)){
