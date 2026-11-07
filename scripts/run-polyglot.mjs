@@ -86,9 +86,40 @@ try{
   for(const [label,cmd,args] of job.steps)if(!step(label,cmd,args))break;
  }
 }catch(e){status='failed';err=(err+'\n'+sanitize(e?.message||e)).slice(0,15000)}
+// Cross-language contract is optional for edited projects, mandatory for
+// built-in examples that emit DIMENSIA_RESULT JSON.
+let contract={status:'not-reported'};
+if(['javascript','python','rust','bash','perl'].includes(lang)){
+ try{
+  const input=readFileSync('code-lab/shared/numbers.txt','utf8');
+  if(input.length>10000)throw Error('Shared data exceeds 10 KB');
+  const tokens=input.trim().split(/\s+/).filter(Boolean);
+  if(!tokens.length||tokens.length>100||tokens.some(x=>!/^-?\d{1,6}$/.test(x)))throw Error('Shared numbers must be 1–100 small integers');
+  const numbers=tokens.map(Number);
+  const expected={count:numbers.length,sum:numbers.reduce((a,b)=>a+b,0)};
+  if(!Number.isSafeInteger(expected.sum))throw Error('Shared sum exceeds safe integer');
+  const lines=out.split(/\r?\n/).filter(line=>line.includes('DIMENSIA_RESULT:'));
+  if(lines.length){
+   const json=lines.at(-1).split('DIMENSIA_RESULT:').slice(1).join('DIMENSIA_RESULT:').trim();
+   if(json.length>1024)throw Error('Contract output is too large');
+   const obj=JSON.parse(json);
+   if(!obj||typeof obj!=='object'||!Number.isSafeInteger(obj.count)||!Number.isSafeInteger(obj.sum))throw Error('Invalid contract fields');
+   const actual={count:obj.count,sum:obj.sum};
+   const matched=actual.count===expected.count&&actual.sum===expected.sum;
+   contract={status:matched?'matched':'mismatch',expected,actual};
+   if(!matched){
+    status='failed';
+    err=(err+'\nShared contract mismatch: expected '+JSON.stringify(expected)+' got '+JSON.stringify(actual)).slice(0,15000);
+   }
+  }else contract={status:status==='passed'?'not-reported':'not-run',expected};
+ }catch(e){
+  status='failed';contract={status:'invalid',detail:sanitize(e.message)};
+  err=(err+'\nShared contract validation: '+sanitize(e.message)).slice(0,15000);
+ }
+}
 const report={requestId:id,language:lang,label:job.name,
  status,startedAt:new Date(started).toISOString(),durationMs:Date.now()-started,
- steps:completed,stdout:sanitize(out),stderr:sanitize(err)};
+ steps:completed,stdout:sanitize(out),stderr:sanitize(err),contract};
 mkdirSync(outputDir,{recursive:true});
 writeFileSync(join(outputDir,lang+'.json'),JSON.stringify(report,null,2)+'\n');
 console.log('Dimensia '+lang+': '+status+' · '+report.durationMs+'ms (full details in artifact)');
