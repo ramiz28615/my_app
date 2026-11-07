@@ -7,6 +7,7 @@ import { readFile } from 'node:fs/promises';
 import { createGunzip, createInflate, createBrotliDecompress } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import {analyzeHTML,analyzeAsset,discoverInternalPageLinks,makeArchitectureGraph,ARCHITECT_LIMITS} from './architect-core.mjs';
 
 const ROOT=path.dirname(fileURLToPath(import.meta.url));
 const PORT=Number(process.env.PORT||3000);
@@ -21,7 +22,9 @@ const allowed=new Map([
  ['/studio-re-engineer.js',['studio-re-engineer.js','application/javascript; charset=utf-8']],
  ['/studio-flow.js',['studio-flow.js','application/javascript; charset=utf-8']],
  ['/studio-launchpad.css',['studio-launchpad.css','text/css; charset=utf-8']],
- ['/studio-launchpad.js',['studio-launchpad.js','application/javascript; charset=utf-8']]
+ ['/studio-launchpad.js',['studio-launchpad.js','application/javascript; charset=utf-8']],
+ ['/studio-architect.css',['studio-architect.css','text/css; charset=utf-8']],
+ ['/studio-architect.js',['studio-architect.js','application/javascript; charset=utf-8']]
 ]);
 const hits=new Map();
 const json=(res,status,body)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(body))};
@@ -92,9 +95,10 @@ async function checkURL(value){
  url.hash='';
  return {url,pinned:ipv4[0].address};
 }
-async function requestHTML(target,redirects=0,kind='html'){
+async function requestHTML(target,redirects=0,kind='html',allowedOrigin=null){
  if(redirects>3)throw Error('Çok fazla yönlendirme.');
  const {url,pinned}=await checkURL(target);
+ if(allowedOrigin&&url.origin!==allowedOrigin)throw Error('İzinli tarama aynı origin ile sınırlıdır.');
  return new Promise((resolve,reject)=>{
    const transport=url.protocol==='https:'?https:http;
    const req=transport.request(url,{
@@ -102,7 +106,7 @@ async function requestHTML(target,redirects=0,kind='html'){
      headers:{'User-Agent':'Dimensia-Public-Reference-Inspector/1.0','Accept':'text/html,application/xhtml+xml','Accept-Encoding':'gzip, deflate, br'}
    },res=>{
      if([301,302,303,307,308].includes(res.statusCode)&&res.headers.location){
-       res.resume();requestHTML(new URL(res.headers.location,url).href,redirects+1,kind).then(resolve,reject);return;
+       res.resume();requestHTML(new URL(res.headers.location,url).href,redirects+1,kind,allowedOrigin).then(resolve,reject);return;
      }
      if(res.statusCode!==200){res.resume();reject(Error('Hedef HTTP '+res.statusCode));return}
      const type=String(res.headers['content-type']||'');
@@ -126,11 +130,83 @@ async function requestHTML(target,redirects=0,kind='html'){
    req.once('error',reject);req.end();
  });
 }
+
+/* Bounded sequential public-site crawl. The analyzer makes HTTP GET requests only;
+   it neither authenticates nor submits forms, and keeps all follow-up requests same-origin. */
+async function architectScan(urlValue,requestedPages=3,requestedAssets=8){
+ const first=await requestHTML(urlValue);
+ const origin=first.url.origin;
+ const pagesMax=Math.max(1,Math.min(ARCHITECT_LIMITS.pages,Number(requestedPages)||3));
+ const assetsMax=Math.max(0,Math.min(ARCHITECT_LIMITS.assets,Number(requestedAssets)||8));
+ const queue=[{url:first.url.href,html:first.html,final:first.url}],visited=new Set(),pages=[],activity=[];
+ const assetQueue=[],assetSeen=new Set(),assets=[];
+ function note(stage,detail,status){activity.push({stage,detail:String(detail).slice(0,180),status});}
+ note('start','Yalnızca aynı origin üzerindeki herkese açık GET istekleri','complete');
+ while(queue.length&&pages.length<pagesMax){
+  const item=queue.shift(),address=new URL(item.url).href.split('#')[0];
+  if(visited.has(address))continue;
+  visited.add(address);
+  try{
+   const result=item.html?{html:item.html,url:item.final}:await requestHTML(address,0,'html',origin);
+   if(result.url.origin!==origin)throw Error('Hedef farklı origin adresine yönlendirdi.');
+   const page=analyzeHTML(result.html,result.url.href);
+   pages.push(page);
+   note('page',page.title||page.url,'complete');
+   for(const link of discoverInternalPageLinks(page,origin,30)){
+    if(pages.length+queue.length>=pagesMax||visited.has(link)||queue.some(x=>x.url===link))break;
+    queue.push({url:link});
+   }
+   for(const a of [...page.assets.css,...page.assets.js]){
+    if(assetQueue.length>=assetsMax*3||!a?.url||assetSeen.has(a.url))continue;
+    const target=new URL(a.url);
+    if(target.origin!==origin){note('external',a.url,'skipped');continue}
+    assetSeen.add(a.url);assetQueue.push(a);
+   }
+  }catch(error){note('page',address+' · '+String(error.message||error),'skipped')}
+ }
+ for(const asset of assetQueue){
+  if(assets.length>=assetsMax)break;
+  try{
+   const response=await requestHTML(asset.url,0,asset.kind,origin);
+   if(response.html.length>ARCHITECT_LIMITS.assetBytes)throw Error('Kaynak boyut sınırı');
+   const data=analyzeAsset(response.html,asset.kind,response.url.href);
+   assets.push(data);note('asset',asset.kind.toUpperCase()+' · '+asset.url,'complete');
+  }catch(error){note('asset',asset.url+' · '+String(error.message||error),'skipped')}
+ }
+ const diagram=makeArchitectureGraph({pages});
+ const totals={pages:pages.length,assets:assets.length,
+  buttons:pages.reduce((n,p)=>n+p.buttons.length,0),
+  forms:pages.reduce((n,p)=>n+p.forms.length,0),
+  links:pages.reduce((n,p)=>n+p.links.length,0),
+  colors:[...new Set([...pages.flatMap(p=>p.style.colors),...assets.flatMap(a=>a.style?.colors||[])])].slice(0,54),
+  fontFamilies:[...new Set([...pages.flatMap(p=>p.style.fontFamilies),...assets.flatMap(a=>a.style?.fontFamilies||[])])].slice(0,32),
+  fontSizes:[...new Set([...pages.flatMap(p=>p.style.fontSizes),...assets.flatMap(a=>a.style?.fontSizes||[])])].slice(0,48)
+ };
+ return{kind:'authorized-public-static-analysis',origin,requestedURL:urlValue,
+  generatedAt:new Date().toISOString(),
+  limitations:'Statik kaynak incelemesi: gizli sunucu kodu, veritabanı, oturum, hesap ve dinamik JS davranışı elde edilemez.',
+  limits:{pagesMax,assetsMax,assetBytes:ARCHITECT_LIMITS.assetBytes},
+  totals,pages,assets,diagram,activity};
+}
+
 const server=http.createServer(async(req,res)=>{
  try{
    const incoming=new URL(req.url,'http://localhost');
    if(req.method!=='GET')return json(res,405,{error:'Yalnızca GET.'});
    if(incoming.pathname==='/api/status')return json(res,200,{aiEnabled:false,urlImport:true,mode:'local'});
+   if(incoming.pathname==='/api/architect'){
+     const ip=req.socket.remoteAddress||'unknown',now=Date.now();
+     const list=(hits.get(ip)||[]).filter(t=>now-t<60000);
+     if(list.length>=6)return json(res,429,{error:'Detaylı tarama sınırı: 6 istek/dakika.'});
+     list.push(now);hits.set(ip,list);
+     if(incoming.searchParams.get('consent')!=='yes')return json(res,403,{error:'Yalnızca sahibi olduğunuz veya inceleme izniniz bulunan siteleri tarayın.'});
+     const value=incoming.searchParams.get('url');
+     if(!value||value.length>1700)return json(res,400,{error:'Geçerli ve kısa bir URL gir.'});
+     try{
+       const report=await architectScan(value,incoming.searchParams.get('pages'),incoming.searchParams.get('assets'));
+       return json(res,200,report);
+     }catch(error){return json(res,422,{error:String(error.message||error).slice(0,260)})}
+   }
    if(incoming.pathname==='/api/inspect'){
      const ip=req.socket.remoteAddress||'unknown',now=Date.now();
      let list=(hits.get(ip)||[]).filter(t=>now-t<60000);
