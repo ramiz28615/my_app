@@ -31,10 +31,12 @@ try{
  page.on('pageerror',e=>{const detail=e.stack||String(e);errors.push(detail);console.error('[PAGE ERROR]',detail)});
  page.on('console',m=>{if(m.type()==='error')console.log('[CONSOLE ERROR]',m.text().slice(0,250))});
  await page.goto(base+'/',{waitUntil:'domcontentloaded'});
- await page.locator('#homeDimensionCards .dim-card').first().waitFor({timeout:12000});
- assert.equal(await page.locator('#homeDimensionCards .dim-card').count(),6);
- checkNoErrors('Homepage');
- log('Homepage','6 dimension cards rendered');
+ await page.locator('#dimensiaChatHub').waitFor({timeout:12000});
+ assert.ok(await page.locator('#dhWelcome').isVisible(),'Chat-first homepage should be visible');
+ assert.equal(await page.locator('#homeDimensionCards .dim-card').count(),6,'Legacy dimension lab data remains intact');
+ assert.ok((await page.locator('[data-nav="home"]').innerText()).includes('AI Sohbet'));
+ checkNoErrors('Chat homepage');
+ log('Homepage','Chat-first UI, suggestion cards and preserved 2D-7D data rendered');
 
  await page.locator('[data-nav="dimensions"]').click();
  await page.locator('[data-dimension="7"]').click();
