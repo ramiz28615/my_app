@@ -81,7 +81,7 @@
    const x=document.createElement('p');x.className=bad?'report-warn':'report-good';x.textContent=text;root.append(x);
  }
  function present(result,kind){
-   report=result;const root=$('referenceReport');root.hidden=false;root.replaceChildren();
+   report=result;window.dispatchEvent(new CustomEvent('dimensia:reference',{detail:result}));const root=$('referenceReport');root.hidden=false;root.replaceChildren();
    const line=(name,value)=>{const p=document.createElement('div'),strong=document.createElement('strong');strong.textContent=name+': ';p.append(strong,document.createTextNode(String(value)));root.append(p)};
    const chips=(name,items)=>{if(!items?.length)return;const p=document.createElement('div'),strong=document.createElement('strong');strong.textContent=name+': ';p.append(strong);for(const item of items.slice(0,15)){const el=document.createElement('span');el.className='reference-chip';el.textContent=typeof item==='string'?item:JSON.stringify(item);p.append(el)}root.append(p)};
    line('Kaynak',kind);line('Site başlığı',result.title||'?');
@@ -136,6 +136,6 @@
    }catch(err){toast(err.message||'AI üretim başarısız.',true)}
    finally{state.loading=false;$('generateButton').disabled=false;$('generateButtonText').textContent='Siteyi Oluştur'}
  },true);
- window.DimensiaOpenRouter={hasKey:ready};
+ window.DimensiaOpenRouter={hasKey:ready,ask};window.DimensiaReference={getReport:()=>report,analyse};
  renderMode();
 })();
