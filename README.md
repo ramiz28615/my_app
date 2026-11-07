@@ -1,10 +1,10 @@
-# Dimensia RE Studio + Launchpad 4.1
+# Dimensia RE Studio + Launchpad 4.1.1
 
 **AI destekli HTML/CSS/JavaScript oluştur, düzenle, önizle ve GitHub Pages'e yayınla.** Bu sürüm, kişisel deneyler ve statik web projeleri için çalışan açık kaynaklı bir stüdyodur. Bir SaaS platformunun tüm kurumsal özelliklerini veya dünya sıralamasında üstünlüğü iddia etmez.
 
 | | Bağlantı |
 |---|---|
-| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=4.1.0#studio |
+| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=4.1.1#studio |
 | **Gerçek yayınlanmış örnek** | https://ramiz28615.github.io/my_app/sites/aurora-demo/ |
 | **Örneğin kaynak kodu** | https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html |
 | **Otomatik testler** | https://github.com/ramiz28615/my_app/actions |
@@ -19,7 +19,7 @@
 - **Interaction Flow Recorder:** Önizlemedeki düğme ve menü akışlarını kaydet, JSON indir, desteklenen yerel tıklamaları yeniden oynat.
 - **2D–7D boyut laboratuvarı:** Etkileşimli ve matematiksel hiperküp izdüşümleri.
 - **Launchpad:** Masaüstü/tablet/mobil önizlemesi, GitHub'a statik site yayınlama/güncelleme, Actions dağıtım durumunu görüntüleme.
-- **Launchpad 4.1 yenilikleri:** GitHub'dan `sites/` projelerini yeniden listele, yayınlanmış `index.html` kaynağını editöre aç, Aurora örnek sitesini kendi projen olarak içe aktar; GitHub Pages API'sine yalnızca `Contents` izni olan tokenla erişim kısıtlıysa yanlış hata verme.
+- **Launchpad 4.1.1 yenilikleri:** GitHub'dan `sites/` projelerini yeniden listele, yayınlanmış `index.html` kaynağını editöre aç, Aurora örnek sitesini kendi projen olarak içe aktar; GitHub Pages API'sine yalnızca `Contents` izni olan tokenla erişim kısıtlıysa yanlış hata verme.
 
 ## Kendi siteni GitHub'da ücretsiz yayınla
 
@@ -29,7 +29,7 @@
 4. GitHub'da https://github.com/settings/personal-access-tokens/new adresinden **fine-grained personal access token** oluştur. Yalnızca bu repo için **Contents: Read and write** yetkisi ver, kısa süreli token kullan ve başka izin isteme.
 5. Tokeni Launchpad'deki parola alanına **kendin** gir. Sohbete, kaynak koda veya GitHub'a gönderme. **GitHub Bağlantısını Test Et** düğmesi erişimini kontrol eder.
 6. Yayın adına `portfolyom` gibi bir değer yaz. Kaynağın yayınlanmasına ilişkin onay kutusunu işaretle. **GitHub'a Yayınla** düğmesi `sites/portfolyom/index.html` dosyasını oluşturur veya günceller.
-7. **Yayın Durumunu Kontrol Et** ile Actions dağıtımını kontrol et. Başarıdan sonra: `https://ramiz28615.github.io/my_app/sites/portfolyom/`.
+7. **Yayın Durumunu Kontrol Et** ile Actions dağıtımını kontrol et. Aynı origin üzerinden doğrulanabiliyorsa canlı adrese HTTP 200 HTML kontrolü de yapılır; farklı originlerde yalnızca Actions durumuna bakılabilir. Başarıdan sonra: `https://ramiz28615.github.io/my_app/sites/portfolyom/`.
 8. **GitHub'dan Tara** düğmesi `sites/` klasöründeki mevcut projeleri listeler. **⌘ GitHub'dan Aç** ise seçilen projenin HTML kaynağını yeniden editöre yükler.
 
 **Not:** Kod değişikliği GitHub'a kaydedilmesi ile Pages üzerinden görünmesi aynı an olmayabilir. GitHub Actions sonucu başarısızsa eylem günlüklerine bak.
