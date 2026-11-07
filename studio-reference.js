@@ -91,6 +91,12 @@
    toast('Referans analizi hazır.');
  }
  async function inspectURL(){
+   if(window.DimensiaArchitect?.analyzeURL){
+     const raw=$('referenceUrl').value.trim();
+     const target=document.getElementById('archURL');if(target)target.value=raw;
+     window.DimensiaArchitect.show();
+     return window.DimensiaArchitect.analyzeURL(raw);
+   }
    if(busy)return;
    let url;try{url=new URL($('referenceUrl').value.trim());if(!['https:','http:'].includes(url.protocol)||url.username||url.password)throw Error()}catch{return message('Geçerli bir HTTP/HTTPS adresi gir.',true)}
    const btn=$('inspectReference');busy=true;report=null;btn.disabled=true;btn.textContent='Analiz ediliyor…';
@@ -136,6 +142,6 @@
    }catch(err){toast(err.message||'AI üretim başarısız.',true)}
    finally{state.loading=false;$('generateButton').disabled=false;$('generateButtonText').textContent='Siteyi Oluştur'}
  },true);
- window.DimensiaOpenRouter={hasKey:ready,ask};window.DimensiaReference={getReport:()=>report,analyse};
+ window.DimensiaOpenRouter={hasKey:ready,ask};window.DimensiaReference={getReport:()=>report,analyse,present};
  renderMode();
 })();
