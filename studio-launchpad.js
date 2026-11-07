@@ -66,6 +66,7 @@
     '<div class="launch-actions"><button id="launchPublish" class="launch-btn launch-primary" type="button">✦ GitHub’a Yayınla</button>'+
     '<button id="launchCheck" class="launch-btn" type="button">◎ Yayın Durumunu Kontrol Et</button></div>'+
     '<div class="launch-feedback" id="launchFeedback" role="status" aria-live="polite" hidden></div>'+
+    '<p class="launch-help" style="margin:12px 0 0">Çalışan örnek: <a href="https://ramiz28615.github.io/my_app/sites/aurora-demo/" target="_blank" rel="noopener noreferrer">Aurora Demo · ücretsiz Pages yayını ↗</a></p>'+ 
     '<p class="launch-help" style="margin:12px 0 0">Ücretsiz adres: <b>kullanici.github.io/depo/sites/markam/</b>. Gerçek <b>markam.seninalanadin.com</b> alt alan adı için alan adı sahipliği ve DNS ayarı gerekir.</p>'+
     '</div></div>'+
     '<div class="launch-bottom"><div class="launch-bottomhead"><h3 class="launch-h">◈ Yayınlanmış projelerim</h3>'+
