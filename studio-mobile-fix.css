@@ -1,0 +1,81 @@
+/* Dimensia 5.2 Mobile Rescue — overrides tablet-like Chrome custom tabs
+   that incorrectly report a ~980px layout viewport on narrow handsets.
+   Opt-in runtime class is based on the physical CSS screen width, not UA alone. */
+html.dim-handset,html.dim-handset body{min-width:0!important;max-width:100%;overflow-x:clip}
+html.dim-handset .app-shell{display:block;min-width:0;max-width:100%}
+html.dim-handset .workspace{display:flex;flex-direction:column;min-width:0;width:100%;max-width:100%;margin:0}
+html.dim-handset .sidebar{position:fixed!important;top:0!important;bottom:0!important;left:0!important;width:min(86vw,310px)!important;max-width:310px!important;height:100dvh!important;flex:0 0 auto!important;transform:translateX(-105%)!important;z-index:50!important;transition:transform .2s ease;overflow-y:auto;padding:18px 15px 18px;box-shadow:15px 0 60px #0006}
+html.dim-handset .sidebar.open{transform:translateX(0)!important}
+html.dim-handset .sidebar-scrim.open{display:block!important;position:fixed!important;inset:0!important;background:#040915c9!important;z-index:45!important}
+html.dim-handset .mobile-menu{display:grid!important;place-items:center!important;width:42px;min-width:42px;height:42px;border-radius:11px;background:#242c40;border:1px solid #47506b}
+html.dim-handset .topbar{position:sticky;top:0;z-index:25;min-height:57px;height:auto;padding:8px 12px!important;gap:5px;flex-wrap:nowrap}
+html.dim-handset .top-left{min-width:0;gap:7px;max-width:100%;font-size:11px}
+html.dim-handset .breadcrumb-muted,html.dim-handset .breadcrumb-separator{display:none}
+html.dim-handset #breadcrumbTitle{display:block;min-width:0;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+html.dim-handset .top-actions{gap:6px}
+html.dim-handset .status-label,html.dim-handset .top-github,html.dim-handset .top-avatar,html.dim-handset .quick-trigger kbd{display:none!important}
+html.dim-handset .main-content{padding:17px 12px 55px!important;margin:0!important;width:100%!important;max-width:100%!important;min-width:0!important}
+html.dim-handset .page,html.dim-handset #page-studio{min-width:0;max-width:100%}
+html.dim-handset .studio-title{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:12px!important}
+html.dim-handset .studio-title h1{font-size:clamp(28px,8vw,39px)!important;line-height:1.2!important;letter-spacing:-1px!important}
+html.dim-handset .studio-title p{font-size:13px!important;line-height:1.6}
+html.dim-handset .studio-title-actions{display:flex!important;width:100%;gap:7px;flex-wrap:wrap;justify-content:flex-start}
+html.dim-handset .studio-workspace{display:grid!important;grid-template-columns:minmax(0,1fr)!important;min-width:0}
+html.dim-handset .builder-panel,html.dim-handset .preview-panel,html.dim-handset .panel,html.dim-handset .studio-workspace>*{min-width:0;width:100%;max-width:100%}
+html.dim-handset .builder-scroll{max-height:none!important;overflow:visible!important}
+html.dim-handset .preview-content{min-height:320px;max-width:100%;overflow-x:auto}
+html.dim-handset .preview-toolbar,html.dim-handset .preview-addressbar{flex-wrap:wrap}
+html.dim-handset .preview-heading{width:100%}
+html.dim-handset .preview-frame-wrap{max-width:100%}
+html.dim-handset .launchpad,html.dim-handset .arch-studio,html.dim-handset .code-lab,html.dim-handset .ai-agent,html.dim-handset .re-workspace,html.dim-handset .re-flow{width:100%;min-width:0;max-width:100%;margin-left:0;margin-right:0;overflow-x:clip}
+html.dim-handset .launch-main,html.dim-handset .ai-body,html.dim-handset .arch-columns,html.dim-handset .arch-backend-row,html.dim-handset .lab-main,html.dim-handset .re-files{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
+html.dim-handset .launch-preview,html.dim-handset .ai-compose{border-right:0;border-bottom:1px solid #536176}
+html.dim-handset .launch-top,html.dim-handset .launch-preview,html.dim-handset .launch-form,html.dim-handset .launch-bottom,html.dim-handset .arch-head,html.dim-handset .arch-toolbar,html.dim-handset .arch-content,html.dim-handset .lab-head,html.dim-handset .lab-workspace,html.dim-handset .ai-head,html.dim-handset .ai-compose,html.dim-handset .ai-panel{padding:13px!important}
+html.dim-handset .launch-device{height:260px!important}
+html.dim-handset .launch-dual,html.dim-handset .ai-config,html.dim-handset .arch-grid{grid-template-columns:minmax(0,1fr)!important}
+html.dim-handset .arch-steps,html.dim-handset .arch-tabs,html.dim-handset .lab-side,html.dim-handset .re-tabbar{display:flex;gap:6px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
+html.dim-handset .lab-side{border-right:0;border-bottom:1px solid #43576a}
+html.dim-handset .lab-side button{flex:0 0 auto;min-width:100px}
+html.dim-handset .re-grid{grid-template-columns:minmax(0,1fr)!important}
+html.dim-handset .re-filelist{display:flex;overflow-x:auto}
+html.dim-handset .re-file{min-width:136px}
+html.dim-handset .launch-title,html.dim-handset .arch-head h2,html.dim-handset .ai-head h2,html.dim-handset .lab-head h2{font-size:19px!important;line-height:1.25!important;letter-spacing:-.25px!important}
+html.dim-handset .launch-field input,html.dim-handset .arch-input,html.dim-handset .arch-studio input,html.dim-handset .code-lab textarea,html.dim-handset .ai-agent textarea{max-width:100%;min-width:0}
+html.dim-handset .launch-sites,html.dim-handset .launch-site,html.dim-handset .arch-code-layout{grid-template-columns:minmax(0,1fr)!important}
+html.dim-handset .launch-site{min-width:0}
+html.dim-handset .arch-graph{height:280px}
+html.dim-handset .launch-previewtools{flex-wrap:wrap}
+html.dim-handset .arch-line input[type=url]{flex:1 1 100%;min-width:0}
+html.dim-handset .arch-line>.arch-btn{flex:1 1 auto}
+html.dim-handset .arch-statline{padding:9px}
+html.dim-handset .arch-stat{padding:6px 9px}
+html.dim-handset .arch-step{flex:0 0 auto}
+html.dim-handset .lab-editor{min-height:250px}
+html.dim-handset .ai-actions{flex-wrap:wrap}
+html.dim-handset .ai-btn{flex:1 1 auto;white-space:normal}
+html.dim-handset .app-footer{padding:12px;flex-wrap:wrap;gap:8px}
+html.dim-handset .page-heading.home-heading,html.dim-handset .home-heading{grid-template-columns:minmax(0,1fr)!important}
+html.dim-handset .dimension-cards{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+html.dim-handset .template-grid,html.dim-handset .projects-grid,html.dim-handset .metrics,html.dim-handset .home-bottom{grid-template-columns:minmax(0,1fr)!important}
+html.dim-handset .lab-layout{grid-template-columns:minmax(0,1fr)!important}
+html.dim-handset button,html.dim-handset select,html.dim-handset input{touch-action:manipulation}
+html.dim-handset .arch-studio button,html.dim-handset .launchpad button,html.dim-handset .ai-agent button{min-height:38px}
+html.dim-handset textarea,html.dim-handset input[type=text],html.dim-handset input[type=url],html.dim-handset input[type=password]{font-size:16px!important}
+html.dim-handset .arch-studio,html.dim-handset .launchpad,html.dim-handset .ai-agent,html.dim-handset .code-lab{font-size:13px;line-height:1.7}
+html.dim-handset .arch-lead,html.dim-handset .arch-intro,html.dim-handset .launch-help,html.dim-handset .ai-note{font-size:12px!important;line-height:1.65!important}
+html.dim-handset .dim-mobile-banner{display:flex!important}
+.dim-mobile-banner{display:none;gap:9px;align-items:center;border:1px solid #4d686b;background:#203540;color:#d1e9e5;padding:10px 13px;margin:0 0 13px;border-radius:12px;font:12px/1.5 system-ui;box-shadow:0 8px 20px #0002}
+.dim-mobile-banner b{white-space:nowrap}
+.dim-mobile-banner button{margin-left:auto;padding:5px 9px;background:#355157;border:1px solid #779b92;color:#e9fff7;border-radius:8px;font-size:10px;white-space:nowrap}
+@media(max-width:760px){
+ .sidebar{width:min(85vw,310px)!important}
+ .topbar{padding:8px 12px!important}
+ .main-content{padding:16px 12px 55px!important}
+ .studio-workspace{grid-template-columns:minmax(0,1fr)!important}
+ .launch-main,.ai-body,.lab-main{grid-template-columns:minmax(0,1fr)!important}
+ .launch-preview,.ai-compose{border-right:0}
+ .launch-dual,.ai-config{grid-template-columns:minmax(0,1fr)!important}
+ .launch-title,.arch-head h2,.ai-head h2,.lab-head h2{font-size:19px!important}
+ .launch-field input,.arch-studio input,.arch-studio textarea,.ai-agent input,.ai-agent textarea{font-size:16px!important}
+}
+@media(prefers-reduced-motion:reduce){html.dim-handset .sidebar{transition:none}}
