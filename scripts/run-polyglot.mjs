@@ -44,6 +44,8 @@ const sanitize=text=>String(text||'').replace(/sk-or-v1-[a-z0-9_-]{18,}/gi,'[RED
 const safeEnv={
  PATH:process.env.PATH||'/usr/bin:/bin',
  HOME:'/tmp',TMPDIR:'/tmp',LANG:'C.UTF-8',
+ RUSTUP_HOME:process.env.RUSTUP_HOME||(process.env.HOME?process.env.HOME+'/.rustup':'/home/runner/.rustup'),
+ CARGO_HOME:process.env.CARGO_HOME||(process.env.HOME?process.env.HOME+'/.cargo':'/home/runner/.cargo'),
  CI:'true',RUST_BACKTRACE:'1',
  PYTHONDONTWRITEBYTECODE:'1'
 };
