@@ -80,7 +80,7 @@ test('Source editor and RE features are present in delivered asset',async()=>{
 
 test('Flow recorder captures preview-only interactions without form values',async()=>{
  const js=await fetch(base+'/studio-flow.js').then(r=>r.text());
- for(const phrase of ['DIMENSIA_FLOW_BRIDGE','DIMENSIA_FLOW_CONTROL','flowRecord','flowReplay','flowExport','form gönderme','Yalnızca tıklama']){
+ for(const phrase of ['DIMENSIA_FLOW_BRIDGE','DIMENSIA_FLOW_CONTROL','flowRecord','flowReplay','flowExport','Form gönderme','Yalnızca tıklama']){
   assert.ok(js.includes(phrase),'Missing flow feature: '+phrase);
  }
  assert.equal(js.includes('input.value'),false,'Flow recorder must not store typed form values.');
