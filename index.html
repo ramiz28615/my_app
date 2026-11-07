@@ -54,9 +54,9 @@ body { background:#070b15; }
 @media(prefers-reduced-motion:reduce){.dim-card,.page.active{animation:none;transition:none}}
 
 </style>
-<link rel="stylesheet" href="./studio-enhancements.css?v=4.0.0">
-<link rel="stylesheet" href="./studio-re.css?v=4.0.0">
-<link rel="stylesheet" href="./studio-launchpad.css?v=4.0.0">
+<link rel="stylesheet" href="./studio-enhancements.css?v=4.1.0">
+<link rel="stylesheet" href="./studio-re.css?v=4.1.0">
+<link rel="stylesheet" href="./studio-launchpad.css?v=4.1.0">
 </head>
 <body>
   <svg class="svg-sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -127,7 +127,7 @@ body { background:#070b15; }
         <section class="page" id="page-projects" aria-labelledby="projectsHeading"><div class="page-intro"><div><div class="eyebrow">YOUR CREATIVE COLLECTION</div><h1 id="projectsHeading">Proje <span class="gradient-text">Kütüphanesi.</span></h1><p>Bu cihazdaki tarayıcıda saklanan projelerini aç, düzenle veya indir.</p></div><button class="btn btn-primary" data-goto="studio"><svg><use href="#ico-plus"/></svg> Yeni Proje</button></div><div id="projectsGrid" class="projects-grid"></div></section>
         <section class="page" id="page-settings" aria-labelledby="settingsHeading"><div class="page-intro"><div><div class="eyebrow">MAKE IT YOURS</div><h1 id="settingsHeading">Ayarlar & <span class="gradient-text">Kurulum.</span></h1><p>Üretim motorunu ve proje verilerini nasıl yöneteceğini öğren.</p></div><div class="page-intro-icon">⚙</div></div><div class="settings-grid"><div class="settings-card panel"><div class="settings-icon">✦</div><h2>AI üretim bağlantısı</h2><p id="apiStatusText">Bağlantı kontrol ediliyor...</p><div class="settings-note">Yapay zekâ ile gerçek kod üretimi için sunucuda <code>OPENAI_API_KEY</code> tanımlanmalı. Anahtar tarayıcıda saklanmaz.</div><button class="btn btn-outline btn-small" id="checkApi">Bağlantıyı Yeniden Kontrol Et</button></div><div class="settings-card panel"><div class="settings-icon">▤</div><h2>Proje yedekleme</h2><p>Projeler localStorage'da saklanır. Başka bir cihaza taşımak için JSON yedeği oluşturabilirsin.</p><div class="settings-actions"><button class="btn btn-outline btn-small" id="exportProjects">JSON yedeğini indir</button><label class="btn btn-outline btn-small import-label">JSON yedeği yükle<input id="importProjects" type="file" accept=".json,application/json" hidden/></label></div></div><div class="settings-card panel"><div class="settings-icon">⌁</div><h2>Geliştirici bilgileri</h2><p>Bağımlılıksız HTML, CSS ve JavaScript. Gerçek zamanlı Canvas 2D projeksiyonu ve Node.js API sunucusu.</p><div class="settings-note">GitHub becerileri: frontend-design, react-best-practices, threejs-skills. Kaynak depoya atıf yapılmıştır; depo bu projeye kopyalanmamıştır.</div><a target="_blank" rel="noreferrer" href="https://github.com/sickn33/agentic-awesome-skills" class="settings-link">Beceri deposunu görüntüle ↗</a></div><div class="settings-card panel"><div class="settings-icon">◈</div><h2>Güvenlik & sınırlar</h2><p>Oluşturulan HTML önizleme için sandbox iframe içinde çalışır. Sunucu anahtarı yalnızca sunucuda tutulur. Kayıt ve ekip senkronizasyonu için ayrıca veritabanı/kimlik doğrulama gerekir.</p></div></div></section>
       </main>
-      <footer class="app-footer"><span>© 2026 DIMENSIA STUDIO</span><span>DESIGNED TO EXPLORE WHAT'S NEXT &nbsp; ✧</span><span>v4.0.0</span></footer>
+      <footer class="app-footer"><span>© 2026 DIMENSIA STUDIO</span><span>DESIGNED TO EXPLORE WHAT'S NEXT &nbsp; ✧</span><span>v4.1.0</span></footer>
     </div>
   </div>
   <div class="toast-container" id="toastContainer" aria-live="polite"></div>
@@ -360,10 +360,10 @@ showHTML(generateSite({type:'saas',palette:'aurora'}),'İlk Web Sitem');updateCo
   document.addEventListener("pointermove",e=>{const card=e.target.closest?.(".dim-card");if(!card)return;const b=card.getBoundingClientRect();card.style.setProperty("--spot-x",(e.clientX-b.left)+"px");card.style.setProperty("--spot-y",(e.clientY-b.top)+"px")},{passive:true});
 })();
 </script>
-<script src="./studio-devtools.js?v=4.0.0" defer></script>
-<script src="./studio-reference.js?v=4.0.0" defer></script>
-<script src="./studio-re-engineer.js?v=4.0.0" defer></script>
-<script src="./studio-flow.js?v=4.0.0" defer></script>
-<script src="./studio-launchpad.js?v=4.0.0" defer></script>
+<script src="./studio-devtools.js?v=4.1.0" defer></script>
+<script src="./studio-reference.js?v=4.1.0" defer></script>
+<script src="./studio-re-engineer.js?v=4.1.0" defer></script>
+<script src="./studio-flow.js?v=4.1.0" defer></script>
+<script src="./studio-launchpad.js?v=4.1.0" defer></script>
 </body>
 </html>
