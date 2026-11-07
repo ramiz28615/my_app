@@ -53,6 +53,7 @@ section.innerHTML='<div class="dh-history-heading">SOHBET GEÇMİŞİ</div>'+
  '<button class="dh-history-new" type="button" id="dhNewSide">＋ Yeni sohbet</button>'+
  '<div class="dh-history-area" id="dhHistory"></div>'+
  '<div class="dh-history-footnote">Sohbetler bu cihazdaki tarayıcıda saklanır; diğer cihazlarla eşitlenmez.</div>';
+const homeNav=side.querySelector('[data-nav="home"] span');if(homeNav)homeNav.textContent='AI Sohbet';
 const spacer=side.querySelector('.sidebar-spacer');
 if(spacer)side.insertBefore(section,spacer);else side.querySelector('.side-nav')?.after(section);
 function alertUser(msg,bad){
