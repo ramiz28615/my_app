@@ -618,8 +618,38 @@
     if(report.schema!=='dimensia-polyglot-v1'||report.requestId!==task.id)throw Error('Rapor farklı bir çalışmaya ait.');
     return report;
   }
+  async function startChatRun(runId,sourcesB64){
+    if(!/^r[a-z0-9]{9,35}$/.test(runId))throw Error('Geçersiz sohbet kod çalışma kimliği.');
+    if(typeof sourcesB64!=='string'||sourcesB64.length>58000||!/^[A-Za-z0-9+/]+={0,2}$/.test(sourcesB64))
+      throw Error('Kod paketi çok büyük veya bozuk (en fazla 58 KB base64).');
+    if(!accessToken||accessToken.length<20)throw Error('GitHub Launchpad bölümünden Contents: read ve Actions: read/write izinleri olan tokenini bağla.');
+    const t={owner:el('launchOwner').value.trim(),repo:el('launchRepo').value.trim()};
+    if(!validOwner(t.owner)||!validRepo(t.repo))throw Error('GitHub kullanıcı/depo bilgileri geçersiz.');
+    if(connectedRepo!==t.owner.toLowerCase()+'/'+t.repo.toLowerCase()||!authenticated)await connect(t);
+    if(connectedBranch!=='main')throw Error('Sohbet çalıştırıcısı main dalında kurulu bir depo gerektiriyor.');
+    await api('POST',paths(t)+'/actions/workflows/chat-code-execute.yml/dispatches',{
+      ref:connectedBranch,inputs:{run_id:runId,sources_b64:sourcesB64}
+    });
+    return{owner:t.owner,repo:t.repo,id:runId,branch:connectedBranch,
+      actionsUrl:'https://github.com/'+t.owner+'/'+t.repo+'/actions/workflows/chat-code-execute.yml'};
+  }
+  async function fetchChatRunReport(task){
+    if(!task||!/^r[a-z0-9]{9,35}$/.test(task.id))throw Error('Sohbet çalıştırma bilgisi geçersiz.');
+    if(!validOwner(task.owner)||!validRepo(task.repo))throw Error('GitHub depoya erişim bilgisi geçersiz.');
+    const endpoint=paths(task)+'/contents/code-lab/chat-reports/'+encodeURIComponent(task.id)+'.json?ref='+encodeURIComponent(task.branch||'main');
+    const raw=await api('GET',endpoint,undefined,true);
+    if(!raw)return null;
+    if(raw.encoding!=='base64'||typeof raw.content!=='string')throw Error('Sohbet raporu biçimi beklenmiyor.');
+    const binary=atob(raw.content.replace(/\s/g,''));
+    if(binary.length>140000)throw Error('Sohbet raporu çok büyük.');
+    const report=JSON.parse(new TextDecoder().decode(Uint8Array.from(binary,c=>c.charCodeAt(0))));
+    if(report.schema!=='dimensia-chat-run-v1'||report.requestId!==task.id)
+      throw Error('Sohbet raporu başka bir çalışmaya ait.');
+    return report;
+  }
   window.DimensiaLaunchpad={slug,validSlug,validOwner,validRepo,pageURL,checkStatus,refreshPreview,
-    startCloudAnalysis,fetchCloudAnalysis,saveCodeLabFile,savePolyglotFiles,startPolyglotRun,fetchPolyglotReport};
+    startCloudAnalysis,fetchCloudAnalysis,saveCodeLabFile,savePolyglotFiles,startPolyglotRun,fetchPolyglotReport,
+    startChatRun,fetchChatRunReport};
 
   el('launchSlug').value=slug(state.siteName||'yeni-site')||'yeni-site';
   refreshAddress();renderRecords();refreshPreview();step(0);
