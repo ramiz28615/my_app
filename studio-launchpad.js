@@ -12,6 +12,7 @@
   let authenticated='';
   let connectedRepo='';
   let connectedBranch='main';
+  let pagesVerified=false;
   let repoPagesRoot='';
   let busy=false;
   let liveCheck=null;
@@ -41,7 +42,7 @@
     '<iframe id="launchPreviewFrame" title="Yayınlanacak web sitesi önizlemesi" sandbox="allow-scripts allow-forms" referrerpolicy="no-referrer" loading="lazy"></iframe>'+
     '</div></div><div class="launch-underpreview"><span><strong id="launchSiteName">İlk Web Sitem</strong> · <span id="launchFileSize">0 KB</span></span>'+
     '<div class="launch-actions"><button class="launch-btn" id="launchViewCode" type="button">⌘ Kod</button>'+
-    '<button class="launch-btn" id="launchDownload" type="button">↓ HTML indir</button></div></div>'+
+    '<button class="launch-btn" id="launchDownload" type="button">↓ HTML indir</button><button class="launch-btn" id="launchImportDemo" type="button">✧ Demo'yu Düzenle</button></div></div>'+
     '<div class="launch-stepper" id="launchSteps"><span class="active">1. Hazırla</span><i>→</i><span>2. Bağlan</span><i>→</i><span>3. Yayınla</span><i>→</i><span>4. Canlı</span></div>'+
     '<div class="launch-help">Yayınlamadan önce kodu kontrol et. GitHub Pages yalnızca statik dosyaları sunar; PHP, Node.js sunucusu, gizli API anahtarları veya veritabanı backend’i barındırmaz.</div>'+
     '</div><div class="launch-form">'+
@@ -70,7 +71,7 @@
     '<p class="launch-help" style="margin:12px 0 0">Ücretsiz adres: <b>kullanici.github.io/depo/sites/markam/</b>. Gerçek <b>markam.seninalanadin.com</b> alt alan adı için alan adı sahipliği ve DNS ayarı gerekir.</p>'+
     '</div></div>'+
     '<div class="launch-bottom"><div class="launch-bottomhead"><h3 class="launch-h">◈ Yayınlanmış projelerim</h3>'+
-    '<div class="launch-previewtools"><button type="button" id="launchClear" class="launch-mini">Yerel listeyi temizle</button>'+
+    '<div class="launch-previewtools"><button type="button" id="launchSync" class="launch-mini" title="GitHub deposundaki yayımlanan siteleri bu listeye aktar">↻ GitHub’dan Tara</button><button type="button" id="launchClear" class="launch-mini">Yerel listeyi temizle</button>'+
     '<a class="launch-mini" href="https://github.com/ramiz28615/my_app/actions" id="launchActionsLink" target="_blank" rel="noopener noreferrer" style="text-decoration:none">GitHub Actions ↗</a></div></div>'+
     '<div class="launch-sites" id="launchSites"></div><p class="launch-footnote">Liste sadece bu tarayıcıda tutulur; GitHub’da gerçek kaynağınız durur. Siteniz herkese açık olduğu için üçüncü taraf kod veya gizli verileri yayınlamayın. <a href="https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages" rel="noopener noreferrer" target="_blank" style="color:#ab9bff">Özel alt alan adı rehberi ↗</a></p></div>';
   title.after(wrap);
@@ -97,7 +98,8 @@
     return{owner,repo,site,path};
   }
   function pageURL(target,base){
-    let home=base||'https://'+target.owner+'.github.io/'+target.repo+'/';
+    const userSite=target.repo.toLowerCase()===target.owner.toLowerCase()+'.github.io';
+    let home=base||'https://'+target.owner+'.github.io/'+(userSite?'':target.repo+'/');
     if(!home.endsWith('/'))home+='/';
     return new URL('sites/'+target.site+'/',home).href;
   }
@@ -147,7 +149,10 @@
         refreshAddress();wrap.scrollIntoView({behavior:'smooth',block:'start'});
         info('Proje seçildi. Güncellemek için kendi HTML projenizi açıp GitHub’a Yayınla butonuna basın.','info');
       });
-      links.append(update);card.append(links);root.append(card);
+      links.append(update);
+      const edit=makeNode('button','⌘ GitHub’dan Aç');edit.type='button';
+      edit.addEventListener('click',()=>loadGitHubSite(item));
+      links.append(edit);card.append(links);root.append(card);
     }
   }
   function info(message,type,links){
@@ -305,33 +310,31 @@
     if(repo?.archived)throw Error('Arşivlenmiş depoya yayınlama yapılamaz.');
     if(repo?.private)throw Error('Ücretsiz herkese açık GitHub Pages için public bir repo kullan.');
     const branch=repo.default_branch||'main';
+    repoPagesRoot='';pagesVerified=false;
     let pages=null;
     try{pages=await api('GET',paths(t)+'/pages',undefined,true);}catch(e){/* A token may lack Pages: read permission. */}
-    if(pages===null&&t.owner==='ramiz28615'&&t.repo==='my_app'){
-      // The first-party starter repo already has its Pages workflow.
-      repoPagesRoot='';
-    }
     if(pages?.html_url){
+      pagesVerified=true;
       const root=pages.html_url;
       if(/^https:\/\//i.test(root))repoPagesRoot=root.endsWith('/')?root:root+'/';
     }
-    if(pages===null&&!(t.owner==='ramiz28615'&&t.repo==='my_app')){
-      throw Error('Seçilen depoda GitHub Pages etkin görünmüyor. Depo Settings → Pages üzerinden GitHub Actions veya main yayınını etkinleştir.');
-    }
+    // Contents-only fine-grained tokens often cannot read the Pages API.
+    // Continue with a public repo and report any missing Pages setup after uploading;
+    // never mistake missing Pages:read permission for proof that Pages is disabled.
     connectedRepo=t.owner.toLowerCase()+'/'+t.repo.toLowerCase();
     connectedBranch=branch;
     authenticated=user.login;
     el('launchAuthChip').textContent='● '+authenticated+' bağlı';
     el('launchAuthChip').style.color='#9dfbd9';
     step(1);refreshAddress();
-    return {branch,user:user.login};
+    return {branch,user:user.login,pagesVerified};
   }
   el('launchConnect').addEventListener('click',async()=>{
     if(busy)return;
     setBusy(true,'⌛ GitHub bağlantısı kontrol ediliyor…');
     try{
       const t=getTarget();await connect(t);
-      info('GitHub bağlantısı doğrulandı: '+authenticated+' · '+t.owner+'/'+t.repo+' · '+connectedBranch+'.','success');
+      info('GitHub bağlantısı doğrulandı: '+authenticated+' · '+t.owner+'/'+t.repo+' · '+connectedBranch+'.'+(!pagesVerified?' Pages ayarı API izni nedeniyle doğrulanamadı; depo Settings → Pages bölümünü kontrol et.':''),'success');
     }catch(e){info(e.message,'error');}
     finally{setBusy(false);}
   });
@@ -370,7 +373,7 @@
       publishRecord(t,live,response?.content?.sha||'',connectedBranch,commit);
       liveCheck={...t,branch:connectedBranch,commit,url:live};
       step(2);
-      info('HTML GitHub’a kaydedildi. Pages yayınlaması başlayacak; bağlantı hemen açılmayabilir. Yayın Durumunu Kontrol Et düğmesini kullan.','success',[
+      info('HTML GitHub’a kaydedildi. '+(!pagesVerified?'Pages etkinliği doğrulanamadı; GitHub Settings → Pages alanından yayını kontrol et. ':'')+'Bağlantı hemen açılmayabilir. Yayın Durumunu Kontrol Et düğmesini kullan.','success',[
         {label:'↗ Site adresi',url:live},
         {label:'⌘ GitHub kaynak',url:rawFileLink(t,connectedBranch)},
         {label:'◈ Actions',url:'https://github.com/'+t.owner+'/'+t.repo+'/actions'}
@@ -432,6 +435,82 @@
     pollTimer=setTimeout(next,5000);
   }
   el('launchCheck').addEventListener('click',()=>{if(!busy)checkStatus();});
+  // Recover published sites across devices by listing the same repository's /sites directory.
+  async function syncGitHubSites(){
+    if(busy)return;
+    setBusy(true,'⌛ GitHub siteleri taranıyor…');
+    try{
+      const target=getTarget();
+      if(connectedRepo!==target.owner.toLowerCase()+'/'+target.repo.toLowerCase()||!authenticated)await connect(target);
+      const entries=await api('GET',paths(target)+'/contents/sites?ref='+encodeURIComponent(connectedBranch),undefined,true);
+      if(entries===null){
+        info('Depoda sites/ klasörü henüz yok. İlk siteyi yayınlayınca oluşturulur.','info');
+        return;
+      }
+      if(!Array.isArray(entries))throw Error('GitHub sites/ dizini beklenen biçimde değil.');
+      const dirs=entries.filter(x=>x&&x.type==='dir'&&typeof x.name==='string'&&validSlug(x.name)).slice(0,60);
+      let added=0;
+      for(const dir of dirs){
+        const same=records.find(x=>x.owner.toLowerCase()===target.owner.toLowerCase()&&x.repo.toLowerCase()===target.repo.toLowerCase()&&x.site===dir.name);
+        if(same)continue;
+        const t={owner:target.owner,repo:target.repo,site:dir.name};
+        records.push({
+          owner:t.owner,repo:t.repo,site:t.site,url:pageURL(t,repoPagesRoot),
+          name:dir.name,branch:connectedBranch,commit:'',updatedAt:new Date().toISOString()
+        });
+        added++;
+      }
+      records=records.slice(0,30);writeRecords();renderRecords();
+      info('GitHub dizin taraması tamamlandı: '+dirs.length+' proje klasörü bulundu, '+added+' yeni kayıt eklendi. Yalnızca sites/ klasöründeki projeler listelendi.','success');
+    }catch(e){info('GitHub siteleri listelenemedi: '+(e.message||e),'error');}
+    finally{setBusy(false);}
+  }
+  // Restore a self-owned published single-file site into the local HTML editor.
+  async function loadGitHubSite(item){
+    if(busy)return;
+    setBusy(true,'⌛ GitHub kaynağı açılıyor…');
+    try{
+      if(!accessToken)throw Error('Önce GitHub erişim tokenini gir.');
+      const target={owner:item.owner,repo:item.repo,site:item.site};
+      if(connectedRepo!==target.owner.toLowerCase()+'/'+target.repo.toLowerCase()||!authenticated)await connect(target);
+      const path='/contents/sites/'+encodeURIComponent(target.site)+'/index.html?ref='+encodeURIComponent(item.branch||connectedBranch);
+      const result=await api('GET',paths(target)+path);
+      if(result?.type!=='file'||result.encoding!=='base64'||typeof result.content!=='string'){
+        throw Error('Yayın klasöründe okunabilir bir index.html dosyası bulunamadı.');
+      }
+      const binary=atob(result.content.replace(/\s/g,''));
+      if(binary.length>1000000)throw Error('Kaynak 1 MB üzerindeyse editörde açılmaz.');
+      const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));
+      const html=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
+      if(!/<html[\s>]/i.test(html)||!/<\/html>/i.test(html))throw Error('Alınan index.html tamamlanmış HTML sayfası değil.');
+      if(!confirm('“'+item.site+'” GitHub kaynağı mevcut açık projenin yerine editöre alınsın mı? Kaydedilmemiş değişikliklerini kaybedebilirsin.'))return;
+      showHTML(html,item.name||item.site);
+      state.projectId=null;
+      el('launchOwner').value=target.owner;el('launchRepo').value=target.repo;el('launchSlug').value=target.site;
+      slugTouched=true;refreshAddress();refreshPreview();
+      el('tabPreview')?.click();
+      info('GitHub kaynağı editöre yüklendi: '+target.site+'. Düzenleyip aynı adla yeniden yayınlayabilirsin.','success');
+      wrap.scrollIntoView({behavior:'smooth',block:'start'});
+    }catch(e){info('Kaynak açılamadı: '+(e.message||e),'error');}
+    finally{setBusy(false);}
+  }
+  // A public first-party example may be inspected without GitHub credentials.
+  async function importDemo(){
+    if(busy)return;
+    try{
+      const response=await fetch(new URL('./sites/aurora-demo/index.html',location.href),{credentials:'omit',cache:'no-cache'});
+      if(!response.ok)throw Error('Örnek kaynak HTTP '+response.status);
+      const html=await response.text();
+      if(html.length>950000||!/<\/html>/i.test(html))throw Error('Örnek HTML eksik veya fazla büyük.');
+      if(!confirm('Aurora örnek sitesini HTML editörüne yüklemek ister misin? Kaydedilmemiş açık projenin yerini alır.'))return;
+      showHTML(html,'Aurora — Özelleştirilebilir Demo');
+      state.projectId=null;slugTouched=false;
+      el('launchSlug').value='aurora-kopyam';refreshAddress();refreshPreview();
+      info('Aurora örneği düzenlenebilir proje olarak açıldı. İstediğin gibi değiştirip kendi siten olarak yayınlayabilirsin.','success');
+    }catch(e){info('Örnek yüklenemedi: '+(e.message||e),'error');}
+  }
+  el('launchSync').addEventListener('click',syncGitHubSites);
+  el('launchImportDemo').addEventListener('click',importDemo);
   el('launchClear').addEventListener('click',()=>{
     if(!records.length)return;
     if(!confirm('Yalnızca bu tarayıcıdaki yayın kayıtları temizlensin mi? GitHub siteleri silinmez.'))return;
