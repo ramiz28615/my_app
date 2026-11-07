@@ -1,13 +1,24 @@
-# Dimensia AI Studio + RE Architect + Launchpad 5.1
+# Dimensia AI Studio + RE Architect + Launchpad 5.2.1
 
 **AI destekli HTML/CSS/JavaScript oluştur, düzenle, önizle ve GitHub Pages'e yayınla.** Bu sürüm, kişisel deneyler ve statik web projeleri için çalışan açık kaynaklı bir stüdyodur. Bir SaaS platformunun tüm kurumsal özelliklerini veya dünya sıralamasında üstünlüğü iddia etmez.
 
 | | Bağlantı |
 |---|---|
-| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=5.1.0#studio |
+| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=5.2.1#studio |
 | **Gerçek yayınlanmış örnek** | https://ramiz28615.github.io/my_app/sites/aurora-demo/ |
 | **Örneğin kaynak kodu** | https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html |
 | **Otomatik testler** | https://github.com/ramiz28615/my_app/actions |
+
+
+## 5.2.1 — Mobil ekran ve URL analizi hata düzeltmeleri
+
+- **Android Custom Tab ve masaüstü sitesi görünümü:** Fiziksel telefon genişliği ile tarayıcının geniş HTML viewport'unu ayırt etmeye çalışan tek sütunlu mobil görünüm, sabit/dar ekran menüsü ve erişilebilir **▯ Telefon / ▣ Normal** geçiş düğmesi eklendi. Telefon görünümü tercihi yalnızca tarayıcıdaki yerel ayar olarak tutulur.
+- **390 piksel mobil taşma:** Üst başlıktaki isteğe bağlı masaüstü eylemleri dar ekranda gizlendi. Ana panel, kartlar, kod editörü, GitHub Launchpad ve RE Architect bölümleri dar ekrana uygun hâle getirildi.
+- **URL Analiz Et:** Statik GitHub Pages üzerinde bulunmayan \`/api/architect\` uç noktasına boş istek atılmaz. Tarayıcı CORS engelinde anlamlı açıklama ve dört yol görünür: **GitHub Bulut Tarama, HTML Dosyası Yükle, Kendi Projemi Tara, HTML Kaynak Yapıştır**.
+- **Gerçek test:** Chromium E2E; 390px mobil yatay taşmayı, telefon menüsünü, 393px fiziksel ekran / 980px geniş HTML viewport'unu, CORS erişim engelini ve alternatif yöntemlerin çalışmasını test eder.
+- **Önemli sınır:** Google veya başka bir sitenin CORS koruması yalnızca ön yüz JavaScript'iyle kaldırılamaz. GitHub Bulut Tarama için kendi GitHub hesabında Actions izni ve yetkili URL gerekir. Google'ın bot engelleri gibi ek sınırlamalar olabilir.
+
+**Telefonunda görünüm hâlâ aşırı küçükse:** Chrome'un üç nokta menüsünde **Masaüstü sitesi** açıksa kapat. Stüdyonun üst çubuğundaki **▯ Telefon** düğmesi de tek sütun görünümünü zorlamanı sağlar. Her tarayıcının zorla masaüstü ölçekteki yazı büyütmesini otomatik aşmak mümkün değildir.
 
 ## Dimensia 5.1 — Yapay zekâ geliştirme akışı
 
