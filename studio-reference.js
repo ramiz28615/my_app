@@ -41,9 +41,9 @@
  $('orForget').onclick=()=>{secret='';$('orKey').value='';verified='unchecked';modelResult='untested';keyInfo=null;lastError='';lastModel='';renderMode()};
  $('orModel').onchange=()=>{
    $('orCustomModel').hidden=$('orModel').value!=='custom';
-   modelResult='untested';renderMode(true);
+   modelResult='untested';lastModel='';renderMode(true);
  };
- $('orCustomModel').addEventListener('input',()=>{modelResult='untested';renderMode(true)});
+ $('orCustomModel').addEventListener('input',()=>{modelResult='untested';lastModel='';renderMode(true)});
  function model(){
    const value=$('orModel').value==='custom'?$('orCustomModel').value.trim():$('orModel').value;
    if(value!=='openrouter/free'&&!/^[\w.-]+\/[\w.:-]+:free$/i.test(value))throw Error('Ücretlendirilmemesi için yalnızca openrouter/free veya :free son ekli modeller seçilebilir.');
