@@ -1,9 +1,9 @@
 {
   "name": "dimensia-studio",
-  "version": "7.0.1",
+  "version": "7.1.0",
   "private": true,
   "type": "module",
-  "description": "Dimensia Studio 7: HTML/CSS/JS plus Python, Rust, Bash and Perl editing, actual parallel cloud execution and per-language logs",
+  "description": "Dimensia 7.1: shared nine-file polyglot workspace, real cross-language result checks, browser-only snapshots and reviewed AI diagnostics",
   "engines": {
     "node": ">=20"
   },
