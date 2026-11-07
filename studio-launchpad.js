@@ -400,9 +400,26 @@
       const deploy=matches.find(x=>x.path?.endsWith('/deploy.yml')||/Deploy.*Pages/i.test(x.name||''));
       if(deploy){
         if(deploy.status==='completed'&&deploy.conclusion==='success'){
-          // GitHub Actions is the authoritative deployment status; actual Pages propagation can lag.
+          // GitHub Actions confirms deployment. When the URL shares the app's origin,
+          // also verify that the concrete published HTML path responds successfully.
+          let liveHTTP=null;
+          try{
+            const url=new URL(t.url);
+            if(url.origin===location.origin){
+              const response=await fetch(url.href,{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(6500)});
+              liveHTTP=response.ok&&/html/i.test(response.headers.get('content-type')||'');
+            }
+          }catch{liveHTTP=false;}
+          if(liveHTTP===false){
+            step(2);
+            info('GitHub Actions başarılı; ancak yayın adresi henüz HTTP 200 HTML yanıtı vermiyor. Kısa süre sonra otomatik tekrar kontrol edilecek.','info',[
+              {label:'↗ Yayın adresi',url:t.url},
+              {label:'✓ Actions',url:deploy.html_url||'https://github.com/'+t.owner+'/'+t.repo+'/actions'}
+            ]);
+            return false;
+          }
           step(3);
-          info('GitHub Pages dağıtım işlemi başarılı. İnternette görünmesi kısa süre gecikebilir.','success',[
+          info(liveHTTP===true?'GitHub Pages canlı: yayın adresi HTTP 200 HTML döndürüyor.':'GitHub Pages dağıtımı başarılı. Farklı origin nedeniyle yayın adresini tarayıcıdan ayrıca doğrulamalısın.','success',[
             {label:'↗ Canlı siteyi aç',url:t.url},
             {label:'✓ Başarılı GitHub Actions',url:deploy.html_url||'https://github.com/'+t.owner+'/'+t.repo+'/actions'},
             {label:'⌘ Kaynak kod',url:rawFileLink(t,t.branch||'main')}
