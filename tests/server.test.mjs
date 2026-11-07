@@ -191,8 +191,8 @@ test('Unified Polyglot UI supports 8 editable files, opt-in GitHub execution and
   readFile('studio-polyglot.css','utf8'),
   readFile('studio-launchpad.js','utf8')
  ]);
- assert.ok(html.includes('studio-polyglot.js?v=7.0.1'));
- assert.ok(html.includes('studio-polyglot.css?v=7.0.0'));
+ assert.ok(html.includes('studio-polyglot.js?v=7.1.0'));
+ assert.ok(html.includes('studio-polyglot.css?v=7.1.0'));
  assert.ok(html.includes('studio-code-lab.js?v=7.0.1'));
  for(const id of ['dimensiaPolyglot','polyFiles','polyEditor','polyPreview','polyCloud','polyConsent','polyReportDownload','polyBackup','polyRestoreFile']){
   assert.ok(ui.includes(id),'Missing polyglot UI field: '+id);
@@ -208,4 +208,22 @@ test('Unified Polyglot UI supports 8 editable files, opt-in GitHub execution and
  assert.ok(launchpad.includes('savePolyglotFiles'),'Multi-source saving missing');
  assert.ok(launchpad.includes('fetchPolyglotReport'),'Per-language report reader missing');
  assert.ok(style.includes('.poly-result-grid'),'Each language should display separate result panel');
+});
+
+
+test('Polyglot 7.1 keeps shared input, reviewed repairs and opt-in local drafts',async()=>{
+ const [ui,launchpad,runner,collector,html]=await Promise.all([
+  readFile('studio-polyglot.js','utf8'),readFile('studio-launchpad.js','utf8'),
+  readFile('scripts/run-polyglot.mjs','utf8'),readFile('scripts/publish-polyglot.mjs','utf8'),
+  readFile('index.html','utf8')
+ ]);
+ for(const marker of ["key:'shared'","polyDraftSave","polyDraftOpen","polyDraftDelete","polyFixReview","polyApplyFix","validateSharedInput","localDraftSave","repairSelected","polyContract"]){
+  assert.ok(ui.includes(marker),'Missing shared fixture/draft/repair feature: '+marker);
+ }
+ assert.ok(ui.includes('dimensia-polyglot-local-draft-v1'));
+ assert.ok(launchpad.includes("shared:'numbers.txt'"),'Shared input must be an explicit whitelisted GitHub upload');
+ assert.ok(runner.includes('DIMENSIA_RESULT:')&&runner.includes('contract={status:'));
+ assert.ok(collector.includes('sharedContract:{matched,mismatch,unreported'));
+ assert.ok(html.includes('studio-polyglot.js?v=7.1.0')&&html.includes('studio-polyglot.css?v=7.1.0'));
+ assert.ok(!/sk-or-v1-[a-z0-9_-]{40,}/i.test(ui),'Never embed a real API key');
 });
