@@ -56,7 +56,7 @@ test('Public repository site includes module references',async()=>{
  assert.ok(source.includes('studio-mobile-fix.css'));
  assert.ok(source.includes('studio-mobile-fix.js'));
  assert.match(source,/studio-mobile-fix\.js\?v=5\.2\.1/);
- assert.match(source,/studio-launchpad\.js\?v=7\.0\.0/)
+ assert.match(source,/studio-launchpad\.js\?v=8\.0\.0/)
  assert.ok(source.includes('DimensiaDevTools.instrument'));
 });
 
@@ -151,7 +151,7 @@ test('Chat-first homepage remains separate from legacy Studio without storing an
   readFile('studio-chat.js','utf8'),
   readFile('studio-chat.css','utf8')
  ]);
- assert.ok(html.includes('studio-chat.js?v=6.1.0')&&html.includes('studio-chat.css?v=6.0.2'));
+ assert.ok(html.includes('studio-chat.js?v=8.0.0')&&html.includes('studio-chat.css?v=6.0.2'));
  assert.ok(html.includes('id="page-home"')&&html.includes('id="page-studio"'),'Legacy sections must stay');
  for(const id of ['dimensiaChatHub','dhConversation','dhInput','dhSend','dhNewSide','dhHistory','dhModeBuild','dhPreview','dhSave','dhPublish']){
   assert.ok(chat.includes(id),'Missing chat feature '+id);
@@ -226,4 +226,27 @@ test('Polyglot 7.1 keeps shared input, reviewed repairs and opt-in local drafts'
  assert.ok(collector.includes('sharedContract:{matched,mismatch,unreported'));
  assert.ok(html.includes('studio-polyglot.js?v=7.1.0')&&html.includes('studio-polyglot.css?v=7.1.0'));
  assert.ok(!/sk-or-v1-[a-z0-9_-]{40,}/i.test(ui),'Never embed a real API key');
+});
+
+
+test('Chat 8.0 provides four language tabs and user-approved cloud execution',async()=>{
+ const [html,source,style,launchpad,runner,workflow,collector]=await Promise.all([
+  readFile('index.html','utf8'),readFile('studio-chat-runner.js','utf8'),
+  readFile('studio-chat-runner.css','utf8'),readFile('studio-launchpad.js','utf8'),
+  readFile('scripts/run-chat-code.mjs','utf8'),
+  readFile('.github/workflows/chat-code-execute.yml','utf8'),
+  readFile('scripts/collect-chat-code.mjs','utf8')
+ ]);
+ for(const item of ['studio-chat-runner.js?v=8.0.0','studio-chat-runner.css?v=8.0.0'])assert.ok(html.includes(item));
+ for(const id of ['dhrPanel','dhrRunOne','dhrRunAll','dhrEditor','dhrAuto','dhrOutput','dhrExample'])
+  assert.ok(source.includes(id),'Missing chat code runner UI '+id);
+ for(const lang of ['python','bash','perl','php'])assert.ok(source.includes(lang),'Missing language '+lang);
+ assert.ok(source.includes('confirm(disclosure)'),'No code execution without explicit user consent');
+ assert.ok(source.includes('dimensia:chat-code-request'),'Chat reply code must connect to runner');
+ assert.ok(launchpad.includes('startChatRun')&&launchpad.includes('fetchChatRunReport'));
+ assert.ok(workflow.includes('chat-result-')&&workflow.includes('persist-credentials: false'));
+ assert.ok(runner.includes('GITHUB_EVENT_PATH'),'Runner input must be decoded from workflow event, not shell interpolation');
+ assert.ok(collector.includes('code-lab/chat-reports/'),'Collector publishes bounded reports');
+ assert.ok(style.includes('.dhr-panel')&&style.includes('max-width:760px'));
+ assert.ok(!/sk-or-v1-[a-z0-9_-]{40,}/i.test(source),'Never embed OpenRouter API key');
 });
