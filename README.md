@@ -1,14 +1,27 @@
-# Dimensia AI Workspace 6.0.2 · Chat + Website Studio
+# Dimensia AI Workspace 6.1.0 · Chat + Website Studio + Canlı Kod Editörü
 
 **AI destekli HTML/CSS/JavaScript oluştur, düzenle, önizle ve GitHub Pages'e yayınla.** Bu sürüm, kişisel deneyler ve statik web projeleri için çalışan açık kaynaklı bir stüdyodur. Bir SaaS platformunun tüm kurumsal özelliklerini veya dünya sıralamasında üstünlüğü iddia etmez.
 
 | | Bağlantı |
 |---|---|
-| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=6.0.2#home |
+| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=6.1.0#home |
 | **Gerçek yayınlanmış örnek** | https://ramiz28615.github.io/my_app/sites/aurora-demo/ |
 | **Örneğin kaynak kodu** | https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html |
 | **Otomatik testler** | https://github.com/ramiz28615/my_app/actions |
 
+
+## 6.1.0 — Sohbette çalıştırılabilir site önizleme ve kaynak kod düzenleme
+
+- **Sohbet → Site oluştur:** OpenRouter'dan üretilen tek dosyalık HTML/CSS/JS, sağdaki **izole iframe** önizlemesine yüklenir. JavaScript, HTML olayları ve butonlar önizleme içinde gerçekten çalıştırılır.
+- **Kodu düzenle:** Önizleme paneli içinde **index.html**, **style.css** ve **app.js** sekmelerini açar. HTML sekmesi tam HTML kaynağını, CSS/JS sekmeleri HTML içindeki **ilk inline** stil/komut bloğunu düzenler. Birden fazla blok varsa etiket üzerinde "ilk blok" uyarısı çıkar; diğerleri korunur.
+- **▶ Çalıştır ve önizle:** Kaynağı doğrulayıp izole iframe'i sıfırdan yükler; aynı anda Studio'daki HTML kaynak editörüne de yazar. İsteğe bağlı **düzenlerken otomatik önizleme** (~900 ms) seçeneği vardır.
+- **JavaScript Konsolu:** Önizleme içindeki console.log, warn, error, ağ istekleri ve buton tıklamaları gösterilir. Başka sitelerin özel trafiği değil, yalnızca bu iframe'in olayları dinlenir.
+- **Geri / İleri:** Son çalıştırılmış kod sürümlerinin en fazla 22 adedi sekme oturumu boyunca bellekte tutulur; değişiklikler geri/ileri alınabilir.
+- **HTML indir / Studio'da aç / Projeyi kaydet / GitHub'a yayınla:** Kod, mevcut Studio ve GitHub Launchpad akışına bağlıdır. GitHub yayınlamak için kullanıcının tokeni ve onayı gereklidir.
+- **Mobil:** 390 piksel telefonlarda kod düzenleme ve önizleme dikey yerleşimle sunulur. Masaüstü geniş ekranlarda önizleme ve kod paneli yan yana açılır.
+- **Sınır:** GitHub Pages PHP, Python, Rust backend veya React Native APK çalıştırmaz. Burada çalışan kod tarayıcı HTML/CSS/JS'dir. Gerçek backend için uygun bir sunucu gerekir. Harici sitelerin CORS/giriş/sunucu kodları otomatik kopyalanmaz.
+
+**Kullanım:** https://ramiz28615.github.io/my_app/?v=6.1.0#home adresini aç → Ayarlar'da OpenRouter'ı bağla → **Site oluştur** modunda isteğini yaz → oluşturulan sitenin **Canlı önizleme** panelinde **⌘ Kodu düzenle** butonunu kullan → HTML/CSS/JS'yi değiştir → **▶ Çalıştır ve önizle** → butonlara tıkla, konsolu kontrol et → **Kaydet** veya **Yayınla**.
 
 ## 6.0.2 — Sohbet odaklı yeni ana ekran
 
