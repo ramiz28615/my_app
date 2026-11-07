@@ -1,3 +1,75 @@
+# Dimensia Launchpad 4.0 — Tasarla · Önizle · GitHub'da Yayınla
+
+**Canlı stüdyo:** https://ramiz28615.github.io/my_app/?v=4.0.0
+
+**GitHub Pages'te yayımlanmış örnek:** https://ramiz28615.github.io/my_app/sites/aurora-demo/
+
+**Örnek projenin kaynak kodu:** https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html
+
+## Tek tıkla GitHub Pages yayınlama
+
+1. Stüdyoyu aç, **AI Website Studio** bölümüne gir ve kendi HTML/CSS/JS web siteni oluştur. **Launchpad** panelinde masaüstü/tablet/mobil önizlemesine bak.
+2. GitHub sahibi, var olan Pages deposu ve sitenin adresini belirle. İlk kurulum için varsayılan depo **ramiz28615 / my_app** kullanılabilir. Örnek site adı: `portfolyom`.
+3. GitHub'da https://github.com/settings/personal-access-tokens/new sayfasından **fine-grained PAT** oluştur. Yalnızca yayın yapılacak depoyu seç ve sadece **Contents: Read and write** izni ver. Kısa süreli token kullan. Tokeni sohbetlere veya HTML kaynak koduna gönderme.
+4. Tokeni Launchpad'in parola alanına gir; **GitHub Bağlantısını Test Et** düğmesine bas. Gizli token sadece açık sekmenin belleğinde tutulur, proje JSON dosyalarına ve localStorage'a kaydedilmez.
+5. Kaynağı kontrol edip hak/güvenlik onay kutusunu işaretle. **GitHub'a Yayınla** düğmesine bas. GitHub Contents API üzerinden `sites/portfolyom/index.html` oluşturulur.
+6. Mevcut GitHub Actions Pages yayın akışı bu commit'i algılar. Sonuç için **Yayın Durumunu Kontrol Et** düğmesini kullan; yayının internete yayılması biraz daha sürebilir.
+7. Sitenin adresi **https://ramiz28615.github.io/my_app/sites/portfolyom/** olur. Sonradan aynı adla yeniden yayınlamak mevcut `index.html` dosyasını SHA eşzamanlama kontrolüyle günceller.
+
+### Gerçek subdomain ve ücretsiz proje yolu arasındaki fark
+
+GitHub Pages proje yayınını çoğu zaman **`kullanici.github.io/depo/sites/projem/`** adresinde sunar; bu bir **alt yol**dur, ayrı bir alt alan adı değildir. Keyfi **`projem.github.io`** veya **`projem.kullanici.github.io`** alan adları otomatik verilmez. Sahip olduğun bir domain üzerinden `projem.seninalanadin.com` kullanmak için DNS CNAME ve GitHub Pages özel alan adı ayarı gerekir. GitHub Pages özel domain ataması bir Pages sitesi/deposu düzeyindedir; her alt klasöre ayrı domain doğrudan atanmaz.
+
+Resmi rehber: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages
+
+### Hangi dosyalar yayınlanır?
+
+Launchpad 4.0 **tek bir bağımsız `index.html` dosyası** yayınlar. CSS ve JavaScript HTML içine gömülmüş olmalıdır. 900 KB üstündeki HTML yüklemesi sınırlandırılır. Ayrı resim, font, CSS, JS dosyalarını topluca GitHub'a yükleme henüz eklenmemiştir. GitHub Pages PHP/Node.js backend, veritabanı veya gizli API anahtarı çalıştırmaz; bunlar için ayrı servis gerekir.
+
+### Güvenlik
+
+- Üretilen HTML içindeki belirgin GitHub, OpenRouter ve AWS benzeri gizli anahtar kalıpları yükleme öncesinde kontrol edilir; bu **tüm sırları yakalayacağı garantisi değildir**. Yayın öncesi kendi kodunu mutlaka incele.
+- GitHub tokeni **localStorage / GitHub deposu** içine yazılmaz; yalnızca açık sekmenin belleğinde ve kimlik doğrulamalı GitHub API isteğinde bulunur. Tarayıcı eklentileri/geliştirici araçları yine de tokeni görebilir. **Bu yöntem kişisel kullanım içindir.** Çok kullanıcılı uygulamalar için GitHub App/OAuth ve güvenli backend aracı gereklidir.
+- Siteni `sites/projem/` altına koymak onu aynı `github.io` origin'indeki diğer alt klasörlerle aynı güvenlik alanında çalıştırır. Güvenmediğin JavaScript'i yönetim uygulamanla **aynı origin altında çalıştırma**.
+- GitHub Pages içerikleri herkese açıktır. Şifre, kişisel veri veya özel lisanslı kaynak kod yayınlama.
+- Token yetkisini yalnızca tek depoya sınırla; tarayıcı sekmesini kapat veya **Anahtarı Unut** düğmesine bas.
+- Seçilen başka depolarda Pages'in önceden etkin olması gerekir; uygulama kullanıcı adına Pages ayarlarını gizlice değiştirmez.
+
+## Kod haritası
+
+| Dosya | Görevi |
+|---|---|
+| `index.html` | Dimensia Studio 4.0 ana uygulaması |
+| `studio-launchpad.css` | Yayınlama, önizleme ve proje kartları tasarımı |
+| `studio-launchpad.js` | GitHub API doğrulama, yayınlama/güncelleme, Actions durum sorgulama |
+| `sites/aurora-demo/index.html` | Yayında olan özgün, bağımsız demo sayfası |
+| `server.mjs` | Opsiyonel yerel HTML inceleme ve statik dosya sunucusu |
+| `tests/server.test.mjs` | HTTP, güvenlik ve modül entegrasyon testleri |
+| `tests/browser-smoke.mjs` | Chromium'da tüm editör adımlarını ve taklit GitHub API ile yayınlama/güncellemeyi doğrular |
+
+## Local development
+
+Node.js 20+ gereklidir. Dış bağımlılık olmadan yerel sunucu çalışır; Chromium tarayıcı testleri için Playwright ayrıca kurulur:
+
+    git clone https://github.com/ramiz28615/my_app.git
+    cd my_app
+    npm run check
+    npm test
+    npm start
+
+Tarayıcıdan http://127.0.0.1:3000 adresini aç.
+
+### Otomatik yayın ve testler
+
+- `.github/workflows/check.yml` — kod sözdizimi ve Node.js güvenlik/duman testleri.
+- `.github/workflows/browser.yml` — gerçek Chromium üzerinde editör ve GitHub API simülasyonlu otomatik yayın testleri; gerçek token veya GitHub yazma yetkisi kullanılmaz.
+- `.github/workflows/deploy.yml` — yeni commit'ler için GitHub Pages yayınlama.
+
+## Teknik kapsam
+
+Bu uygulama HTML/CSS/JS oluşturma, erişilebilir referans sayfası analizi, görsel düzenleme, önizleme, basit SEO denetimi ve GitHub Pages'e statik dağıtım yapar. Başka bir sitenin gizli backend kodunu veya oturum gerektiren içeriğini çıkaramaz. 'Dünyanın en gelişmiş' iddiası ölçülmüş bir sıralama değildir; kod geliştirme ve testlerle ilerleyen bir açık kaynak prototipidir.
+
+---
 
 ## Dimensia RE Studio 3.0 — Visual Editor / Source Explorer / AI Patch
 
