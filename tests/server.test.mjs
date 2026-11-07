@@ -23,7 +23,7 @@ await setup();
 const base='http://127.0.0.1:'+port;
 test.after(()=>child.kill('SIGTERM'));
 test('Main page, CSS and JS are served',async()=>{
- for(const item of ['/','/studio-enhancements.css','/studio-reference.js','/studio-devtools.js','/studio-re.css','/studio-re-engineer.js','/studio-flow.js']){
+ for(const item of ['/','/studio-enhancements.css','/studio-reference.js','/studio-devtools.js','/studio-re.css','/studio-re-engineer.js','/studio-flow.js','/studio-launchpad.js','/studio-launchpad.css']){
   const response=await fetch(base+item);
   assert.equal(response.status,200,item);
   assert.ok((await response.text()).length>100,item);
@@ -51,6 +51,9 @@ test('Public repository site includes module references',async()=>{
  assert.ok(source.includes('studio-re.css'));
  assert.ok(source.includes('studio-re-engineer.js'));
  assert.ok(source.includes('studio-flow.js'));
+ assert.ok(source.includes('studio-launchpad.js'));
+ assert.ok(source.includes('studio-launchpad.css'));
+ assert.ok(source.includes('v=4.0.0'))
  assert.ok(source.includes('DimensiaDevTools.instrument'));
 });
 
@@ -92,10 +95,21 @@ test('Regression: runtime modules must be loaded AFTER the main inline app scrip
  assert.ok(mainStart>0,'App runtime marker missing');
  const inlineEnd=src.indexOf('</script>',mainStart);
  assert.ok(inlineEnd>mainStart,'App script must close');
- for(const module of ['studio-devtools.js','studio-reference.js','studio-re-engineer.js','studio-flow.js']){
+ for(const module of ['studio-devtools.js','studio-reference.js','studio-re-engineer.js','studio-flow.js','studio-launchpad.js']){
   const importPos=src.indexOf('src="./'+module);
   assert.ok(importPos>inlineEnd,module+' incorrectly injected inside an inline <script> block');
  }
  const edit=src.slice(src.indexOf("codeEditor').addEventListener('input'"),src.indexOf('function setWidth'));
  assert.ok(edit.includes('DimensiaDevTools'),'Code-editor updates must keep preview inspector instrumentation');
+});
+
+test('Launchpad publishing UI and credentials safety',async()=>{
+ const content=await readFile('studio-launchpad.js','utf8');
+ for(const label of ['launchToken','launchConnect','launchPublish','launchCheck','launchPreviewFrame','launchSites','launchConfirm','api.github.com','toBase64','sites/','window.DimensiaLaunchpad']){
+  assert.ok(content.includes(label),'Missing Launchpad feature '+label);
+ }
+ assert.ok(content.includes('input type')===false||content.includes('type="password"'));
+ assert.ok(!/localStorage\.setItem\([^,]*,\s*accessToken/.test(content),'Token must not be placed in localStorage.');
+ assert.ok(content.includes('github_pat_'),'Secret scanner must detect GitHub tokens in generated HTML.');
+ assert.ok(content.includes('accessToken='),'Token state must be session-scoped.');
 });
