@@ -17,6 +17,13 @@ const CONFIG={
 };
 const aliases={python:'python',py:'python',bash:'bash',sh:'bash',shell:'bash',perl:'perl',pl:'perl',php:'php'};
 const empty=()=>({python:'',bash:'',perl:'',php:''});
+const examples={
+ python:'print("Merhaba Dimensia Python!")\nprint("Toplam:", sum([1,2,3,4,5]))',
+ bash:'#!/usr/bin/env bash\nset -eu\nprintf "Merhaba Dimensia Bash!\\n"\nprintf "Toplam: %s\\n" "$((1+2+3+4+5))"',
+ perl:'#!/usr/bin/env perl\nuse strict;\nuse warnings;\nprint "Merhaba Dimensia Perl!\\n";\nmy $sum=1+2+3+4+5;\nprint "Toplam: $sum\\n";',
+ php:'<?php\n echo "Merhaba Dimensia PHP!\\n";\n echo "Toplam: ".(1+2+3+4+5)."\\n";'
+};
+
 let sources=empty(),current='python',busy=false,auto=false,report=null,runTask=null,runId='',polling=0,loadedChat='';
 const section=document.createElement('section');
 section.id='dhrPanel';section.className='dhr-panel';section.hidden=true;
@@ -32,6 +39,7 @@ section.innerHTML=
  '<textarea id="dhrEditor" rows="6" spellcheck="false" wrap="off" autocorrect="off" autocomplete="off" autocapitalize="off" aria-label="Sohbette çalıştırılacak kodu düzenle" placeholder="Kodunu buraya yaz veya sohbet yanıtındaki Çalıştır düğmesine bas..."></textarea>'+
  '<div class="dhr-toolbar"><button type="button" class="dhr-primary" id="dhrRunOne">▶ Bu dili çalıştır</button>'+
  '<button type="button" class="dhr-primary dhr-all" id="dhrRunAll">⚡ Dört dili birlikte çalıştır</button>'+
+ '<button type="button" class="dhr-small" id="dhrExample">▣ 4 dil örneği</button>'+ 
  '<button type="button" class="dhr-small" id="dhrClear">⌫ Temizle</button>'+
  '<button type="button" class="dhr-small" id="dhrToLab">⌘ Kod Lab’a aktar</button></div>'+
  '<label class="dhr-auto"><input id="dhrAuto" type="checkbox">'+
@@ -225,9 +233,11 @@ function handleRequest(data){
  try{
   const snippets=data.sources||extract(data.text);
   fill(snippets);
+  void run('all'); // A clicked Run button starts the cloud request after explicit consent.
  }catch(e){status(e.message,true);open()}
 }
 createTabs();renderResults();choose('python');
+$('dhrExample').onclick=()=>{if(busy)return;fill(examples);status('Dört dilin örnek kodu yüklendi. Çalıştır düğmesi gerçek GitHub bulutunda çalıştırır.');};
 $('dhrClose').onclick=hide;
 $('dhrRunOne').onclick=()=>run('one');
 $('dhrRunAll').onclick=()=>run('all');
