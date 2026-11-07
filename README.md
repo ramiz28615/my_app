@@ -26,6 +26,16 @@ Visit http://127.0.0.1:3000 and open **AI Website Studio > Dimensia RE Studio**.
 7. Run **Analiz & SEO** for basic accessibility/semantic/SEO checks; download a JSON audit.
 8. In **AI Revizyon**, connect your own OpenRouter Free API key and request custom CSS or a complete HTML rewrite. Free model quotas and output limits apply.
 
+
+### Interaction Flow Recorder
+Below the visual editor in AI Website Studio, use the interactive workflow recorder:
+1. Click **Kaydı Başlat**, then click menus, buttons and complete the interactions you want to observe in your **own preview**.
+2. Recorded click events, form-event types and hash navigation are displayed in a horizontal flow timeline. **No form contents, passwords, emails or other entered values are recorded.**
+3. Click **Akışı Oynat** to replay eligible local button/hash interactions. For safety, form submissions and external link navigation are skipped. Buttons that call backend services may have side effects; review the site before replaying.
+4. Click **JSON** to export the interaction sequence, element selectors and timestamps.
+
+Recording works only in the instrumented sandbox preview, not in the remote reference URL. When a page navigates completely outside the preview, the recorder cannot follow the new site.
+
 ### Source and browser security boundaries
 - Only **publicly reachable** URL resources are fetched. The optional Node service blocks loopback, private and reserved IP addresses, disallows nonstandard ports, pins DNS and validates redirects, caps response size, checks expected MIME types and rate-limits clients. **Do not** expose it as an unauthenticated public scraping service.
 - The URL inspector does **not** execute scripts on remote sites and does not reproduce JavaScript-rendered dynamic pages, logged-in actions, private code or protected endpoints.
@@ -39,6 +49,7 @@ Visit http://127.0.0.1:3000 and open **AI Website Studio > Dimensia RE Studio**.
 - studio-reference.js — URL reference metadata and OpenRouter client.
 - studio-re-engineer.js — visual editor, source file explorer, versioning, audit and AI revision UI.
 - studio-devtools.js — preview-only console, network and action capture.
+- studio-flow.js — interaction flow timeline, replay and JSON export.
 - server.mjs — dependency-free optional public URL inspector and source retrieval.
 - tests/server.test.mjs — local network restrictions and integration smoke tests.
 - .github/workflows/check.yml — CI syntax and smoke tests.
