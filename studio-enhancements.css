@@ -1,0 +1,50 @@
+/* DIMENSIA REFERENCE LAB & DEVELOPER CONSOLE — companion to Aurora */
+.reference-lab{margin:18px 0 16px;padding:18px;border-radius:15px;border:1px solid #574f85;background:radial-gradient(ellipse at 99% 0%,#7258a52e,transparent 60%),linear-gradient(150deg,#1b2033,#141827)}
+.reference-lab h3{font-size:14px;letter-spacing:-.2px;color:#ede7ff;margin:0 0 8px;display:flex;align-items:center;gap:9px}
+.reference-lab p{color:#aeb6cc;font-size:11px;line-height:1.6;margin:0 0 13px}
+.reference-lab .reference-controls{display:flex;gap:7px;align-items:stretch}
+.reference-lab input[type=url]{background:#0d1222;color:white;border:1px solid #3a4263;outline:0;border-radius:9px;padding:12px;min-width:0;width:100%;font-size:11px}
+.reference-lab input:focus,.reference-lab textarea:focus,.or-card input:focus,.or-card select:focus{border-color:#a58cff;box-shadow:0 0 0 3px #896efc21}
+.reference-lab .reference-controls button,.reference-lab .reference-file{border:1px solid #7264ac;background:#302b50;color:#f1ecff;border-radius:9px;padding:0 13px;white-space:nowrap;font-size:11px;font-weight:700;cursor:pointer}
+.reference-lab .reference-controls button:hover,.reference-lab .reference-file:hover{background:#493976}
+.reference-lab .reference-file{display:inline-flex;align-items:center;min-height:34px;padding:9px 11px;margin:11px 0 5px}
+.reference-lab .reference-details summary{cursor:pointer;color:#b9b2f6;font-size:11px;font-weight:600;margin:8px 0}
+.reference-lab textarea{width:100%;min-height:95px;resize:vertical;background:#0c1220;border:1px solid #36415d;color:white;border-radius:9px;padding:11px;outline:0;font-size:11px}
+.reference-lab .reference-paste{margin-top:8px;border:1px solid #444766;border-radius:8px;background:#1b2440;color:white;font-size:11px;padding:8px 12px;cursor:pointer}
+.reference-report{margin-top:9px;font-size:11px;line-height:1.6;color:#afbdd7;border:1px solid #3c4a6c;border-radius:10px;padding:12px;max-height:235px;overflow-y:auto}
+.reference-report[hidden]{display:none!important}
+.reference-report strong{color:#e9e4ff}
+.reference-report .reference-chip{display:inline-block;border:1px solid #414d6c;padding:3px 8px;margin:4px 4px 1px 0;border-radius:7px;background:#161e34;color:#c9d4ea;font-size:10px}
+.reference-report .report-good{color:#78dfc4}
+.reference-report .report-warn{color:#ffcf84}
+.or-card{grid-column:span 2;min-height:auto!important}
+.or-card .or-connection-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.85fr);gap:13px;margin:12px 0}
+.or-card label{display:block;font-size:11px;color:#b4bbd4;margin-bottom:7px;font-weight:700}
+.or-card input,.or-card select{width:100%;border:1px solid #454b68;background:#0e1424;color:#eee9ff;outline:0;border-radius:9px;padding:11px;font-size:12px}
+.or-card .or-key-row{display:flex;gap:8px}
+.or-card .or-key-row input{min-width:0;flex:1}
+.or-card .or-key-row button{border:1px solid #494e6a;border-radius:9px;padding:8px 12px;background:#252b40;color:#e2dafa;cursor:pointer}
+.or-card .or-hint{font-size:11px;line-height:1.6;color:#9baac5;margin:8px 0 0}
+.or-card .or-status{margin-top:14px;display:flex;gap:9px;align-items:center;font-size:11px;color:#b4c3df}
+.or-card .or-status strong{color:#75e9bd}
+.or-card .or-link{font-size:11px;color:#afa2ff;text-decoration:underline;text-underline-offset:3px}
+.preview-devtools{border-top:1px solid #333f55;background:#0c111e;min-height:170px}
+.preview-devtools .devtools-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;gap:7px;border-bottom:1px solid #282f41}
+.preview-devtools .devtools-tabs{display:flex;gap:5px}
+.preview-devtools button{border:1px solid transparent;border-radius:7px;background:transparent;color:#929bb5;padding:7px 10px;font-size:10px;font-weight:700;cursor:pointer}
+.preview-devtools button:hover{background:#202a41;color:#fff}
+.preview-devtools button.active{color:#ddd2ff;background:#292745;border-color:#51487d}
+.preview-devtools .devtools-actions{display:flex;gap:6px;align-items:center}
+.preview-devtools .devtools-body{min-height:118px;max-height:235px;overflow-y:auto;padding:6px 13px 11px}
+.preview-devtools .devtools-row{font:11px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;color:#cbd4e9;padding:6px 3px;border-bottom:1px solid #1b2435;white-space:pre-wrap;overflow-wrap:anywhere;display:flex;gap:10px;justify-content:space-between}
+.preview-devtools .devtools-row small{color:#6e809e;white-space:nowrap;font-size:10px}
+.preview-devtools .devtools-row.error{color:#ffb2bd}
+.preview-devtools .devtools-row.warn{color:#ffd28d}
+.preview-devtools .devtools-row.network{color:#92cef2}
+.preview-devtools .devtools-row.action{color:#b0c6ff}
+.preview-devtools .devtools-empty{padding:24px 12px;text-align:center;font-size:11px;color:#7789a7}
+.preview-devtools .devtools-disclaimer{font-size:9px;line-height:1.5;color:#7b88a1;border-top:1px solid #1f283a;padding:8px 15px}
+.preview-devtools[data-collapsed=true] .devtools-body,.preview-devtools[data-collapsed=true] .devtools-disclaimer{display:none}
+.preview-devtools .devtools-count{display:inline-block;color:#89cbb7;background:#14372d;border-radius:5px;padding:2px 5px;margin-left:4px}
+@media(max-width:950px){.or-card{grid-column:span 1}}
+@media(max-width:660px){.reference-lab .reference-controls{flex-direction:column}.reference-lab .reference-controls button{padding:12px}.or-card .or-connection-grid{grid-template-columns:1fr}.preview-devtools .devtools-tabs{overflow-x:auto;max-width:100%}.preview-devtools button{padding:7px 8px;font-size:10px}}
