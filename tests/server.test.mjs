@@ -143,3 +143,22 @@ test('OpenRouter API diagnostics separate key verification, model completion and
  assert.ok(!html.includes('API sunucusuna ulaşılamıyor. Yerel şablon motoru'),'Legacy Node warning must not claim OpenRouter is offline');
  assert.ok(!/sk-or-v1-[a-f0-9]{40,}/i.test(reference),'No actual-looking OpenRouter API keys in public source.');
 });
+
+
+test('Chat-first homepage remains separate from legacy Studio without storing any API key',async()=>{
+ const [html,chat,css]=await Promise.all([
+  readFile('index.html','utf8'),
+  readFile('studio-chat.js','utf8'),
+  readFile('studio-chat.css','utf8')
+ ]);
+ assert.ok(html.includes('studio-chat.js?v=6.0.0')&&html.includes('studio-chat.css?v=6.0.0'));
+ assert.ok(html.includes('id="page-home"')&&html.includes('id="page-studio"'),'Legacy sections must stay');
+ for(const id of ['dimensiaChatHub','dhConversation','dhInput','dhSend','dhNewSide','dhHistory','dhModeBuild','dhPreview','dhSave','dhPublish']){
+  assert.ok(chat.includes(id),'Missing chat feature '+id);
+ }
+ assert.ok(chat.includes('window.DimensiaOpenRouter.ask'),'Chat must use the established provider');
+ assert.ok(chat.includes('sandbox="allow-scripts allow-forms"'),'Generated HTML must use sandboxed preview');
+ assert.ok(css.includes('body.dh-home-active .main-content'),'Chat should replace homepage styling only');
+ assert.ok(css.includes('.dh-shell [hidden]'),'Hidden state must be respected');
+ assert.ok(!/sk-or-v1-[a-z0-9]{40,}/i.test(chat),'Never embed user API key in chat UI');
+});
