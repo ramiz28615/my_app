@@ -559,7 +559,7 @@
     return parsed;
   }
   async function saveCodeLabFile(language,filename,content){
-    const allow={html:'index.html',css:'style.css',javascript:'main.js',python:'main.py',rust:'main.rs',bash:'main.sh',reactnative:'App.js'};
+    const allow={html:'index.html',css:'style.css',javascript:'main.js',python:'main.py',rust:'main.rs',bash:'main.sh',perl:'main.pl',reactnative:'App.js'};
     if(!Object.prototype.hasOwnProperty.call(allow,language)||allow[language]!==filename)throw Error('Code Lab sadece güvenli dosya yollarına kaydedebilir.');
     if(typeof content!=='string'||new TextEncoder().encode(content).length>100000)throw Error('Kod en fazla 100 KB olabilir.');
     if(/(?:github_pat_[a-zA-Z0-9_]{15,}|ghp_[a-zA-Z0-9]{20,}|sk-or-v1-[a-zA-Z0-9_-]{16,})/.test(content))throw Error('Kodda gizli API tokeni bulunuyor. GitHub’a yüklenmesi engellendi.');
@@ -578,7 +578,49 @@
     });
     return{path:filePath,sha:uploaded?.commit?.sha||'',url:'https://github.com/'+t.owner+'/'+t.repo+'/blob/'+connectedBranch+'/'+filePath};
   }
-  window.DimensiaLaunchpad={slug,validSlug,validOwner,validRepo,pageURL,checkStatus,refreshPreview,startCloudAnalysis,fetchCloudAnalysis,saveCodeLabFile};
+  async function savePolyglotFiles(projectFiles){
+    const allow={html:'index.html',css:'style.css',javascript:'main.js',python:'main.py',rust:'main.rs',bash:'main.sh',perl:'main.pl',reactnative:'App.js'};
+    if(!projectFiles||typeof projectFiles!=='object')throw Error('Kaydedilecek proje dosyaları eksik.');
+    const saved=[];
+    for(const language of Object.keys(allow)){
+      if(!Object.prototype.hasOwnProperty.call(projectFiles,language))continue;
+      const value=projectFiles[language];
+      if(typeof value!=='string')throw Error('Geçersiz dosya: '+language);
+      saved.push(await saveCodeLabFile(language,allow[language],value));
+    }
+    if(!saved.length)throw Error('Kaydedilecek kaynak dosyası yok.');
+    return saved;
+  }
+  async function startPolyglotRun(runId){
+    if(!/^r[a-z0-9]{9,35}$/.test(runId))throw Error('Geçersiz çalışma kimliği.');
+    const t={owner:el('launchOwner').value.trim(),repo:el('launchRepo').value.trim()};
+    if(!validOwner(t.owner)||!validRepo(t.repo))throw Error('GitHub kullanıcı/depo bilgisi geçersiz.');
+    if(!accessToken||accessToken.length<20)throw Error('GitHub Launchpad: Contents (read/write) ve Actions (read/write) izinli token gir. Token yalnızca bellek içinde kalır.');
+    if(connectedRepo!==t.owner.toLowerCase()+'/'+t.repo.toLowerCase()||!authenticated)await connect(t);
+    if(connectedBranch!=='main')throw Error('Çok dilli workflow şu an yalnızca main dalında kullanılabilir.');
+    await api('POST',paths(t)+'/actions/workflows/polyglot-execute.yml/dispatches',{
+      ref:connectedBranch,inputs:{run_id:runId}
+    });
+    return{owner:t.owner,repo:t.repo,branch:connectedBranch,id:runId,
+      actionsUrl:'https://github.com/'+t.owner+'/'+t.repo+'/actions/workflows/polyglot-execute.yml'};
+  }
+  async function fetchPolyglotReport(task){
+    if(!task||!/^r[a-z0-9]{9,35}$/.test(task.id))throw Error('Geçersiz rapor kimliği.');
+    const t={owner:task.owner,repo:task.repo};
+    if(!validOwner(t.owner)||!validRepo(t.repo))throw Error('Geçersiz GitHub deposu.');
+    const url=paths(t)+'/contents/code-lab/reports/'+encodeURIComponent(task.id)+'.json?ref='+encodeURIComponent(task.branch||'main');
+    const result=await api('GET',url,undefined,true);
+    if(!result)return null;
+    if(result.encoding!=='base64'||typeof result.content!=='string')throw Error('GitHub raporu beklenen formatta değil.');
+    const raw=atob(result.content.replace(/\s/g,''));
+    if(raw.length>240000)throw Error('Çalıştırma raporu sınırı aşıldı.');
+    const report=JSON.parse(new TextDecoder().decode(Uint8Array.from(raw,c=>c.charCodeAt(0))));
+    if(report.schema!=='dimensia-polyglot-v1'||report.requestId!==task.id)throw Error('Rapor farklı bir çalışmaya ait.');
+    return report;
+  }
+  window.DimensiaLaunchpad={slug,validSlug,validOwner,validRepo,pageURL,checkStatus,refreshPreview,
+    startCloudAnalysis,fetchCloudAnalysis,saveCodeLabFile,savePolyglotFiles,startPolyglotRun,fetchPolyglotReport};
+
   el('launchSlug').value=slug(state.siteName||'yeni-site')||'yeni-site';
   refreshAddress();renderRecords();refreshPreview();step(0);
 })();
