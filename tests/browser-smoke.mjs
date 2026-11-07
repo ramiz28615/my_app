@@ -90,6 +90,7 @@ try{
  checkNoErrors('Audit and history');
  log('Audit/history','ready');
 
+ await page.locator('.reference-details summary').click();
  await page.locator('#referenceHtml').fill('<!doctype html><html><head><title>Örnek Başlık</title></head><body><nav><a href="/test">Menü</a></nav><button>Deneme</button></body></html>');
  await page.locator('#inspectPastedHtml').click();
  assert.ok((await page.locator('#referenceReport').innerText()).includes('Örnek Başlık'));
