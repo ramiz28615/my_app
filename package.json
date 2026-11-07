@@ -1,9 +1,9 @@
 {
   "name": "dimensia-studio",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "private": true,
   "type": "module",
-  "description": "Dimensia Studio 4.0: 2D-7D visualization, AI website creation, visual RE editor, browser-tested GitHub Pages site publishing",
+  "description": "Dimensia RE Studio + GitHub Pages Launchpad 4.1: free publishing, live previews, remote site discovery and HTML editing",
   "engines": {
     "node": ">=20"
   },
