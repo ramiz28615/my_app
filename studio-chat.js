@@ -123,19 +123,20 @@ function safeText(root,text){
  const fence=new RegExp('(?:^|\\n)\\x60{3}([\\w+#.-]{0,20})\\n([\\s\\S]*?)\\x60{3}','g');
  let last=0,match;
  while((match=fence.exec(value))!==null){
+  const codeText=match[2]; // Capture per block: RegExp.exec returns null after the loop.
   if(match.index>last){const p=document.createElement('div');p.className='dh-text';p.textContent=value.slice(last,match.index).trim();root.append(p)}
   const block=document.createElement('div');block.className='dh-block';
   const head=document.createElement('div');head.className='dh-block-head';
   const language=(match[1]||'').trim().toLowerCase();
   const title=document.createElement('span');title.textContent=language||'code';head.append(title);
   const btn=document.createElement('button');btn.type='button';btn.textContent='⌑ Kopyala';
-  btn.onclick=()=>copy(match[2]);head.append(btn);
+  btn.onclick=()=>copy(codeText);head.append(btn);
   const map={python:'python',py:'python',bash:'bash',sh:'bash',shell:'bash',perl:'perl',pl:'perl',php:'php'};
   if(map[language]){
    const run=document.createElement('button');run.type='button';run.className='dh-code-run';
    run.textContent='▶ Çalıştır';run.title='GitHub Actions üzerinde izinli bulut çalıştırması';
    run.onclick=()=>document.dispatchEvent(new CustomEvent('dimensia:chat-code-request',{
-    detail:{sources:{[map[language]]:match[2]},chatId:active}
+    detail:{sources:{[map[language]]:codeText},chatId:active}
    }));
    head.append(run);
   }
