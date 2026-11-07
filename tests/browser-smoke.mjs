@@ -654,6 +654,47 @@ try{
  checkNoErrors('Conversation build and history');
  log('Conversation build','complete HTML build, isolated preview, mobile, project save and history passed');
 
+ // Real assistant replies expose executable code-fence buttons.
+ // A declined approval must never dispatch code, even in automatic approval mode.
+ const fenceRoute=async route=>{
+  const fence='\x60\x60\x60';
+  const reply='Kod örnekleri:\n'+
+    fence+'python\nprint("CHAT_FENCE_PY")\n'+fence+'\n'+
+    fence+'bash\nprintf "CHAT_FENCE_BASH\\n"\n'+fence+'\n'+
+    fence+'perl\nprint "CHAT_FENCE_PERL\\n";\n'+fence+'\n'+
+    fence+'php\n<?php echo "CHAT_FENCE_PHP\\n";\n'+fence;
+  await route.fulfill({status:200,contentType:'application/json',
+   headers:{'access-control-allow-origin':'*'},
+   body:JSON.stringify({model:'mock/fences:free',choices:[{finish_reason:'stop',message:{content:reply}}]})});
+ };
+ await page.route('https://openrouter.ai/api/v1/chat/completions',fenceRoute);
+ await page.locator('#dhInput').fill('Python Bash Perl PHP için küçük birer kod yaz.');
+ await page.locator('#dhSend').click();
+ await page.waitForFunction(()=>document.querySelectorAll('#dhThread .dh-code-run').length===4,{timeout:12000});
+ assert.equal(await page.locator('#dhThread .dh-run-all').count(),1,'Multi-language code reply needs Run All button');
+ const originalDispatch=chatDispatch;
+ page.once('dialog',dialog=>dialog.dismiss());
+ await page.locator('#dhThread .dh-code-run').first().click();
+ assert.ok(await page.evaluate(()=>window.DimensiaChatRunner.getSources().python.includes('CHAT_FENCE_PY')),
+   'Clicking a code fence loads the exact Python source into the conversation editor');
+ assert.equal(chatDispatch,originalDispatch,'Denying consent must not trigger GitHub execution');
+ assert.ok((await page.locator('#dhrStatus').innerText()).includes('iptal'),'Rejected consent should be visible');
+
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#dhrAuto').check();
+ assert.equal(await page.evaluate(()=>window.DimensiaChatRunner.getState().auto),true);
+ page.once('dialog',dialog=>dialog.dismiss());
+ await page.locator('#dhInput').fill('Bir kez daha dört dilde aynı örneği yaz.');
+ await page.locator('#dhSend').click();
+ await page.waitForFunction(()=>document.querySelector('#dhrStatus')?.textContent.includes('iptal'),{timeout:12000});
+ assert.equal(chatDispatch,originalDispatch,'Auto mode must still ask permission for every run');
+ await page.locator('#dhrAuto').uncheck();
+ await page.locator('#dhrClose').click();
+ await page.unroute('https://openrouter.ai/api/v1/chat/completions',fenceRoute);
+ checkNoErrors('Chat fenced code and consent');
+ log('Chat code fences','four inline Run buttons, message Run All and auto mode require explicit user approval');
+
+
  await page.locator('[data-nav="settings"]').click();
  await page.locator('#orForget').click();
  assert.equal(await page.locator('#orKey').inputValue(),'');
@@ -705,6 +746,25 @@ try{
  assert.ok(chatGeometry.overflow<=2,'Chat UI should not overflow horizontal viewport');
  assert.ok(await page.locator('#dhSend').isVisible());
  log('Chat mobile','mobile 390px composer visible, controls usable, no horizontal overflow');
+ await page.locator('#dhRunQuick').click();
+ const runnerPhone=await page.evaluate(()=>{
+  const panel=document.querySelector('#dhrPanel')?.getBoundingClientRect();
+  const textarea=document.querySelector('#dhrEditor')?.getBoundingClientRect();
+  return{viewport:innerWidth,scroll:document.documentElement.scrollWidth,
+   panelWidth:Math.round(panel?.width||0),editorWidth:Math.round(textarea?.width||0),
+   visible:!document.querySelector('#dhrPanel')?.hidden};
+ });
+ console.log('[CHAT RUNNER MOBILE]',JSON.stringify(runnerPhone));
+ assert.ok(runnerPhone.visible&&runnerPhone.editorWidth>235,'Code runner editor must be visible on narrow mobile viewport');
+ assert.ok(runnerPhone.scroll<=runnerPhone.viewport+2,'Code runner should not overflow phone horizontally');
+ assert.ok(runnerPhone.panelWidth<=runnerPhone.viewport+2);
+ await page.locator('#dhrExample').click();
+ await page.locator('[data-dhr-lang="php"]').click();
+ assert.ok((await page.locator('#dhrEditor').inputValue()).includes('<?php'),'Mobile PHP tab must be editable');
+ await page.locator('#dhrClose').click();
+ checkNoErrors('Chat runner mobile');
+ log('Chat runner mobile','four-language source editor fits narrow phone viewport');
+
  await page.locator('[data-nav="studio"]').evaluate(el=>el.click());
  await page.locator('#navPolyglot').evaluate(el=>el.click());
  const polyGeometry=await page.evaluate(()=>{
