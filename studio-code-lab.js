@@ -66,7 +66,9 @@ const output=s=>{$('labOutput').textContent=String(s).slice(0,18000)};
 const addOutput=s=>{const x=$('labOutput');x.textContent=(x.textContent===''?'':x.textContent+'\n')+String(s).slice(0,1400);x.scrollTop=x.scrollHeight};
 function saveCurrent(){files[lang]=$('labEditor').value}
 function load(kind){
- saveCurrent();lang=kind;const def=TEMPLATES[kind];
+ if($('labEditor').dataset.loaded==='true')saveCurrent();
+ lang=kind;const def=TEMPLATES[kind];
+ $('labEditor').dataset.loaded='true';
  $('labEditor').value=files[lang];$('labFileName').textContent=def.file;
  $('labRuntime').textContent=def.mode;
  $('labCapability').textContent=def.runnable==='js'?'İzole JS çalıştırma':def.runnable==='python'?'İsteğe bağlı Python WASM':def.runnable==='preview'?'HTML canlı önizleme':def.runnable==='css'?'CSS kaynak editörü':'Native / GitHub Actions';
