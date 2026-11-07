@@ -95,8 +95,8 @@
   }
   plan.forEach((p,i)=>{
    const item=document.createElement('div');item.className='ai-row';
-   const b=document.createElement('b');b.textContent=(i+1)+'. '+trim(p.title,130);
-   const small=document.createElement('small');small.textContent=trim(p.detail,270);
+   const b=document.createElement('b');b.textContent=(i+1)+'. '+trimmed(p.title,130);
+   const small=document.createElement('small');small.textContent=trimmed(p.detail,270);
    item.append(b,small);panel.append(item);
   });
  }
@@ -139,7 +139,7 @@
   if(!html)return;
   if(!history.length&&state.siteHtml)history.push({html:state.siteHtml,label:'Başlangıç',time:new Date().toLocaleTimeString('tr-TR')});
   history=history.slice(0,historyPos+1||history.length);
-  if(history.at(-1)?.html!==html)history.push({html,label:trim(label,70),time:new Date().toLocaleTimeString('tr-TR')});
+  if(history.at(-1)?.html!==html)history.push({html,label:trimmed(label,70),time:new Date().toLocaleTimeString('tr-TR')});
   if(history.length>20)history.shift();
   historyPos=history.length-1;
  }
@@ -155,11 +155,11 @@
   if(!doc.querySelector('title')?.textContent.trim())add('warning','Sayfa başlığı eksik','Kısa ve açıklayıcı bir title gerekiyor.');
   const images=[...doc.querySelectorAll('img:not([alt])')];
   if(images.length)add('warning','Alternatif metin eksik',images.length+' img öğesinde alt bulunamadı.');
-  const buttons=[...doc.querySelectorAll('button,[role="button"]')].filter(b=>!trim(b.textContent)&&!b.getAttribute('aria-label')&&!b.getAttribute('title'));
+  const buttons=[...doc.querySelectorAll('button,[role="button"]')].filter(b=>!trimmed(b.textContent)&&!b.getAttribute('aria-label')&&!b.getAttribute('title'));
   if(buttons.length)add('warning','Buton adı eksik',buttons.length+' etkileşim öğesinin okunabilir ismi bulunamadı.');
   const ids=new Set(),dupes=[];
   for(const e of doc.querySelectorAll('[id]')){if(ids.has(e.id))dupes.push(e.id);else ids.add(e.id)}
-  if(dupes.length)add('warning','Tekrarlanan id',trim(dupes.join(', '),180));
+  if(dupes.length)add('warning','Tekrarlanan id',trimmed(dupes.join(', '),180));
   const scripts=[...doc.querySelectorAll('script[src]')].filter(x=>/^https?:\/\//i.test(x.src));
   if(scripts.length)add('warning','Üçüncü taraf JS',scripts.length+' harici JavaScript kaynağı çalışabilir; izin ve güvenliği kontrol et.');
   if(/(?:github_pat_[a-zA-Z0-9_]{15,}|ghp_[a-zA-Z0-9]{20,}|sk-or-v1-[a-zA-Z0-9_-]{15,}|AKIA[0-9A-Z]{16})/.test(html))add('error','Kaynak içinde olası gizli anahtar','Kodda token/key tespit edildi. Yayınlama öncesi çıkar.');
@@ -192,7 +192,7 @@
  }
  function fallbackPlan(request){
   return[
-   {title:'İhtiyaç analizi',detail:trim(request.prompt,180)},
+   {title:'İhtiyaç analizi',detail:trimmed(request.prompt,180)},
    {title:'Sayfa bileşenleri',detail:'Başlık, menüler, kartlar, formlar ve etkileşimli bölümleri planla.'},
    {title:'Responsive tasarım',detail:'Mobil, tablet ve masaüstü erişilebilir tema; '+request.style+' görsel dil.'},
    {title:'Uygulama mantığı',detail:'Butonlar, modallar, formlar ve kullanıcı akışları çalışan yerel JavaScript ile.'},
@@ -215,7 +215,7 @@
    if(match)parsed=JSON.parse(match[0]);
   }catch{}
   plan=Array.isArray(parsed?.steps)?
-    parsed.steps.slice(0,8).map(x=>({title:trim(x.title,95),detail:trim(x.detail,300)})).filter(x=>x.title):fallbackPlan(settings);
+    parsed.steps.slice(0,8).map(x=>({title:trimmed(x.title,95),detail:trimmed(x.detail,300)})).filter(x=>x.title):fallbackPlan(settings);
   activeTab='plan';render();status('✓ Görev planı hazır. Sonraki adım kod üretimi.');
   return plan;
  }
@@ -239,7 +239,7 @@
   if(html.length>650000)throw Error('Üretilen kod aşırı büyük (650 KB üzeri).');
   const report=inspect(html);
   if(report.some(x=>x.level==='error'))throw Error('Oluşturulan HTML güvenlik veya bütünlük kontrolünden geçmedi: '+report.filter(x=>x.level==='error').map(x=>x.title).join(', '));
-  snapshot(html,'AI '+settings.mode+' · '+trim(settings.prompt,48));
+  snapshot(html,'AI '+settings.mode+' · '+trimmed(settings.prompt,48));
   showHTML(html,settings.mode==='new'?'Dimensia AI Site':state.siteName||'Dimensia AI Site');
   issues=report;activeTab='quality';render();
   showStage(3);status('✓ HTML/CSS/JS üretildi, kaynak kontrolünden geçti ve canlı önizleme güncellendi.');
