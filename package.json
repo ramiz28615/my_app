@@ -1,15 +1,15 @@
 {
   "name": "dimensia-studio",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "private": true,
   "type": "module",
-  "description": "Dimensia Architect 5.0: no-local-Node GitHub Cloud URL analyzer, visual RE diagrams, full-stack source editing and polyglot code lab",
+  "description": "Dimensia Studio 5.1: OpenRouter AI planning, build audit and repair, RE Architect and multi-language code lab",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "start": "node server.mjs",
-    "check": "node --check server.mjs && node --check studio-reference.js && node --check studio-devtools.js && node --check studio-re-engineer.js && node --check studio-flow.js && node --check studio-launchpad.js && node --check architect-core.mjs && node --check backend-template.mjs && node --check studio-architect.js && node --check studio-code-lab.js && node --check scripts/cloud-scan.mjs",
+    "check": "node --check server.mjs && node --check studio-reference.js && node --check studio-devtools.js && node --check studio-re-engineer.js && node --check studio-flow.js && node --check studio-launchpad.js && node --check architect-core.mjs && node --check backend-template.mjs && node --check studio-architect.js && node --check studio-code-lab.js && node --check scripts/cloud-scan.mjs && node --check studio-ai-agent.js",
     "test": "node --test tests/*.test.mjs"
   }
 }
