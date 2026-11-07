@@ -18,7 +18,8 @@ const allowed=new Map([
  ['/studio-devtools.js',['studio-devtools.js','application/javascript; charset=utf-8']],
  ['/studio-reference.js',['studio-reference.js','application/javascript; charset=utf-8']],
  ['/studio-re.css',['studio-re.css','text/css; charset=utf-8']],
- ['/studio-re-engineer.js',['studio-re-engineer.js','application/javascript; charset=utf-8']]
+ ['/studio-re-engineer.js',['studio-re-engineer.js','application/javascript; charset=utf-8']],
+ ['/studio-flow.js',['studio-flow.js','application/javascript; charset=utf-8']]
 ]);
 const hits=new Map();
 const json=(res,status,body)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(body))};
