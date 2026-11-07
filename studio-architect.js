@@ -37,6 +37,7 @@
  '<div class="arch-step" data-step="4"><strong>5</strong> Akış Diyagramı</div>'+
  '<div class="arch-step" data-step="5"><strong>6</strong> Düzenleme</div></div>'+
  '<div class="arch-notice" id="archNotice" aria-live="polite">Kendi siteni tara veya izinli bir URL gir. Node.js kurulu olmasına gerek yok.</div>'+
+ '<div class="arch-fallback" id="archFallback" hidden aria-label="Alternatif analiz yöntemleri"></div>'+
  '<div class="arch-statline" id="archStats"><div class="arch-stat"><b>0</b> Sayfa</div></div>'+
  '<div class="arch-tabs" role="tablist">'+
  '<button class="arch-tab active" data-tab="summary">◈ Özet</button>'+
@@ -91,6 +92,7 @@
    activity:[{stage:'html',detail:'HTML/DOM tarandı',status:'complete'},{stage:'css',detail:'Inline CSS renk ve font özellikleri bulundu',status:'complete'},{stage:'js',detail:'JavaScript event ipuçları çıkarıldı',status:'complete'}]};
  }
  function remoteReport(result,mode){
+  $('archFallback').hidden=true;
   report=result;sourceMode=mode;
   const total=report.totals||{};
   if(!Array.isArray(report.pages)||!report.pages.length)throw Error('Analiz sonucu geçerli sayfa içermiyor.');
@@ -126,7 +128,8 @@
   let reason='';
   try{
   try{
-   // Local Node server provides multi-page safe crawling. GitHub Pages does not.
+   // Static Pages has no /api/architect route: do not waste time requesting it.
+   if(/\.github\.io$/i.test(location.hostname))throw Error('Static GitHub Pages');
    const api=new URL('api/architect?'+new URLSearchParams({url:target.href,consent:'yes',pages:'5',assets:'10'}),document.baseURI);
    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),32000);
    try{
@@ -148,10 +151,36 @@
     remoteReport(parseHTML(html,target.href),'Tarayıcı CORS analizi');return;
    }finally{clearTimeout(timer)}
   }catch(e){reason=String(e.message||e)}
-  notice('Tarayıcı doğrudan HTML kaynağını açamadı (CORS). ☁ GitHub Bulut Tarama düğmesini kullan; Node kurmana gerek yok. GitHub tokenine Actions: write izni gerekir. Alternatif: HTML dosyası yükle. '+trim(reason,100),true);
+  notice('Bu site HTML kaynağını tarayıcıya açmıyor (CORS). Google gibi sitelerde bu normal. Node.js kurman gerekmiyor: aşağıdaki dört alternatiften birini seç.',true);
+  showFallback(target.href,reason);
   setTab('summary');
   return;
   }finally{setBusy(false)}
+ }
+ function showFallback(url,reason){
+  const box=$('archFallback');if(!box)return;
+  box.replaceChildren();box.hidden=false;
+  const heading=document.createElement('strong');heading.textContent='URL kaynak erişimi sınırlandı — alternatif analiz yolları';
+  const description=document.createElement('p');
+  description.textContent='Kaynak: '+trim(url,125)+' · Bu, tarayıcının güvenlik politikasıdır; bir Node.js kurulum hatası değildir.';
+  const list=document.createElement('div');list.className='arch-fallback-options';
+  const choice=(label,note,fn)=>{
+   const button=document.createElement('button');button.type='button';button.className='arch-btn';
+   const b=document.createElement('b');b.textContent=label;
+   const small=document.createElement('small');small.textContent=note;
+   button.append(b,small);button.addEventListener('click',fn);list.append(button);
+  };
+  choice('☁ GitHub Bulut Tarama','Actions izni verilen kendi tokeninle uzaktan, yapısal metadata analizi.',()=>$('archCloud').click());
+  choice('↑ HTML Dosyası Yükle','Sahibi olduğun HTML dosyasını yükle; Node gerektirmez.',()=>$('archHTMLFile').click());
+  choice('⌘ Kendi Projemi Tara','Stüdyodaki mevcut HTML/CSS/JS sayfanı doğrudan inceler.',()=>$('archOwnScan').click());
+  choice('≡ HTML Yapıştır','Reference Lab alanına izinli HTML kaynak metnini yapıştır.',()=>{
+   const details=document.querySelector('.reference-details');if(details)details.open=true;
+   const input=$('referenceHtml');input?.scrollIntoView({behavior:'smooth',block:'center'});input?.focus();
+  });
+  box.append(heading,description,list);
+  if(reason&&reason!=='Failed to fetch'){
+   const extra=document.createElement('small');extra.textContent='Teknik ayrıntı: '+trim(reason,160);box.append(extra);
+  }
  }
  function elConsent(){return $('archConsent').checked}
  async function cloudScan(){
