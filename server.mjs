@@ -24,6 +24,11 @@ const allowed=new Map([
  ['/studio-launchpad.css',['studio-launchpad.css','text/css; charset=utf-8']],
  ['/studio-launchpad.js',['studio-launchpad.js','application/javascript; charset=utf-8']],
  ['/studio-architect.css',['studio-architect.css','text/css; charset=utf-8']],
+ ['/studio-architect.js',['studio-architect.js','application/javascript; charset=utf-8']],
+ ['/studio-code-lab.js',['studio-code-lab.js','application/javascript; charset=utf-8']],
+ ['/studio-code-lab.css',['studio-code-lab.css','text/css; charset=utf-8']],
+ ['/backend-template.mjs',['backend-template.mjs','application/javascript; charset=utf-8']],
+ ['/studio-architect.css',['studio-architect.css','text/css; charset=utf-8']],
  ['/studio-architect.js',['studio-architect.js','application/javascript; charset=utf-8']]
 ]);
 const hits=new Map();
