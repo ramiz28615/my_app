@@ -1,9 +1,9 @@
 {
   "name": "dimensia-studio",
-  "version": "5.2.0",
+  "version": "5.2.1",
   "private": true,
   "type": "module",
-  "description": "Dimensia Studio 5.2: Android responsive fixes, no-Node CORS analysis alternatives and multi-language AI builder",
+  "description": "Dimensia Studio 5.2.1: Android responsive recovery, CORS fallback URLs, AI builder and multilingual RE Architect",
   "engines": {
     "node": ">=20"
   },
