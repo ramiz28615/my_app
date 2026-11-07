@@ -572,6 +572,21 @@ try{
  assert.ok(await page.locator('#dhSend').isVisible());
  log('Chat mobile','mobile 390px composer visible, controls usable, no horizontal overflow');
  await page.locator('[data-nav="studio"]').evaluate(el=>el.click());
+ await page.locator('#navPolyglot').evaluate(el=>el.click());
+ const polyGeometry=await page.evaluate(()=>{
+  const root=document.querySelector('#dimensiaPolyglot').getBoundingClientRect();
+  const input=document.querySelector('#polyEditor').getBoundingClientRect();
+  const out=document.querySelector('#polyResultGrid').getBoundingClientRect();
+  return{viewport:innerWidth,scroll:document.documentElement.scrollWidth,
+   workspaceWidth:Math.round(root.width),editorWidth:Math.round(input.width),
+   resultWidth:Math.round(out.width),editorVisible:input.height>180}
+ });
+ console.log('[POLYGLOT MOBILE]',JSON.stringify(polyGeometry));
+ assert.ok(polyGeometry.editorVisible,'Polyglot code editor must be visible on phone');
+ assert.ok(polyGeometry.scroll<=polyGeometry.viewport+2,'Polyglot workspace horizontal overflow: '+JSON.stringify(polyGeometry));
+ assert.ok(polyGeometry.workspaceWidth<=polyGeometry.viewport+2);
+ assert.ok(polyGeometry.editorWidth<=polyGeometry.viewport+2);
+ log('Polyglot mobile','390px code editing, source file tabs and output cards remain within phone viewport');
 
 
  // Android custom tab may report a wider layout viewport than physical screen.
