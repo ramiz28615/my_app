@@ -1,222 +1,108 @@
-# Dimensia Launchpad 4.0 — Tasarla · Önizle · GitHub'da Yayınla
+# Dimensia RE Studio + Launchpad 4.1
 
-**Canlı stüdyo:** https://ramiz28615.github.io/my_app/?v=4.0.0
+**AI destekli HTML/CSS/JavaScript oluştur, düzenle, önizle ve GitHub Pages'e yayınla.** Bu sürüm, kişisel deneyler ve statik web projeleri için çalışan açık kaynaklı bir stüdyodur. Bir SaaS platformunun tüm kurumsal özelliklerini veya dünya sıralamasında üstünlüğü iddia etmez.
 
-**GitHub Pages'te yayımlanmış örnek:** https://ramiz28615.github.io/my_app/sites/aurora-demo/
-
-**Örnek projenin kaynak kodu:** https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html
-
-## Tek tıkla GitHub Pages yayınlama
-
-1. Stüdyoyu aç, **AI Website Studio** bölümüne gir ve kendi HTML/CSS/JS web siteni oluştur. **Launchpad** panelinde masaüstü/tablet/mobil önizlemesine bak.
-2. GitHub sahibi, var olan Pages deposu ve sitenin adresini belirle. İlk kurulum için varsayılan depo **ramiz28615 / my_app** kullanılabilir. Örnek site adı: `portfolyom`.
-3. GitHub'da https://github.com/settings/personal-access-tokens/new sayfasından **fine-grained PAT** oluştur. Yalnızca yayın yapılacak depoyu seç ve sadece **Contents: Read and write** izni ver. Kısa süreli token kullan. Tokeni sohbetlere veya HTML kaynak koduna gönderme.
-4. Tokeni Launchpad'in parola alanına gir; **GitHub Bağlantısını Test Et** düğmesine bas. Gizli token sadece açık sekmenin belleğinde tutulur, proje JSON dosyalarına ve localStorage'a kaydedilmez.
-5. Kaynağı kontrol edip hak/güvenlik onay kutusunu işaretle. **GitHub'a Yayınla** düğmesine bas. GitHub Contents API üzerinden `sites/portfolyom/index.html` oluşturulur.
-6. Mevcut GitHub Actions Pages yayın akışı bu commit'i algılar. Sonuç için **Yayın Durumunu Kontrol Et** düğmesini kullan; yayının internete yayılması biraz daha sürebilir.
-7. Sitenin adresi **https://ramiz28615.github.io/my_app/sites/portfolyom/** olur. Sonradan aynı adla yeniden yayınlamak mevcut `index.html` dosyasını SHA eşzamanlama kontrolüyle günceller.
-
-### Gerçek subdomain ve ücretsiz proje yolu arasındaki fark
-
-GitHub Pages proje yayınını çoğu zaman **`kullanici.github.io/depo/sites/projem/`** adresinde sunar; bu bir **alt yol**dur, ayrı bir alt alan adı değildir. Keyfi **`projem.github.io`** veya **`projem.kullanici.github.io`** alan adları otomatik verilmez. Sahip olduğun bir domain üzerinden `projem.seninalanadin.com` kullanmak için DNS CNAME ve GitHub Pages özel alan adı ayarı gerekir. GitHub Pages özel domain ataması bir Pages sitesi/deposu düzeyindedir; her alt klasöre ayrı domain doğrudan atanmaz.
-
-Resmi rehber: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages
-
-### Hangi dosyalar yayınlanır?
-
-Launchpad 4.0 **tek bir bağımsız `index.html` dosyası** yayınlar. CSS ve JavaScript HTML içine gömülmüş olmalıdır. 900 KB üstündeki HTML yüklemesi sınırlandırılır. Ayrı resim, font, CSS, JS dosyalarını topluca GitHub'a yükleme henüz eklenmemiştir. GitHub Pages PHP/Node.js backend, veritabanı veya gizli API anahtarı çalıştırmaz; bunlar için ayrı servis gerekir.
-
-### Güvenlik
-
-- Üretilen HTML içindeki belirgin GitHub, OpenRouter ve AWS benzeri gizli anahtar kalıpları yükleme öncesinde kontrol edilir; bu **tüm sırları yakalayacağı garantisi değildir**. Yayın öncesi kendi kodunu mutlaka incele.
-- GitHub tokeni **localStorage / GitHub deposu** içine yazılmaz; yalnızca açık sekmenin belleğinde ve kimlik doğrulamalı GitHub API isteğinde bulunur. Tarayıcı eklentileri/geliştirici araçları yine de tokeni görebilir. **Bu yöntem kişisel kullanım içindir.** Çok kullanıcılı uygulamalar için GitHub App/OAuth ve güvenli backend aracı gereklidir.
-- Siteni `sites/projem/` altına koymak onu aynı `github.io` origin'indeki diğer alt klasörlerle aynı güvenlik alanında çalıştırır. Güvenmediğin JavaScript'i yönetim uygulamanla **aynı origin altında çalıştırma**.
-- GitHub Pages içerikleri herkese açıktır. Şifre, kişisel veri veya özel lisanslı kaynak kod yayınlama.
-- Token yetkisini yalnızca tek depoya sınırla; tarayıcı sekmesini kapat veya **Anahtarı Unut** düğmesine bas.
-- Seçilen başka depolarda Pages'in önceden etkin olması gerekir; uygulama kullanıcı adına Pages ayarlarını gizlice değiştirmez.
-
-## Kod haritası
-
-| Dosya | Görevi |
+| | Bağlantı |
 |---|---|
-| `index.html` | Dimensia Studio 4.0 ana uygulaması |
-| `studio-launchpad.css` | Yayınlama, önizleme ve proje kartları tasarımı |
-| `studio-launchpad.js` | GitHub API doğrulama, yayınlama/güncelleme, Actions durum sorgulama |
-| `sites/aurora-demo/index.html` | Yayında olan özgün, bağımsız demo sayfası |
-| `server.mjs` | Opsiyonel yerel HTML inceleme ve statik dosya sunucusu |
-| `tests/server.test.mjs` | HTTP, güvenlik ve modül entegrasyon testleri |
-| `tests/browser-smoke.mjs` | Chromium'da tüm editör adımlarını ve taklit GitHub API ile yayınlama/güncellemeyi doğrular |
-
-## Local development
-
-Node.js 20+ gereklidir. Dış bağımlılık olmadan yerel sunucu çalışır; Chromium tarayıcı testleri için Playwright ayrıca kurulur:
-
-    git clone https://github.com/ramiz28615/my_app.git
-    cd my_app
-    npm run check
-    npm test
-    npm start
-
-Tarayıcıdan http://127.0.0.1:3000 adresini aç.
-
-### Otomatik yayın ve testler
-
-- `.github/workflows/check.yml` — kod sözdizimi ve Node.js güvenlik/duman testleri.
-- `.github/workflows/browser.yml` — gerçek Chromium üzerinde editör ve GitHub API simülasyonlu otomatik yayın testleri; gerçek token veya GitHub yazma yetkisi kullanılmaz.
-- `.github/workflows/deploy.yml` — yeni commit'ler için GitHub Pages yayınlama.
-
-## Teknik kapsam
-
-Bu uygulama HTML/CSS/JS oluşturma, erişilebilir referans sayfası analizi, görsel düzenleme, önizleme, basit SEO denetimi ve GitHub Pages'e statik dağıtım yapar. Başka bir sitenin gizli backend kodunu veya oturum gerektiren içeriğini çıkaramaz. 'Dünyanın en gelişmiş' iddiası ölçülmüş bir sıralama değildir; kod geliştirme ve testlerle ilerleyen bir açık kaynak prototipidir.
-
----
-
-## Dimensia RE Studio 3.0 — Visual Editor / Source Explorer / AI Patch
-
-This is a professional, permission-based **public-site reference analysis and original-site reconstruction workbench**, not a tool for retrieving private backend code or bypassing access controls.
-
-### Live frontend
-https://ramiz28615.github.io/my_app/
-
-The public GitHub Pages website includes the complete browser-side toolset. It **cannot** fetch arbitrary third-party sites when CORS restrictions prohibit it. Run the optional Node server for public HTML/CSS/JS source fetching:
-
-    git clone https://github.com/ramiz28615/my_app.git
-    cd my_app
-    npm run check
-    npm test
-    npm start
-
-Visit http://127.0.0.1:3000 and open **AI Website Studio > Dimensia RE Studio**.
-
-### Professional RE workflow
-1. In **Reference Lab**, inspect a publicly accessible URL, upload an HTML file, or paste source HTML. This produces menu, button, form, visual and asset metadata.
-2. In **RE Studio > Kaynak Kodları**, confirm you own or are authorized to work with the reference code. Click **Referans Dosyalarını Bul**.
-3. Open an HTML, CSS or JavaScript asset. Click **Kaynağı Getir** to retrieve publicly served code (Node backend required for targets without browser CORS).
-4. Review/edit that file in the embedded text editor, download it, or apply authorized code to your current website. Imported external HTML is sanitized by default: scripts, iframes and active inline handlers are removed.
-5. In **Görsel Editör**, select a visible element in your own generated preview and modify its text, colors, font size, padding and radius. The modifications are persisted into editable HTML source, not merely applied to pixels.
-6. Review **Sürümler & Diff** to undo, redo or compare recent source versions. This keeps up to 20 in-memory snapshots; use the regular project save/export functionality for durable storage.
-7. Run **Analiz & SEO** for basic accessibility/semantic/SEO checks; download a JSON audit.
-8. In **AI Revizyon**, connect your own OpenRouter Free API key and request custom CSS or a complete HTML rewrite. Free model quotas and output limits apply.
-
-
-### Interaction Flow Recorder
-Below the visual editor in AI Website Studio, use the interactive workflow recorder:
-1. Click **Kaydı Başlat**, then click menus, buttons and complete the interactions you want to observe in your **own preview**.
-2. Recorded click events, form-event types and hash navigation are displayed in a horizontal flow timeline. **No form contents, passwords, emails or other entered values are recorded.**
-3. Click **Akışı Oynat** to replay eligible local button/hash interactions. For safety, form submissions and external link navigation are skipped. Buttons that call backend services may have side effects; review the site before replaying.
-4. Click **JSON** to export the interaction sequence, element selectors and timestamps.
-
-Recording works only in the instrumented sandbox preview, not in the remote reference URL. When a page navigates completely outside the preview, the recorder cannot follow the new site.
-
-### Source and browser security boundaries
-- Only **publicly reachable** URL resources are fetched. The optional Node service blocks loopback, private and reserved IP addresses, disallows nonstandard ports, pins DNS and validates redirects, caps response size, checks expected MIME types and rate-limits clients. **Do not** expose it as an unauthenticated public scraping service.
-- The URL inspector does **not** execute scripts on remote sites and does not reproduce JavaScript-rendered dynamic pages, logged-in actions, private code or protected endpoints.
-- The visual element picker and the developer Console/Network/Actions panel instrument **only the isolated preview iframe** inside Dimensia, not third-party Chrome tabs.
-- Reusing another organization's assets, trademarks or licensed source may require permission. Do not use this to imitate a website for credential collection.
-- Browser-only OpenRouter BYOK is meant for personal experimentation; real multi-user services need a credential-safe authenticated server proxy.
-
-### File map
-- index.html — application shell, dimensional visualization and website builder.
-- studio-enhancements.css, studio-re.css — presentation systems.
-- studio-reference.js — URL reference metadata and OpenRouter client.
-- studio-re-engineer.js — visual editor, source file explorer, versioning, audit and AI revision UI.
-- studio-devtools.js — preview-only console, network and action capture.
-- studio-flow.js — interaction flow timeline, replay and JSON export.
-- server.mjs — dependency-free optional public URL inspector and source retrieval.
-- tests/server.test.mjs — local network restrictions and integration smoke tests.
-- .github/workflows/check.yml — CI syntax and smoke tests.
-- .github/workflows/deploy.yml — GitHub Pages publication.
-
-### Skills and design references
-- sickn33/agentic-awesome-skills — frontend-design, threejs-skills, web-design-guidelines.
-- ningzimu/awesome-skills — curated skill discovery guide.
-
-These repositories are reference catalogs; the app does not silently install arbitrary third-party packages or scripts.
-
-
-# Dimensia Studio — 2D–7D + Website Builder
-
-Web üzerinde çalışan Türkçe deneysel boyut laboratuvarı ve şablon tabanlı website stüdyosu.
-
-**Canlı yayın hedefi:** https://ramiz28615.github.io/my_app/
+| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=4.1.0#studio |
+| **Gerçek yayınlanmış örnek** | https://ramiz28615.github.io/my_app/sites/aurora-demo/ |
+| **Örneğin kaynak kodu** | https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html |
+| **Otomatik testler** | https://github.com/ramiz28615/my_app/actions |
 
 ## Özellikler
-- 2D, 3D, 4D, 5D, 6D ve 7D hiperküplerin 2D matematiksel izdüşümleri.
-- Etkileşimli animasyon, dönüşüm ve kontrol paneli.
-- Prompt açıklamasına göre yerel şablon seçimi; canlı HTML düzenleme ve önizleme.
-- Kaydetme, proje JSON yedekleme ve HTML indirme.
-- Mobil ve masaüstü uyumlu karanlık arayüz.
 
-## GitHub Pages
-Bu depodaki `index.html` tek dosyalık **statik** sürümdür. Node.js gerektirmez. GitHub Pages için Settings > Pages > Build and deployment > Source: **GitHub Actions** seçin; ardından Actions sekmesinden **Deploy Dimensia Studio** workflow'unu çalıştırın. Site yayınlandıktan sonra URL: https://ramiz28615.github.io/my_app/
+- **Website Studio:** Türkçe açıklamayla yerel tasarım şablonları veya kendi OpenRouter anahtarınla ücretsiz model tabanlı kod üretimi.
+- **HTML/CSS/JS editörü:** Gerçek kaynak kodu düzenlemesi, izole iframe önizlemesi, HTML indirme ve tarayıcı tabanlı proje kayıtları.
+- **Visual RE Studio:** Kendi önizlemendeki öğeyi seç, metin/CSS değiştir, kaynak koda uygula, son 20 sürüm arasında geri al/ileri al.
+- **Reference Lab:** İzinli, herkese açık HTML kaynaklarını ve menü, buton, form, bağlantı, CSS/JS dosya referanslarını incele.
+- **Preview DevTools:** İzole önizlemeye ait Console, Network, Source ve kullanıcı aksiyonları.
+- **Interaction Flow Recorder:** Önizlemedeki düğme ve menü akışlarını kaydet, JSON indir, desteklenen yerel tıklamaları yeniden oynat.
+- **2D–7D boyut laboratuvarı:** Etkileşimli ve matematiksel hiperküp izdüşümleri.
+- **Launchpad:** Masaüstü/tablet/mobil önizlemesi, GitHub'a statik site yayınlama/güncelleme, Actions dağıtım durumunu görüntüleme.
+- **Launchpad 4.1 yenilikleri:** GitHub'dan `sites/` projelerini yeniden listele, yayınlanmış `index.html` kaynağını editöre aç, Aurora örnek sitesini kendi projen olarak içe aktar; GitHub Pages API'sine yalnızca `Contents` izni olan tokenla erişim kısıtlıysa yanlış hata verme.
 
-GitHub Pages sunucu tarafı Node.js veya gizli API anahtarı çalıştırmadığından, burada **gerçek model çağrısı yoktur**; oluşturucu şablon tabanlıdır. Tam Node.js / API bağlantılı sürüm `source/` altındaki dosyalarla yerel ortamda başlatılabilir.
+## Kendi siteni GitHub'da ücretsiz yayınla
 
-## Yerel geliştirme
+1. Stüdyoda **AI Website Studio** bölümüne geç. İstersen **✧ Örnek Siteyi Düzenle** düğmesiyle Aurora tasarımını yükleyip değiştir.
+2. **Launchpad** panelinde responsive görünümü kontrol et. HTML tek dosyada CSS/JS içeriyor olmalı. Yayınlama limiti 900 KB.
+3. GitHub kullanıcı adını ve **Pages yayınlaması etkin, herkese açık mevcut depoyu** seç. Örnek: `ramiz28615 / my_app`.
+4. GitHub'da https://github.com/settings/personal-access-tokens/new adresinden **fine-grained personal access token** oluştur. Yalnızca bu repo için **Contents: Read and write** yetkisi ver, kısa süreli token kullan ve başka izin isteme.
+5. Tokeni Launchpad'deki parola alanına **kendin** gir. Sohbete, kaynak koda veya GitHub'a gönderme. **GitHub Bağlantısını Test Et** düğmesi erişimini kontrol eder.
+6. Yayın adına `portfolyom` gibi bir değer yaz. Kaynağın yayınlanmasına ilişkin onay kutusunu işaretle. **GitHub'a Yayınla** düğmesi `sites/portfolyom/index.html` dosyasını oluşturur veya günceller.
+7. **Yayın Durumunu Kontrol Et** ile Actions dağıtımını kontrol et. Başarıdan sonra: `https://ramiz28615.github.io/my_app/sites/portfolyom/`.
+8. **GitHub'dan Tara** düğmesi `sites/` klasöründeki mevcut projeleri listeler. **⌘ GitHub'dan Aç** ise seçilen projenin HTML kaynağını yeniden editöre yükler.
+
+**Not:** Kod değişikliği GitHub'a kaydedilmesi ile Pages üzerinden görünmesi aynı an olmayabilir. GitHub Actions sonucu başarısızsa eylem günlüklerine bak.
+
+## Subdomain: doğru teknik açıklama
+
+GitHub Pages ücretsiz proje adresleri **alt yol** biçimindedir:
+`https://KULLANICI.github.io/DEPO/sites/SITE/`.
+
+Kullanıcının ana deposu `KULLANICI.github.io` olarak adlandırılmışsa kullanıcı sitesi için kök `https://KULLANICI.github.io/` kullanılabilir; stüdyo bu özel durumu hesaplar.
+
+**Her projeye `site.github.io` tarzında keyfi, ücretsiz, bağımsız subdomain verilemez.** Kendi domainin varsa GitHub Pages ve DNS üzerinden `site.seninalanadin.com` gibi bir alan adı ayarlayabilirsin. Özel domain GitHub Pages sitesi/deposu düzeyinde çalışır, tek depodaki bütün alt klasörlere ayrı alan adı otomatik vermez.
+
+Resmî rehber: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages
+
+## Güvenlik ve sınırlar
+
+- **GitHub ve OpenRouter tokenleri kalıcı depolanmaz**; tarayıcının açık sekme belleğinde tutulur ve ilgili API'ye HTTPS ile gönderilir. Tarayıcı geliştirici araçları ve uzantılar tarafından yine de görülebilir. Bu BYOK yaklaşımı kişisel denemeler içindir; herkesin kullanacağı ticari serviste OAuth/GitHub App ve güvenli sunucu proxy'si gerekir.
+- Herkese açık Pages kodunda **özel şifre, API key veya kişisel veri** bulundurma. Yayınlayıcı bazı bilinen anahtar kalıplarını tarar, ancak tüm sırları tespit etmeyi garanti etmez.
+- Başka sitelerin yetkisiz kaynaklarını, özel backend kodunu veya kimlik doğrulaması gerektiren trafiğini çıkarmaya çalışmaz. Referans inceleme yalnızca erişilebilir HTML metadatasıyla sınırlıdır.
+- GitHub Pages yalnızca **statik hosting** sağlar. PHP, Node.js API, veritabanı veya gizli server key çalıştırmaz.
+- **Önemli same-origin uyarısı:** Tek bir Pages deposunun `/sites/` alt klasörleri ve stüdyo aynı origin'i paylaşır. Güvenmediğin JavaScript kodunu kendi yönetim stüdyonla aynı origin'de barındırma. İzole bir repo veya kendi alan adını kullan.
+- Kaynak içe alma/uzak site inceleme yalnızca hak sahibi olduğun veya kullanım izni verilmiş kod için kullanılmalıdır.
+- Tarayıcıda dış URL taraması hedefin CORS ayarına bağlıdır; kamuya açık kaynaklar için opsiyonel Node.js sunucu vardır.
+
+## Kurulum ve test
+
+**Node.js 20 veya üzeri** ile:
+
 ```bash
-cd source
+git clone https://github.com/ramiz28615/my_app.git
+cd my_app
+npm run check
 npm test
 npm start
 ```
 
+Tarayıcıdan `http://127.0.0.1:3000` adresine gir. Opsiyonel Node.js sunucu kamuya açık HTML/CSS/JS kaynaklarını boyut, hız, IP ve yönlendirme kontrolleriyle okur. Harici JavaScript çalıştırmaz.
 
-## URL Reference Lab + OpenRouter Free + Preview DevTools
+Gerçek Chromium E2E testi için:
 
-### Live site
-https://ramiz28615.github.io/my_app/
+```bash
+npm install --no-save playwright@1.56.1
+npx playwright install chromium
+node tests/browser-smoke.mjs
+```
 
-### OpenRouter free model (bring your own key)
-1. Open Ayarlar; create your API key at https://openrouter.ai/settings/keys .
-2. Paste the key into the OpenRouter Free panel. Model defaults to openrouter/free; alternatively choose an ID ending with :free.
-3. Click Bağlantıyı Test Et (uses a free request).
-4. In AI Website Studio, enter your desired website prompt, then choose Siteyi Oluştur. Edit and export generated HTML/CSS/JS.
+GitHub Actions:
+- `.github/workflows/check.yml`: JavaScript sözdizimi ve güvenlik duman testleri
+- `.github/workflows/browser.yml`: gerçek Chromium ile masaüstü/mobil editör, kaynak akışı ve **taklit GitHub API** üzerinde yeni yayın/güncelleme/geri yükleme/örnek site aktarma; gerçek erişim tokeni kullanılmaz
+- `.github/workflows/deploy.yml`: Pages yayınlaması
 
-The API key stays in the open tab memory / password input, never in GitHub or localStorage. Browser-side API requests expose the key to your own browser developer tools/extensions. This mode is appropriate for personal experiments only. A public multi-user app requires an authenticated backend proxy with per-user limits, and should NEVER ship a shared provider secret in frontend source.
+## Kaynak dosyaları
 
-### Import a website reference
-- In AI Website Studio > Reference Lab, enter an HTTP(S) URL and click URL Analiz.
-- Inspect public page headings, menu labels, buttons, forms, CSS/JS file references and color hints.
-- On GitHub Pages, directly fetching another site requires CORS permission by that site. When blocked, upload a saved HTML file or paste accessible HTML source instead.
-- The optional Node.js server fetches public HTML over HTTP(S) with private-address checks, DNS pinning, redirect validation and response-size limits.
-- The inspected metadata guides generation of an ORIGINAL website. It is not an exact clone of protected branding/assets, hidden backends or private API behavior.
+| Dosya | Ne yapar? |
+|---|---|
+| `index.html` | Dimensia Studio uygulaması ve 2D–7D çizimler |
+| `studio-reference.js` | OpenRouter entegrasyonu ve referans analizi |
+| `studio-re-engineer.js`, `studio-re.css` | Görsel editör, sürüm ve kaynak gezgini |
+| `studio-flow.js` | Etkileşim akış kaydedici |
+| `studio-devtools.js` | İzole önizleme Console/Network/Actions |
+| `studio-launchpad.js`, `studio-launchpad.css` | GitHub Pages yayınlama, önizleme ve proje yönetimi |
+| `sites/aurora-demo/index.html` | Yayınlanmış bağımsız örnek |
+| `server.mjs` | Yerel statik dosya sunucusu ve izinli URL inceleme |
+| `tests/` | Node.js ve Playwright doğrulama |
 
-### Preview-only developer panels
-- Console: JavaScript logs/errors from the isolated generated-site iframe.
-- Network: fetch, XMLHttpRequest and selected resource timing events triggered inside the preview.
-- Actions: preview button/link clicks.
-- Source: open generated HTML/CSS/JS editor.
+## Kullanılan tasarım/beceri referansları
 
-These are NOT the browser's full DevTools, and cannot read hidden traffic from external websites.
+- [Agentic Awesome Skills](https://github.com/sickn33/agentic-awesome-skills): frontend-design, threejs-skills ve web-design-guidelines.
+- [Awesome Skills](https://github.com/ningzimu/awesome-skills): uzman beceri keşfi/kürasyon rehberi.
 
-### Local URL-inspection server
-Requires Node.js 20+; no external npm packages.
+Bu beceri depolarının tüm içeriği otomatik yüklenmez ve çalıştırılmaz; ilgili rehberler tasarım/uygulama prensipleri için değerlendirilmiştir.
 
-    git clone https://github.com/ramiz28615/my_app.git
-    cd my_app
-    npm test
-    npm start
+---
 
-Then open http://127.0.0.1:3000 . Server only inspects public HTML and does not execute external JS. JavaScript-rendered sites require dedicated authorized browser automation. Before public hosting, provide authentication, stronger abuse prevention and request monitoring.
-
-### Tests and sources
-- Frontend: index.html, studio-enhancements.css, studio-reference.js, studio-devtools.js
-- Optional backend: server.mjs
-- Smoke/security tests: tests/server.test.mjs
-- CI: .github/workflows/check.yml
-- Deployment workflow: .github/workflows/deploy.yml
-- Skill references: https://github.com/sickn33/agentic-awesome-skills and https://github.com/ningzimu/awesome-skills
-
-
-## Aurora Edition
-- Boyut kartlarında imleci takip eden ışık efekti ve yeni renk sistemi.
-- Klavye ile hızlı gezinme: **Ctrl+K** (Mac: Cmd+K), **Alt+2–7** boyut değiştirme.
-- Açılır komut penceresi, erişilebilir gezinme, mobil düzenlemeler ve hareket azaltma desteği.
-- Statik sürüm dış ağ bağlantısı gerektirmeden açılır; Google Fonts yüklenemediğinde sistem fontları kullanılır.
-
-## Skills referansları
-- [Awesome Skills capability index](https://github.com/ningzimu/awesome-skills) — uzman becerileri bulma ve seçme yöntemi.
-- [Agentic Awesome Skills](https://github.com/sickn33/agentic-awesome-skills)
-- [frontend-design](https://github.com/sickn33/agentic-awesome-skills/blob/main/skills/frontend-design/SKILL.md)
-- [threejs-skills](https://github.com/sickn33/agentic-awesome-skills/blob/main/plugins/agentic-awesome-skills/skills/threejs-skills/SKILL.md)
-
-Beceri dokümanları tasarım ve uygulama rehberi olarak kullanılmıştır; harici depo bu uygulamada yüklenip çalıştırılmaz.
+© 2026 Dimensia Studio — açık kaynaklı, geliştirilmekte olan prototip.
