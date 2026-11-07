@@ -23,7 +23,14 @@ npm test
 npm start
 ```
 
+## Aurora Edition
+- Boyut kartlarında imleci takip eden ışık efekti ve yeni renk sistemi.
+- Klavye ile hızlı gezinme: **Ctrl+K** (Mac: Cmd+K), **Alt+2–7** boyut değiştirme.
+- Açılır komut penceresi, erişilebilir gezinme, mobil düzenlemeler ve hareket azaltma desteği.
+- Statik sürüm dış ağ bağlantısı gerektirmeden açılır; Google Fonts yüklenemediğinde sistem fontları kullanılır.
+
 ## Skills referansları
+- [Awesome Skills capability index](https://github.com/ningzimu/awesome-skills) — uzman becerileri bulma ve seçme yöntemi.
 - [Agentic Awesome Skills](https://github.com/sickn33/agentic-awesome-skills)
 - [frontend-design](https://github.com/sickn33/agentic-awesome-skills/blob/main/skills/frontend-design/SKILL.md)
 - [threejs-skills](https://github.com/sickn33/agentic-awesome-skills/blob/main/plugins/agentic-awesome-skills/skills/threejs-skills/SKILL.md)
