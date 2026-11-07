@@ -23,7 +23,7 @@ const NAMES={web:'HTML / CSS',javascript:'JavaScript',python:'Python',rust:'Rust
 const initial=lab().getFiles();
 const files={...initial},updated=new Set();
 for(const x of SPECS)if(typeof files[x.key]!=='string')files[x.key]='';
-let current='python',busy=false,report=null,task=null,selected='python',timer=null,stopRequested=false,previewOn=false;
+let current='',busy=false,report=null,task=null,selected='python',timer=null,stopRequested=false,previewOn=false;
 const panel=document.createElement('section');
 panel.id='dimensiaPolyglot';panel.className='polyglot-workspace';panel.setAttribute('aria-label','Python Rust Bash Perl JavaScript çok dilli proje editörü');
 panel.innerHTML=
@@ -90,7 +90,7 @@ function renderFileList(){
 }
 function selectFile(key){
  if(!SPECS.some(x=>x.key===key))return;
- if(editor.value!==files[current])syncCurrent();
+ if(current&&editor.value!==files[current])syncCurrent();
  current=key;const x=selectedSpec();editor.value=files[key];
  $('polyFileName').textContent=x.file;$('polyRuntime').textContent=x.runtime;
  renderFileList();count();
@@ -154,7 +154,7 @@ function selectResult(key){
 }
 function makeId(){
  const array=new Uint8Array(10);
- if(crypto?.getRandomValues)crypto.getRandomValues(array);else for(let i=0;i<array.length;i++)array[i]=Math.floor(Math.random()*256);
+ if(typeof crypto!=='undefined'&&crypto.getRandomValues)crypto.getRandomValues(array);else for(let i=0;i<array.length;i++)array[i]=Math.floor(Math.random()*256);
  return 'r'+Array.from(array,x=>(x%36).toString(36)).join('');
 }
 function collectFiles(){
