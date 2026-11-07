@@ -1,10 +1,10 @@
-# Dimensia AI Workspace 7.0 · Chat + Çok Dilli Kod Çalışma Alanı
+# Dimensia AI Workspace 7.0.1 · Chat + Çok Dilli Kod Çalışma Alanı
 
 **AI destekli HTML/CSS/JavaScript oluştur, düzenle, önizle ve GitHub Pages'e yayınla.** Bu sürüm, kişisel deneyler ve statik web projeleri için çalışan açık kaynaklı bir stüdyodur. Bir SaaS platformunun tüm kurumsal özelliklerini veya dünya sıralamasında üstünlüğü iddia etmez.
 
 | | Bağlantı |
 |---|---|
-| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=7.0.0#home |
+| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=7.0.1#home |
 | **Gerçek yayınlanmış örnek** | https://ramiz28615.github.io/my_app/sites/aurora-demo/ |
 | **Örneğin kaynak kodu** | https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html |
 | **Otomatik testler** | https://github.com/ramiz28615/my_app/actions |
@@ -35,11 +35,13 @@
 5. GitHub Actions polyglot-execute.yml workflow_dispatch üzerinden 7 ayrı Ubuntu görevi başlatır. JavaScript, Python, Rust, Bash ve Perl gerçek çalıştırılır; HTML/CSS ile React Native yapısal kontrolü yapılır. Kod çalıştıran görevlerde repository write tokeni yoktur.
 6. Ayrı bir collector JSON sonuçlarını birleştirip code-lab/reports/r....json dosyasına yazar. Bu sonuçlar herkese açıktır. Site bu dosyaları okuyarak exit kodlarını, stdout/stderr, hataları ve işlem sürelerini ayrı ayrı gösterir.
 
+**Yeni: Proje yedeği / içe aktarma.** Çok dilli editörde **↓ Proje yedeği** ile 8 dosyanın tümünü içeren JSON yedeği cihazına indirip **↑ Yedek yükle** ile geri alabilirsin. Böylece GitHub'a yazmadan da kaynaklarını saklarsın. Kodu eski Code Lab alanında değiştirirsen yeni editöre ve yeni editörde değiştirirsen Code Lab'a senkronize olur. JSON yedekleri içinde özel kod bulunabileceği için güvenli yerde sakla. Otomatik GitHub yüklemesi veya otomatik depolama yapılmaz.
+
 **Güvenlik:** GitHub-hosted runner çok kullanıcılı tam korumalı sandbox değildir. Kodlar internete erişebilir. Gizli anahtar, şifre, özel dosya veya hassas içerik yükleme; yaygın token kalıpları taransa da her sırrın bulunacağı garanti edilemez. GitHub Actions ücretsiz kota/sınırlarına tabidir. AI ile otomatik çok dosyalı üretim isteğe bağlı OpenRouter ücretsiz modele bağlıdır.
 
 **Kapsam:** Tek dosyalık Python/Rust/Bash/Perl/Node örnekleri gerçek derleme/çalıştırma kullanır. Karmaşık full-stack projelerin paket yöneticileri, veri tabanı ve kalıcı sunucu gereksinimleri ayrıca yapılandırılmalıdır. React Native APK'sı bu sürümde derlenmez.
 
-**Canlı bağlantı:** https://ramiz28615.github.io/my_app/?v=7.0.0#studio
+**Canlı bağlantı:** https://ramiz28615.github.io/my_app/?v=7.0.1#studio
 
 ## 6.1.0 — Sohbette çalıştırılabilir site önizleme ve kaynak kod düzenleme
 
@@ -52,7 +54,7 @@
 - **Mobil:** 390 piksel telefonlarda kod düzenleme ve önizleme dikey yerleşimle sunulur. Masaüstü geniş ekranlarda önizleme ve kod paneli yan yana açılır.
 - **Sınır:** GitHub Pages PHP, Python, Rust backend veya React Native APK çalıştırmaz. Burada çalışan kod tarayıcı HTML/CSS/JS'dir. Gerçek backend için uygun bir sunucu gerekir. Harici sitelerin CORS/giriş/sunucu kodları otomatik kopyalanmaz.
 
-**Kullanım:** https://ramiz28615.github.io/my_app/?v=7.0.0#home adresini aç → Ayarlar'da OpenRouter'ı bağla → **Site oluştur** modunda isteğini yaz → oluşturulan sitenin **Canlı önizleme** panelinde **⌘ Kodu düzenle** butonunu kullan → HTML/CSS/JS'yi değiştir → **▶ Çalıştır ve önizle** → butonlara tıkla, konsolu kontrol et → **Kaydet** veya **Yayınla**.
+**Kullanım:** https://ramiz28615.github.io/my_app/?v=7.0.1#home adresini aç → Ayarlar'da OpenRouter'ı bağla → **Site oluştur** modunda isteğini yaz → oluşturulan sitenin **Canlı önizleme** panelinde **⌘ Kodu düzenle** butonunu kullan → HTML/CSS/JS'yi değiştir → **▶ Çalıştır ve önizle** → butonlara tıkla, konsolu kontrol et → **Kaydet** veya **Yayınla**.
 
 ## 6.0.2 — Sohbet odaklı yeni ana ekran
 
