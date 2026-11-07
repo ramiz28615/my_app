@@ -1,14 +1,18 @@
-# Dimensia AI Workspace 8.0.0 · Sohbette Python / Bash / Perl / PHP Çalıştırma
+# Dimensia AI Workspace 8.0.1 · Sohbette Python / Bash / Perl / PHP Çalıştırma
 
 **AI destekli HTML/CSS/JavaScript oluştur, düzenle, önizle ve GitHub Pages'e yayınla.** Bu sürüm, kişisel deneyler ve statik web projeleri için çalışan açık kaynaklı bir stüdyodur. Bir SaaS platformunun tüm kurumsal özelliklerini veya dünya sıralamasında üstünlüğü iddia etmez.
 
 | | Bağlantı |
 |---|---|
-| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=8.0.0#home |
+| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=8.0.1#home |
 | **Gerçek yayınlanmış örnek** | https://ramiz28615.github.io/my_app/sites/aurora-demo/ |
 | **Örneğin kaynak kodu** | https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html |
 | **Otomatik testler** | https://github.com/ramiz28615/my_app/actions |
 
+
+## 8.0.1 — Kod bloklarında Çalıştır/Kopyala düzeltmesi
+
+Python, Bash, Perl veya PHP kod bloklarının her biri, kendisine ait kaynak kodunu **Kopyala** ve **Çalıştır** işlemlerinde doğru şekilde yakalar. Sohbet arayüzüne ait yeni script sürümü önbelleği yeniler. Chromium regresyon testleri tek kod bloğu çalıştırma ve otomatik onayın reddedildiği durumda gizli işlem yapılmamasını denetler.
 
 ## 8.0.0 — Sohbet ekranında gerçek Python, Bash, Perl ve PHP çalıştırma
 
@@ -24,7 +28,7 @@ Ana ekran artık yalnızca kod üreten bir sohbet değil: üretilen kodu aynı s
 
 ### Sohbetten otomatik kod çalıştırma kullanım adımları
 
-1. Canlı uygulamaya git: https://ramiz28615.github.io/my_app/?v=8.0.0#home
+1. Canlı uygulamaya git: https://ramiz28615.github.io/my_app/?v=8.0.1#home
 2. Önce **Studio → GitHub Launchpad** üzerinden kendi public depona bağlı, **Contents: read** ve **Actions: read/write** izinli GitHub tokenini bağla. Sohbet kodu depoya commit edilmez; *sonuç raporları* ayrı commit olarak yayınlanır ve GitHub workflow'u \`main\` dalında bulunmalıdır.
 3. Sohbette “Bana Python, Bash, Perl ve PHP ile aynı programı ayrı kod bloklarında yaz” de. Bu aşamada AI yanıtı için kendi OpenRouter anahtarın gerekir.
 4. İstersen kod bloklarındaki **▶ Çalıştır** butonuna bas veya **⚡ Koddaki tüm dilleri çalıştır** seç. OpenRouter olmadan denemek için sohbet altındaki **▶ Kod Çalıştır → 4 dil örneği** seçeneğini kullan.
@@ -45,7 +49,7 @@ Ana ekran artık yalnızca kod üreten bir sohbet değil: üretilen kodu aynı s
 
 ### Kullanım
 
-Canlı uygulama: https://ramiz28615.github.io/my_app/?v=8.0.0#home . **⚡ Çoklu Diller** sekmesini aç → **Ortak Veri / numbers.txt** sayıları düzenle → her dilin kodunu incele → **Tüm Dilleri Çalıştır** ile yetkili GitHub depoda paralel test yap → sonuçları karşılaştır → başarısız dil seçilmişken **AI ile Düzelt** → AI önerisini incele ve onayla → yeniden çalıştır.
+Canlı uygulama: https://ramiz28615.github.io/my_app/?v=8.0.1#home . **⚡ Çoklu Diller** sekmesini aç → **Ortak Veri / numbers.txt** sayıları düzenle → her dilin kodunu incele → **Tüm Dilleri Çalıştır** ile yetkili GitHub depoda paralel test yap → sonuçları karşılaştır → başarısız dil seçilmişken **AI ile Düzelt** → AI önerisini incele ve onayla → yeniden çalıştır.
 
 **Güvenlik:** OpenRouter ve GitHub anahtarlarını sohbet, kaynak kod ve herkese açık dosyalara ekleme. ChatGPT sohbetinde daha önce paylaşılmış bir anahtar artık gizli sayılamaz; ilgili sağlayıcıdan iptal edilip yenilenmelidir. GitHub Actions çalıştırma işlerinde erişim sınırlandırılmıştır ancak bu çok kiracılı izolasyon garantisi değildir ve internet erişimi vardır. Ücretsiz GitHub Actions kotaları ve OpenRouter modelleri değişebilir.
 
@@ -93,7 +97,7 @@ Canlı uygulama: https://ramiz28615.github.io/my_app/?v=8.0.0#home . **⚡ Çokl
 - **Mobil:** 390 piksel telefonlarda kod düzenleme ve önizleme dikey yerleşimle sunulur. Masaüstü geniş ekranlarda önizleme ve kod paneli yan yana açılır.
 - **Sınır:** GitHub Pages PHP, Python, Rust backend veya React Native APK çalıştırmaz. Burada çalışan kod tarayıcı HTML/CSS/JS'dir. Gerçek backend için uygun bir sunucu gerekir. Harici sitelerin CORS/giriş/sunucu kodları otomatik kopyalanmaz.
 
-**Kullanım:** https://ramiz28615.github.io/my_app/?v=8.0.0#home adresini aç → Ayarlar'da OpenRouter'ı bağla → **Site oluştur** modunda isteğini yaz → oluşturulan sitenin **Canlı önizleme** panelinde **⌘ Kodu düzenle** butonunu kullan → HTML/CSS/JS'yi değiştir → **▶ Çalıştır ve önizle** → butonlara tıkla, konsolu kontrol et → **Kaydet** veya **Yayınla**.
+**Kullanım:** https://ramiz28615.github.io/my_app/?v=8.0.1#home adresini aç → Ayarlar'da OpenRouter'ı bağla → **Site oluştur** modunda isteğini yaz → oluşturulan sitenin **Canlı önizleme** panelinde **⌘ Kodu düzenle** butonunu kullan → HTML/CSS/JS'yi değiştir → **▶ Çalıştır ve önizle** → butonlara tıkla, konsolu kontrol et → **Kaydet** veya **Yayınla**.
 
 ## 6.0.2 — Sohbet odaklı yeni ana ekran
 
