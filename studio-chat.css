@@ -183,4 +183,31 @@ body[data-arch-comfort=paper].dh-home-active .dh-artifact{background:#f8f7f5}
  .dh-artifact-bottom{padding:8px 10px 14px}
 }
 @media(max-width:430px){.dh-header .dh-utility.dh-optional{display:none}.dh-suggestions{grid-template-columns:1fr 1fr}.dh-suggestion{min-height:83px}.dh-composer-meta{max-width:90%}}
+
+/* Keep the composer in view: only the message thread scrolls like a chat application. */
+body.dh-home-active #page-home{height:calc(100dvh - 58px)!important;min-height:0!important;}
+body.dh-home-active .dh-shell{height:100%;min-height:0;overflow:hidden}
+body.dh-home-active .dh-main{min-height:0}
+body.dh-home-active .dh-conversation{min-height:0}
+body.dh-home-active .dh-scroll{min-height:0}
+@media(max-width:760px){
+ body.dh-home-active #page-home{height:calc(100dvh - 54px)!important}
+ body.dh-home-active .dh-shell{min-height:0}
+ body.dh-home-active .dh-main.has-artifact{overflow-y:auto}
+}
+/* Forced phone mode, when Android Chrome reports a desktop-sized CSS viewport. */
+html.dim-handset body.dh-home-active .dh-shell{max-width:100%;height:100%;min-height:0}
+html.dim-handset body.dh-home-active .dh-header{padding:10px 12px;min-height:54px;height:54px;gap:5px}
+html.dim-handset body.dh-home-active .dh-header .dh-optional{display:none}
+html.dim-handset body.dh-home-active .dh-main.has-artifact{grid-template-columns:minmax(0,1fr);display:flex;flex-direction:column;overflow-y:auto}
+html.dim-handset body.dh-home-active .dh-main.has-artifact .dh-artifact{height:410px;min-height:380px;border-top:1px solid #45404f}
+html.dim-handset body.dh-home-active .dh-scroll{padding:17px 12px}
+html.dim-handset body.dh-home-active .dh-welcome{margin:30px auto 4px}
+html.dim-handset body.dh-home-active .dh-welcome h1{font-size:36px!important;letter-spacing:-1px!important}
+html.dim-handset body.dh-home-active .dh-welcome p{font-size:12px!important}
+html.dim-handset body.dh-home-active .dh-suggestions{gap:8px;margin:15px auto}
+html.dim-handset body.dh-home-active .dh-suggestion{min-height:80px;padding:10px;gap:7px;flex-direction:column}
+html.dim-handset body.dh-home-active .dh-composer-wrap{padding:9px}
+html.dim-handset body.dh-home-active .dh-composer textarea{font-size:16px!important}
+html.dim-handset body.dh-home-active .dh-feature-pills span{font-size:10px}
 @media(prefers-reduced-motion:reduce){.dh-thinking{animation:none}.dh-suggestion,.dh-artifact-frame iframe{transition:none}}
