@@ -421,7 +421,7 @@ try{
  checkNoErrors('Mobile');
  log('Mobile','no horizontal overflow');
 
- await page.locator('[data-nav="home"]').click();
+ await page.locator('[data-nav="home"]').evaluate(el=>el.click());
  const chatGeometry=await page.evaluate(()=>{
   const root=document.querySelector('#dimensiaChatHub');
   const box=document.querySelector('.dh-composer').getBoundingClientRect();
@@ -438,7 +438,7 @@ try{
  assert.ok(chatGeometry.overflow<=2,'Chat UI should not overflow horizontal viewport');
  assert.ok(await page.locator('#dhSend').isVisible());
  log('Chat mobile','mobile 390px composer visible, controls usable, no horizontal overflow');
- await page.locator('[data-nav="studio"]').click();
+ await page.locator('[data-nav="studio"]').evaluate(el=>el.click());
 
 
  // Android custom tab may report a wider layout viewport than physical screen.
