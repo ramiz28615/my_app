@@ -675,6 +675,10 @@ try{
  const originalDispatch=chatDispatch;
  page.once('dialog',dialog=>dialog.dismiss());
  await page.locator('#dhThread .dh-code-run').first().click();
+ console.log('[CHAT FENCE DEBUG]',JSON.stringify({runButtons:await page.locator('#dhThread .dh-code-run').count(),
+  sources:await page.evaluate(()=>window.DimensiaChatRunner.getSources()),
+  status:await page.locator('#dhrStatus').innerText(),
+  message:await page.locator('#dhThread').innerText()}).slice(0,1800));
  assert.ok(await page.evaluate(()=>window.DimensiaChatRunner.getSources().python.includes('CHAT_FENCE_PY')),
    'Clicking a code fence loads the exact Python source into the conversation editor');
  assert.equal(chatDispatch,originalDispatch,'Denying consent must not trigger GitHub execution');
