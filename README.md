@@ -1,3 +1,56 @@
+
+## Dimensia RE Studio 3.0 — Visual Editor / Source Explorer / AI Patch
+
+This is a professional, permission-based **public-site reference analysis and original-site reconstruction workbench**, not a tool for retrieving private backend code or bypassing access controls.
+
+### Live frontend
+https://ramiz28615.github.io/my_app/
+
+The public GitHub Pages website includes the complete browser-side toolset. It **cannot** fetch arbitrary third-party sites when CORS restrictions prohibit it. Run the optional Node server for public HTML/CSS/JS source fetching:
+
+    git clone https://github.com/ramiz28615/my_app.git
+    cd my_app
+    npm run check
+    npm test
+    npm start
+
+Visit http://127.0.0.1:3000 and open **AI Website Studio > Dimensia RE Studio**.
+
+### Professional RE workflow
+1. In **Reference Lab**, inspect a publicly accessible URL, upload an HTML file, or paste source HTML. This produces menu, button, form, visual and asset metadata.
+2. In **RE Studio > Kaynak Kodları**, confirm you own or are authorized to work with the reference code. Click **Referans Dosyalarını Bul**.
+3. Open an HTML, CSS or JavaScript asset. Click **Kaynağı Getir** to retrieve publicly served code (Node backend required for targets without browser CORS).
+4. Review/edit that file in the embedded text editor, download it, or apply authorized code to your current website. Imported external HTML is sanitized by default: scripts, iframes and active inline handlers are removed.
+5. In **Görsel Editör**, select a visible element in your own generated preview and modify its text, colors, font size, padding and radius. The modifications are persisted into editable HTML source, not merely applied to pixels.
+6. Review **Sürümler & Diff** to undo, redo or compare recent source versions. This keeps up to 20 in-memory snapshots; use the regular project save/export functionality for durable storage.
+7. Run **Analiz & SEO** for basic accessibility/semantic/SEO checks; download a JSON audit.
+8. In **AI Revizyon**, connect your own OpenRouter Free API key and request custom CSS or a complete HTML rewrite. Free model quotas and output limits apply.
+
+### Source and browser security boundaries
+- Only **publicly reachable** URL resources are fetched. The optional Node service blocks loopback, private and reserved IP addresses, disallows nonstandard ports, pins DNS and validates redirects, caps response size, checks expected MIME types and rate-limits clients. **Do not** expose it as an unauthenticated public scraping service.
+- The URL inspector does **not** execute scripts on remote sites and does not reproduce JavaScript-rendered dynamic pages, logged-in actions, private code or protected endpoints.
+- The visual element picker and the developer Console/Network/Actions panel instrument **only the isolated preview iframe** inside Dimensia, not third-party Chrome tabs.
+- Reusing another organization's assets, trademarks or licensed source may require permission. Do not use this to imitate a website for credential collection.
+- Browser-only OpenRouter BYOK is meant for personal experimentation; real multi-user services need a credential-safe authenticated server proxy.
+
+### File map
+- index.html — application shell, dimensional visualization and website builder.
+- studio-enhancements.css, studio-re.css — presentation systems.
+- studio-reference.js — URL reference metadata and OpenRouter client.
+- studio-re-engineer.js — visual editor, source file explorer, versioning, audit and AI revision UI.
+- studio-devtools.js — preview-only console, network and action capture.
+- server.mjs — dependency-free optional public URL inspector and source retrieval.
+- tests/server.test.mjs — local network restrictions and integration smoke tests.
+- .github/workflows/check.yml — CI syntax and smoke tests.
+- .github/workflows/deploy.yml — GitHub Pages publication.
+
+### Skills and design references
+- sickn33/agentic-awesome-skills — frontend-design, threejs-skills, web-design-guidelines.
+- ningzimu/awesome-skills — curated skill discovery guide.
+
+These repositories are reference catalogs; the app does not silently install arbitrary third-party packages or scripts.
+
+
 # Dimensia Studio — 2D–7D + Website Builder
 
 Web üzerinde çalışan Türkçe deneysel boyut laboratuvarı ve şablon tabanlı website stüdyosu.
