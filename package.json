@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "node server.mjs",
-    "check": "node --check server.mjs && node --check studio-reference.js && node --check studio-devtools.js && node --check studio-re-engineer.js",
+    "check": "node --check server.mjs && node --check studio-reference.js && node --check studio-devtools.js && node --check studio-re-engineer.js && node --check studio-flow.js",
     "test": "node --test tests/*.test.mjs"
   }
 }
