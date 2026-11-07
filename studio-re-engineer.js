@@ -24,7 +24,7 @@
  const tools=document.querySelector('.preview-devtools');
  if(tools)panel.insertBefore(root,tools);else panel.append(root);
  const body=$('reBody'), stateNote=$('reState');
- let tab='inspect',picking=false,selected=null,flashTimer=0;
+ let tab='inspect',picking=false,selected=null,flashTimer=0,rightsConfirmed=false;
  let snapshots=[],snapshotIndex=-1,sourceFiles=[],selectedFile=0,reference=null;
  function info(message,warning){
    const node=$('reFlash');node.textContent=message;node.classList.toggle('warn',!!warning);
@@ -272,7 +272,7 @@
    render();
  }
  async function requestSource(file){
-   if(!$('reOwnership')?.checked){info('Kaynak dosyası almak için izin/hak beyanını işaretle.',true);return}
+   if(!rightsConfirmed){info('Kaynak dosyası almak için izin/hak beyanını işaretle.',true);return}
    try{
      const api=new URL('api/source?kind='+encodeURIComponent(file.kind)+'&url='+encodeURIComponent(file.url),document.baseURI);
      let response=await fetch(api,{credentials:'omit',signal:AbortSignal.timeout(17000)});
@@ -299,7 +299,8 @@
  }
  function safeHTML(html){
    const doc=new DOMParser().parseFromString(html,'text/html');
-   doc.querySelectorAll('script,iframe,object,embed,base,meta[http-equiv=refresh],form[action]').forEach(x=>x.remove());
+   doc.querySelectorAll('script,iframe,object,embed,base,meta[http-equiv=refresh]').forEach(x=>x.remove());
+   doc.querySelectorAll('form[action]').forEach(x=>x.removeAttribute('action'));
    doc.querySelectorAll('*').forEach(x=>{
      for(const attr of [...x.attributes]){
        const name=attr.name.toLowerCase(),v=attr.value.trim().toLowerCase();
@@ -313,8 +314,8 @@
    if(!confirm('Bu dosya mevcut projenin kaynak kodunu değiştirecek. İşlemi onaylıyor musun?'))return;
    let html=state.siteHtml;
    if(file.kind==='html'){
-     html=safeHTML(file.content);
-     info('Dış HTML içe aktarıldı. Güvenlik için dış/inline scriptler ve iframe kaldırıldı.');
+     html=file.url.startsWith('local:')?file.content:safeHTML(file.content);
+     if(!file.url.startsWith('local:'))info('Dış HTML içe aktarıldı. Güvenlik için dış/inline scriptler ve iframe kaldırıldı.');
    }else if(file.kind==='css'){
      const tag='<style data-dimensia-re-source="css">\n'+file.content.replace(/<\/style/gi,'<\\/style')+'\n</style>';
      html=html.replace(/<\/head>/i,tag+'\n</head>');
@@ -333,6 +334,8 @@
      '<div class="re-panel-actions"><button id="reDiscover" class="re-btn re-btn-primary">⌕ Referans Dosyalarını Bul</button><button id="reLocalSource" class="re-btn">Mevcut Proje Kodunu Aç</button></div>'+
      '<div class="re-files"><div class="re-filelist" id="reFileList"></div><div class="re-file-editor"><div class="re-pickcard" id="reFileName">Kaynak dosya seç</div><textarea id="reSourceCode" spellcheck="false" aria-label="Kaynak kod düzenleyici" placeholder="Kaynak dosyası yükle veya mevcut projenin kodunu aç."></textarea>'+
      '<div class="re-panel-actions"><button class="re-btn" id="reGetFile">↓ Kaynağı Getir</button><button class="re-btn" id="reSaveFile">✓ Düzenlemeyi Sakla</button><button class="re-btn" id="reDownloadFile">↓ Dosya İndir</button><button class="re-btn re-btn-primary" id="reApplyFile">↗ Projeye Uygula</button></div></div></div>';
+   $('reOwnership').checked=rightsConfirmed;
+   $('reOwnership').onchange=e=>{rightsConfirmed=e.target.checked};
    $('reDiscover').onclick=populateSources;
    $('reLocalSource').onclick=()=>{
      sourceFiles.unshift({kind:'html',url:'local://dimensia',name:'project-index.html',content:state.siteHtml,loaded:true});
