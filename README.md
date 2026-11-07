@@ -1,14 +1,25 @@
-# Dimensia AI Studio + RE Architect + Launchpad 5.2.1
+# Dimensia AI Studio + RE Architect + Launchpad 5.3.0
 
 **AI destekli HTML/CSS/JavaScript oluştur, düzenle, önizle ve GitHub Pages'e yayınla.** Bu sürüm, kişisel deneyler ve statik web projeleri için çalışan açık kaynaklı bir stüdyodur. Bir SaaS platformunun tüm kurumsal özelliklerini veya dünya sıralamasında üstünlüğü iddia etmez.
 
 | | Bağlantı |
 |---|---|
-| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=5.2.1#studio |
+| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=5.3.0#studio |
 | **Gerçek yayınlanmış örnek** | https://ramiz28615.github.io/my_app/sites/aurora-demo/ |
 | **Örneğin kaynak kodu** | https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html |
 | **Otomatik testler** | https://github.com/ramiz28615/my_app/actions |
 
+
+## 5.3.0 — OpenRouter bağlantı ve ücretsiz model hata düzeltmeleri
+
+- **Anahtarı Doğrula:** OpenRouter resmi GET /api/v1/key isteğiyle anahtarın geçerliliğini doğrular. Anahtarın sadece kutuya girilmesi artık başarılı bağlantı diye gösterilmez.
+- **Model Yanıtını Test Et:** Ayrı OpenRouter chat/completions testi; eskiden kullanılan 32 token sınırı yerine en az 512 token. Boş cevapta finish_reason ve reasoning token tüketimi açıklanır. Bağlantı geçerliyse modelin boş cevap vermesi anahtarın geçersiz olduğu anlamına gelmez.
+- **Ücretsiz Modelleri Yenile:** OpenRouter canlı model kataloğundan sadece sıfır fiyatlı, metin çıktılı ve :free ile biten modeller listelenir; openrouter/free varsayılanı her zaman kalır. Hedef model veya sağlayıcı belirli bir anda kapasite/kota nedeniyle hata verebilir.
+- **Eski sunucu hatası kaldırıldı:** GitHub Pages statik sunucudur; Node.js kurulumu OpenRouter bağlantısı için zorunlu değildir. Bağlantı kartı artık gerçek OpenRouter durumu ile eşleşir.
+- **Güvenlik:** OpenRouter anahtarı GitHub kodlarına veya localStorage'a yazılmaz. Ancak tarayıcı ağ paneli ve eklentiler bu anahtarı görebilir. Çok kullanıcılı uygulamalar için güvenli backend/OAuth gerekir.
+- **Testler:** GitHub Actions gerçek Chromium testleri, sahte API yanıtlarıyla anahtar doğrulamasını, boş reasoning cevabını, başarılı model yanıtını ve ücretsiz model filtrelemeyi denetler; gerçek kullanıcı anahtarı kullanılmaz.
+
+**Telefon kurulumu:** Sohbette paylaşılan eski anahtarını OpenRouter anahtar yönetiminden iptal et ve yenisini oluştur. Ardından siteyi aç: https://ramiz28615.github.io/my_app/?v=5.3.0#studio . Ayarlar → OpenRouter alanına yeni anahtarını kendin yaz; sırasıyla **Anahtarı Doğrula**, **Ücretsiz Modelleri Yenile** ve **Model Yanıtını Test Et** düğmelerine bas. Onaydan sonra AI Software Architect ile kod üretimi başlat.
 
 ## 5.2.1 — Mobil ekran ve URL analizi hata düzeltmeleri
 
