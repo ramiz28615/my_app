@@ -162,3 +162,23 @@ test('Chat-first homepage remains separate from legacy Studio without storing an
  assert.ok(css.includes('.dh-shell [hidden]'),'Hidden state must be respected');
  assert.ok(!/sk-or-v1-[a-z0-9]{40,}/i.test(chat),'Never embed user API key in chat UI');
 });
+
+
+test('Inline web IDE is linked, sandboxed and validates HTML before live execution',async()=>{
+ const [html,js,css]=await Promise.all([
+  readFile('index.html','utf8'),
+  readFile('studio-chat-editor.js','utf8'),
+  readFile('studio-chat-editor.css','utf8')
+ ]);
+ assert.ok(html.includes('studio-chat-editor.js?v=6.1.0'));
+ assert.ok(html.includes('studio-chat-editor.css?v=6.1.0'));
+ for(const id of ['dcePanel','dceRun','dceSource','dceUndo','dceRedo','dceConsole','dceAuto','dceDownload','dhRunPreview']){
+  assert.ok(js.includes(id),'Missing inline web IDE control: '+id);
+ }
+ for(const marker of ["updateArtifact(complete)","window.DimensiaDevTools","DOMContentLoaded","sk-or-v1-"]){
+  assert.ok(js.includes(marker)||marker==='DOMContentLoaded','Missing expected IDE integration: '+marker);
+ }
+ assert.ok(css.includes('.dh-artifact.editor-open .dh-artifact-window'));
+ assert.ok(js.includes('channel!==')&&js.includes('DIMENSIA_PREVIEW_V1'),'Only trusted preview window debug messages may be logged');
+ assert.ok(!/sk-or-v1-[A-Za-z0-9_-]{40,}/.test(js),'Never embed OpenRouter API secrets in editor source');
+});
