@@ -510,6 +510,8 @@ try{
  const beforeUploads=cloudUploads.length;
  page.once('dialog',dialog=>dialog.accept());
  await page.locator('#dhrRunAll').click();
+ await page.waitForTimeout(1100);
+ console.log('[CHAT RUN DEBUG]',JSON.stringify({status:await page.locator('#dhrStatus').innerText(),dispatch:chatDispatch,runner:await page.evaluate(()=>window.DimensiaChatRunner.getState())}).slice(0,1800));
  await page.waitForFunction(()=>window.DimensiaChatRunner.getState().hasReport,{timeout:30000});
  assert.equal(chatDispatch.ref,'main');
  assert.equal(Object.keys(JSON.parse(Buffer.from(chatDispatch.inputs.sources_b64,'base64').toString('utf8'))).length,4);
