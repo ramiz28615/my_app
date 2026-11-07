@@ -85,3 +85,17 @@ test('Flow recorder captures preview-only interactions without form values',asyn
  }
  assert.equal(js.includes('input.value'),false,'Flow recorder must not store typed form values.');
 });
+
+test('Regression: runtime modules must be loaded AFTER the main inline app script',async()=>{
+ const src=await readFile('index.html','utf8');
+ const mainStart=src.indexOf('const $=(id)=>document.getElementById(id)');
+ assert.ok(mainStart>0,'App runtime marker missing');
+ const inlineEnd=src.indexOf('</script>',mainStart);
+ assert.ok(inlineEnd>mainStart,'App script must close');
+ for(const module of ['studio-devtools.js','studio-reference.js','studio-re-engineer.js','studio-flow.js']){
+  const importPos=src.indexOf('src="./'+module);
+  assert.ok(importPos>inlineEnd,module+' incorrectly injected inside an inline <script> block');
+ }
+ const edit=src.slice(src.indexOf("codeEditor').addEventListener('input'"),src.indexOf('function setWidth'));
+ assert.ok(edit.includes('DimensiaDevTools'),'Code-editor updates must keep preview inspector instrumentation');
+});
