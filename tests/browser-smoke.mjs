@@ -166,7 +166,7 @@ try{
  assert.ok((await page.locator('#launchSites').innerText()).includes('e2e-lansman'));
  assert.ok((await page.locator('#launchFeedback').innerText()).includes('GitHub’a kaydedildi'));
  await page.locator('#launchCheck').click();
- await page.waitForFunction(()=>document.querySelector('#launchFeedback')?.textContent.includes('dağıtım işlemi başarılı'));
+ await page.waitForFunction(()=>document.querySelector('#launchFeedback')?.textContent.includes('GitHub Pages dağıtımı başarılı'));
  checkNoErrors('Launchpad initial publish');
  log('Launchpad publish','GitHub API create, live link, deployment status passed');
 
