@@ -534,7 +534,31 @@
     records=[];writeRecords();renderRecords();info('Yerel liste temizlendi. GitHub üzerindeki sitelerin silinmediğini unutma.','info');
   });
   window.addEventListener('pagehide',()=>{clearTimeout(previewTimer);clearTimeout(pollTimer);});
-  window.DimensiaLaunchpad={slug,validSlug,validOwner,validRepo,pageURL,checkStatus,refreshPreview};
+  async function startCloudAnalysis(url,id){
+    const t={owner:el('launchOwner').value.trim(),repo:el('launchRepo').value.trim()};
+    if(!validOwner(t.owner)||!validRepo(t.repo))throw Error('Geçerli GitHub kullanıcı ve depo bilgisi gir.');
+    if(!/^r[a-zA-Z0-9_-]{10,70}$/.test(id))throw Error('Geçersiz analiz istek kimliği.');
+    if(!accessToken||accessToken.length<20)throw Error('GitHub Launchpad bölümüne token gir. Bulut analizi için Actions: Read and write, raporu okumak için Contents: Read izni gerekir.');
+    if(connectedRepo!==t.owner.toLowerCase()+'/'+t.repo.toLowerCase()||!authenticated)await connect(t);
+    await api('POST',paths(t)+'/actions/workflows/public-url-audit.yml/dispatches',{
+      ref:connectedBranch,inputs:{url,request_id:id}
+    });
+    return{owner:t.owner,repo:t.repo,branch:connectedBranch,id};
+  }
+  async function fetchCloudAnalysis(task){
+    if(!/^r[a-zA-Z0-9_-]{10,70}$/.test(task.id))throw Error('Geçersiz rapor kimliği.');
+    const t={owner:task.owner,repo:task.repo};
+    const path='/contents/reports/'+encodeURIComponent(task.id)+'.json?ref='+encodeURIComponent(task.branch||'main');
+    const result=await api('GET',paths(t)+path,undefined,true);
+    if(!result)return null;
+    if(typeof result.content!=='string'||result.encoding!=='base64')throw Error('GitHub rapor formatı beklenenden farklı.');
+    const raw=atob(result.content.replace(/\s/g,''));
+    if(raw.length>500000)throw Error('Rapor boyutu fazla büyük.');
+    const parsed=JSON.parse(new TextDecoder().decode(Uint8Array.from(raw,c=>c.charCodeAt(0))));
+    if(parsed.requestId!==task.id)throw Error('GitHub raporu farklı bir analiz isteğine ait.');
+    return parsed;
+  }
+  window.DimensiaLaunchpad={slug,validSlug,validOwner,validRepo,pageURL,checkStatus,refreshPreview,startCloudAnalysis,fetchCloudAnalysis};
   el('launchSlug').value=slug(state.siteName||'yeni-site')||'yeni-site';
   refreshAddress();renderRecords();refreshPreview();step(0);
 })();
