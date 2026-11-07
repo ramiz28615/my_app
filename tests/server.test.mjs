@@ -130,3 +130,16 @@ test('Mobile recovery and CORS fallback assets serve correct safe UI',async()=>{
   assert.ok(architect.includes(phrase),'Missing URL fallback option: '+phrase);
  }
 });
+
+test('OpenRouter API diagnostics separate key verification, model completion and no-backend GitHub Pages',async()=>{
+ const [html,reference]=await Promise.all([readFile('index.html','utf8'),readFile('studio-reference.js','utf8')]);
+ for(const marker of ['id="orCheck"','id="orReplyTest"','id="orRefresh"','/api/v1/key','/api/v1/chat/completions','/api/v1/models']){
+  assert.ok(reference.includes(marker),'Missing OpenRouter diagnostic feature: '+marker);
+ }
+ assert.ok(reference.includes('reasoning_tokens'),'Empty completion should explain reasoning-token exhaustion');
+ assert.ok(reference.includes('Math.max(512'),'Small model test must allow enough completion tokens');
+ assert.ok(reference.includes("pricing.prompt")&&reference.includes("pricing.completion"),'Only zero-priced model variants should be listed');
+ assert.ok(html.includes('OpenRouter bağlantı durumu'),'Legacy backend status card should be corrected');
+ assert.ok(!html.includes('API sunucusuna ulaşılamıyor. Yerel şablon motoru'),'Legacy Node warning must not claim OpenRouter is offline');
+ assert.ok(!reference.includes('d3289232d1b6'),'Exposed user key must not enter the public site bundle.');
+});
