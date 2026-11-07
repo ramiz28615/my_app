@@ -20,7 +20,8 @@
  function describeState(){
    const canUse=ready();
    const auth=canUse?verified:'missing';
-   return {keyPresent:canUse,authentication:auth,model:modelResult,selectedModel:lastModel||model(),message:lastError};
+   let selectedModel=lastModel||'openrouter/free';try{selectedModel=lastModel||model()}catch{}
+   return {keyPresent:canUse,authentication:auth,model:modelResult,selectedModel,message:lastError};
  }
  function renderMode(silent=false){
    const has=ready();
