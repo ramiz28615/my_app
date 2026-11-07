@@ -1,14 +1,37 @@
-# Dimensia AI Workspace 7.1.0 · Ortak Veri + Çok Dilli Kod + AI Hata Düzeltme
+# Dimensia AI Workspace 8.0.0 · Sohbette Python / Bash / Perl / PHP Çalıştırma
 
 **AI destekli HTML/CSS/JavaScript oluştur, düzenle, önizle ve GitHub Pages'e yayınla.** Bu sürüm, kişisel deneyler ve statik web projeleri için çalışan açık kaynaklı bir stüdyodur. Bir SaaS platformunun tüm kurumsal özelliklerini veya dünya sıralamasında üstünlüğü iddia etmez.
 
 | | Bağlantı |
 |---|---|
-| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=7.1.0#home |
+| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=8.0.0#home |
 | **Gerçek yayınlanmış örnek** | https://ramiz28615.github.io/my_app/sites/aurora-demo/ |
 | **Örneğin kaynak kodu** | https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html |
 | **Otomatik testler** | https://github.com/ramiz28615/my_app/actions |
 
+
+## 8.0.0 — Sohbet ekranında gerçek Python, Bash, Perl ve PHP çalıştırma
+
+Ana ekran artık yalnızca kod üreten bir sohbet değil: üretilen kodu aynı sohbet penceresinde **düzenleyip, izin vererek çalıştırıp, stdout/stderr raporunu görebileceğin** bir geliştirme alanı.
+
+- **Sohbet kod blokları:** AI yanıtında \`python\`, \`py\`, \`bash\`, \`sh\`, \`shell\`, \`perl\`, \`pl\` veya \`php\` etiketli Markdown kodu varsa **▶ Çalıştır** düğmesi çıkar. Mesajda birden çok dil varsa **⚡ Koddaki tüm dilleri çalıştır** düğmesi görünür. Her tıklamada bulut çalıştırması için açık onay istenir.
+- **Sohbet içi editör:** Mesaj kutusunun altındaki **▶ Kod Çalıştır** düğmesinden dört dilin dosyaları (\`main.py\`, \`main.sh\`, \`main.pl\`, \`main.php\`) düzenlenebilir. **▣ 4 dil örneği** hazır kod yükler. İster tek dili ister dolu dört sekmeyi birlikte çalıştırabilirsin.
+- **Otomatik işlem seçeneği:** **AI yeni kod yazdığında otomatik çalıştırma onayını sor** seçeneği ilk başta kapalıdır. Açıldığında, desteklenen kod içeren yeni AI yanıtı geldiğinde çalıştırma izni otomatik istenir. **İzinsiz veya arka planda sessizce çalıştırma yoktur.**
+- **Gerçek yorumlayıcılar:** GitHub Actions **Ubuntu 24.04** üzerinde Python 3, Bash, Perl 5 ve PHP CLI çalışır. Dil başına önce syntax/compile kontrolü, ardından 20 saniyeye kadar yürütme yapılır; ayrı GitHub işleri aynı anda çalıştırılır. Kod geçici çalışma dizininde kalır ve repo içindeki mevcut proje dosyalarının üzerine yazılmaz.
+- **Raporlar ve konsol:** Her dil için ayrı başarı/başarısızlık/atlandı durumu, \`stdout\`, \`stderr\`, exit code ve süre sohbet panelinde gösterilir. Rapor JSON olarak indirilebilir. Bulut sonuçları \`code-lab/chat-reports/<run_id>.json\` altında **herkese açık** yayınlanır.
+- **Güvenlik ve sınırlamalar:** Kod parçaları GitHub Actions \`workflow_dispatch\` girişinde taşınır ve GitHub tarafından görülebilir; **hiçbir şekilde gizli veri veya kişisel token gönderme**. Yalnızca yetkili olduğun kodu çalıştır. Kod koşan işler GitHub yazma yetkisi ve repo kimlik bilgisi almadan çalışır; fakat GitHub-hosted Ubuntu bir multi-tenant güvenli sandbox değildir, kodun internet erişimi olabilir. Sonuç raporu yazan görev ayrıdır. GitHub Actions ücretsiz kullanım kotaları ve workflow izni geçerlidir.
+- **Backend ve PHP hosting ayrımı:** PHP kodu **CLI** olarak gerçekten çalışır fakat GitHub Pages üzerinde PHP web sunucusu kurulmaz. Tam zamanlı PHP/Python backend, veritabanı ve React Native APK için ayrı hosting/build hizmetleri gerekir.
+
+### Sohbetten otomatik kod çalıştırma kullanım adımları
+
+1. Canlı uygulamaya git: https://ramiz28615.github.io/my_app/?v=8.0.0#home
+2. Önce **Studio → GitHub Launchpad** üzerinden kendi public depona bağlı, **Contents: read** ve **Actions: read/write** izinli GitHub tokenini bağla. Sohbet kodu depoya commit edilmez; *sonuç raporları* ayrı commit olarak yayınlanır ve GitHub workflow'u \`main\` dalında bulunmalıdır.
+3. Sohbette “Bana Python, Bash, Perl ve PHP ile aynı programı ayrı kod bloklarında yaz” de. Bu aşamada AI yanıtı için kendi OpenRouter anahtarın gerekir.
+4. İstersen kod bloklarındaki **▶ Çalıştır** butonuna bas veya **⚡ Koddaki tüm dilleri çalıştır** seç. OpenRouter olmadan denemek için sohbet altındaki **▶ Kod Çalıştır → 4 dil örneği** seçeneğini kullan.
+5. Açık işlem onayından sonra GitHub Actions başlar. Sonuçlar sohbet paneline otomatik gelir; hata veren dile dokunarak stderr/exit kodunu incele.
+6. AI her yeni kod yazdığında onay sorulmasını istiyorsan **otomatik onay isteme** seçeneğini etkinleştir. Her çalıştırma yine açık onay ister.
+
+**Önemli:** Gerçek yorumlayıcı testleri GitHub Actions CI'da çalıştırıldı. Kullanıcının kişisel GitHub tokeniyle yapılan bir çalıştırma bu otomatik testlerde gerçekleştirilmedi; GitHub API akışı sahte HTTP yanıtlarıyla uçtan uca test edilir.
 
 ## 7.1.0 — Aynı veriyle çalışan diller, AI hata onarma ve yerel taslak
 
@@ -22,7 +45,7 @@
 
 ### Kullanım
 
-Canlı uygulama: https://ramiz28615.github.io/my_app/?v=7.1.0#home . **⚡ Çoklu Diller** sekmesini aç → **Ortak Veri / numbers.txt** sayıları düzenle → her dilin kodunu incele → **Tüm Dilleri Çalıştır** ile yetkili GitHub depoda paralel test yap → sonuçları karşılaştır → başarısız dil seçilmişken **AI ile Düzelt** → AI önerisini incele ve onayla → yeniden çalıştır.
+Canlı uygulama: https://ramiz28615.github.io/my_app/?v=8.0.0#home . **⚡ Çoklu Diller** sekmesini aç → **Ortak Veri / numbers.txt** sayıları düzenle → her dilin kodunu incele → **Tüm Dilleri Çalıştır** ile yetkili GitHub depoda paralel test yap → sonuçları karşılaştır → başarısız dil seçilmişken **AI ile Düzelt** → AI önerisini incele ve onayla → yeniden çalıştır.
 
 **Güvenlik:** OpenRouter ve GitHub anahtarlarını sohbet, kaynak kod ve herkese açık dosyalara ekleme. ChatGPT sohbetinde daha önce paylaşılmış bir anahtar artık gizli sayılamaz; ilgili sağlayıcıdan iptal edilip yenilenmelidir. GitHub Actions çalıştırma işlerinde erişim sınırlandırılmıştır ancak bu çok kiracılı izolasyon garantisi değildir ve internet erişimi vardır. Ücretsiz GitHub Actions kotaları ve OpenRouter modelleri değişebilir.
 
@@ -70,7 +93,7 @@ Canlı uygulama: https://ramiz28615.github.io/my_app/?v=7.1.0#home . **⚡ Çokl
 - **Mobil:** 390 piksel telefonlarda kod düzenleme ve önizleme dikey yerleşimle sunulur. Masaüstü geniş ekranlarda önizleme ve kod paneli yan yana açılır.
 - **Sınır:** GitHub Pages PHP, Python, Rust backend veya React Native APK çalıştırmaz. Burada çalışan kod tarayıcı HTML/CSS/JS'dir. Gerçek backend için uygun bir sunucu gerekir. Harici sitelerin CORS/giriş/sunucu kodları otomatik kopyalanmaz.
 
-**Kullanım:** https://ramiz28615.github.io/my_app/?v=7.1.0#home adresini aç → Ayarlar'da OpenRouter'ı bağla → **Site oluştur** modunda isteğini yaz → oluşturulan sitenin **Canlı önizleme** panelinde **⌘ Kodu düzenle** butonunu kullan → HTML/CSS/JS'yi değiştir → **▶ Çalıştır ve önizle** → butonlara tıkla, konsolu kontrol et → **Kaydet** veya **Yayınla**.
+**Kullanım:** https://ramiz28615.github.io/my_app/?v=8.0.0#home adresini aç → Ayarlar'da OpenRouter'ı bağla → **Site oluştur** modunda isteğini yaz → oluşturulan sitenin **Canlı önizleme** panelinde **⌘ Kodu düzenle** butonunu kullan → HTML/CSS/JS'yi değiştir → **▶ Çalıştır ve önizle** → butonlara tıkla, konsolu kontrol et → **Kaydet** veya **Yayınla**.
 
 ## 6.0.2 — Sohbet odaklı yeni ana ekran
 
