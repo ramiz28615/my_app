@@ -113,6 +113,75 @@ try{
  checkNoErrors('OpenRouter settings');
  log('OpenRouter settings','key stored in memory and clear action works');
 
+
+ // Browser-level GitHub API simulation: real tokens are NEVER used in CI.
+ await page.locator('[data-nav="studio"]').click();
+ for(const id of ['dimensiaLaunchpad','launchPreviewFrame','launchToken','launchConnect','launchPublish','launchSites'])await page.locator('#'+id).waitFor();
+ const previewSite=await page.locator('#launchPreviewFrame').getAttribute('srcdoc');
+ assert.ok(previewSite.includes('Düzenlenmiş Buton'),'Launchpad preview must reflect current generated HTML');
+ const ghWrites=[];
+ let fileExists=false;
+ const cors={
+   'Access-Control-Allow-Origin':'*',
+   'Access-Control-Allow-Headers':'Authorization,Content-Type,Accept,X-GitHub-Api-Version',
+   'Access-Control-Allow-Methods':'GET,PUT,OPTIONS'
+ };
+ await page.route('https://api.github.com/**',async route=>{
+   const req=route.request(),u=new URL(req.url()),method=req.method();
+   const reply=(status,body)=>route.fulfill({status,contentType:'application/json',headers:cors,body:JSON.stringify(body)});
+   if(method==='OPTIONS')return route.fulfill({status:204,headers:cors});
+   if(u.pathname==='/user')return reply(200,{login:'ramiz28615'});
+   if(u.pathname==='/repos/ramiz28615/my_app')return reply(200,{default_branch:'main',permissions:{push:true},private:false,archived:false});
+   if(u.pathname==='/repos/ramiz28615/my_app/pages')return reply(200,{html_url:'https://ramiz28615.github.io/my_app/'});
+   if(u.pathname==='/repos/ramiz28615/my_app/contents/sites/e2e-lansman/index.html'){
+     if(method==='GET')return fileExists?reply(200,{type:'file',sha:'mock-old-blob'}):reply(404,{message:'Not Found'});
+     if(method==='PUT'){
+       const payload=req.postDataJSON();
+       ghWrites.push({payload,path:u.pathname,auth:req.headers().authorization});
+       fileExists=true;
+       return reply(ghWrites.length===1?201:200,{commit:{sha:'mockcommit'+ghWrites.length},content:{sha:'mockblob'+ghWrites.length}});
+     }
+   }
+   if(u.pathname==='/repos/ramiz28615/my_app/actions/runs')return reply(200,{workflow_runs:[{name:'Deploy Dimensia Studio to GitHub Pages',path:'.github/workflows/deploy.yml',status:'completed',conclusion:'success',html_url:'https://github.com/ramiz28615/my_app/actions/runs/123'}]});
+   return reply(404,{message:'Not Found'});
+ });
+ await page.locator('#launchOwner').fill('ramiz28615');
+ await page.locator('#launchRepo').fill('my_app');
+ await page.locator('#launchSlug').fill('e2e-lansman');
+ await page.locator('#launchToken').fill('github_pat_e2e_fake_token_1234567890123456');
+ await page.locator('#launchConnect').click();
+ await page.waitForFunction(()=>document.querySelector('#launchAuthChip')?.textContent.includes('ramiz28615 bağlı'));
+ await page.locator('#launchConfirm').check();
+ await page.locator('#launchPublish').click();
+ await page.waitForFunction(()=>document.querySelector('#launchFeedback')?.textContent.includes('HTML GitHub’a kaydedildi'),{timeout:11000});
+ assert.equal(ghWrites.length,1,'Publisher should create exactly one file');
+ assert.equal(ghWrites[0].path,'/repos/ramiz28615/my_app/contents/sites/e2e-lansman/index.html');
+ assert.ok(ghWrites[0].payload.content,'GitHub Contents API should receive base64-encoded website');
+ assert.ok(Buffer.from(ghWrites[0].payload.content,'base64').toString('utf8').includes('Düzenlenmiş Buton'));
+ assert.equal(ghWrites[0].payload.branch,'main');
+ assert.equal(ghWrites[0].payload.sha,undefined,'First publish should create without previous SHA');
+ assert.ok((await page.locator('#launchSites').innerText()).includes('e2e-lansman'));
+ assert.ok((await page.locator('#launchFeedback').innerText()).includes('GitHub’a kaydedildi'));
+ await page.locator('#launchCheck').click();
+ await page.waitForFunction(()=>document.querySelector('#launchFeedback')?.textContent.includes('dağıtım işlemi başarılı'));
+ checkNoErrors('Launchpad initial publish');
+ log('Launchpad publish','GitHub API create, live link, deployment status passed');
+
+ await page.locator('#launchPublish').click();
+ await page.waitForFunction(()=>document.querySelector('#launchFeedback')?.textContent.includes('HTML GitHub’a kaydedildi')&&document.querySelector('#launchFeedback')?.textContent.includes('Yayın Durumunu'),{timeout:11000});
+ assert.equal(ghWrites.length,2,'Second publish should update existing GitHub file');
+ assert.equal(ghWrites[1].payload.sha,'mock-old-blob','Update must include current existing file SHA');
+ checkNoErrors('Launchpad update');
+ log('Launchpad update','existing file SHA correctly included');
+
+ await page.locator('#launchTokenForget').click();
+ assert.equal(await page.locator('#launchToken').inputValue(),'');
+ const deploymentMeta=await page.evaluate(()=>localStorage.getItem('dimensia-published-sites-v1')||'');
+ assert.ok(deploymentMeta.includes('e2e-lansman'),'Published site metadata was not stored');
+ assert.ok(!deploymentMeta.includes('github_pat_'),'Sensitive GitHub access token was persisted');
+ checkNoErrors('Launchpad token security');
+ log('Launchpad security','token not persisted, session forget works');
+
  await page.setViewportSize({width:390,height:844});
  await page.evaluate(()=>window.scrollTo(0,0));
  const scroll=await page.evaluate(()=>({inner:innerWidth,scroll:document.documentElement.scrollWidth}));
