@@ -1,15 +1,15 @@
 {
   "name": "dimensia-studio",
-  "version": "3.1.0",
+  "version": "4.0.0",
   "private": true,
   "type": "module",
-  "description": "Dimensia Studio RE 3.0 — interactive 2D-7D visual lab, visual editing, public source inspection, AI and developer tools",
+  "description": "Dimensia Studio 4.0: 2D-7D visualization, AI website creation, visual RE editor, browser-tested GitHub Pages site publishing",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "start": "node server.mjs",
-    "check": "node --check server.mjs && node --check studio-reference.js && node --check studio-devtools.js && node --check studio-re-engineer.js && node --check studio-flow.js",
+    "check": "node --check server.mjs && node --check studio-reference.js && node --check studio-devtools.js && node --check studio-re-engineer.js && node --check studio-flow.js && node --check studio-launchpad.js",
     "test": "node --test tests/*.test.mjs"
   }
 }
