@@ -13,7 +13,7 @@ hub.innerHTML=
  '<button type="button" class="dh-utility dh-optional" id="dhStudio">⌘ Stüdyo</button>'+
  '<button type="button" class="dh-utility dh-optional" id="dhSettings">⚙ Ayarlar</button>'+
  '<button type="button" class="dh-utility" id="dhNew">＋ Yeni sohbet</button></div></div>'+
- '<div class="dh-main" id="dhMain"><section class="dh-conversation" aria-label="Yapay zekâ sohbet ekranı">'+
+ '<div class="dh-main" id="dhMain"><section class="dh-conversation" id="dhConversation" aria-label="Yapay zekâ sohbet ekranı">'+
  '<div class="dh-scroll" id="dhScroll"><div class="dh-welcome" id="dhWelcome">'+
  '<div class="dh-glyph" aria-hidden="true">✧</div><div class="dh-kicker">DIMENSIA · AI WORKSPACE</div>'+
  '<h1>Bugün ne <em>oluşturalım?</em></h1>'+
