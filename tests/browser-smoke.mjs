@@ -43,9 +43,10 @@ try{
  log('Dimension Lab','7D renders 128 vertices');
 
  await page.locator('[data-nav="studio"]').click();
- for(const id of ['reWorkspace','flowRecord','referenceUrl','referenceFile','rePick','dimensiaDevTools']){
+ for(const id of ['reWorkspace','flowRecord','referenceUrl','rePick','dimensiaDevTools']){
   await page.locator('#'+id).waitFor({timeout:10000});
  }
+ assert.equal(await page.locator('#referenceFile').count(),1);
  checkNoErrors('Studio modules');
  log('Studio','RE editor, flow recorder, reference lab and DevTools mounted');
 
