@@ -134,7 +134,7 @@ try{
    if(u.pathname==='/repos/ramiz28615/my_app')return reply(200,{default_branch:'main',permissions:{push:true},private:false,archived:false});
    if(u.pathname==='/repos/ramiz28615/my_app/pages')return reply(200,{html_url:'https://ramiz28615.github.io/my_app/'});
    if(u.pathname==='/repos/ramiz28615/my_app/contents/sites/e2e-lansman/index.html'){
-     if(method==='GET')return fileExists?reply(200,{type:'file',sha:'mock-old-blob'}):reply(404,{message:'Not Found'});
+     if(method==='GET')return fileExists?reply(200,{type:'file',sha:'mock-old-blob',encoding:'base64',content:ghWrites.at(-1)?.payload?.content||''}):reply(404,{message:'Not Found'});
      if(method==='PUT'){
        const payload=req.postDataJSON();
        ghWrites.push({payload,path:u.pathname,auth:req.headers().authorization});
@@ -142,6 +142,7 @@ try{
        return reply(ghWrites.length===1?201:200,{commit:{sha:'mockcommit'+ghWrites.length},content:{sha:'mockblob'+ghWrites.length}});
      }
    }
+   if(u.pathname==='/repos/ramiz28615/my_app/contents/sites'&&method==='GET')return reply(200,[{name:'e2e-lansman',type:'dir'},{name:'aurora-demo',type:'dir'}]);
    if(u.pathname==='/repos/ramiz28615/my_app/actions/runs')return reply(200,{workflow_runs:[{name:'Deploy Dimensia Studio to GitHub Pages',path:'.github/workflows/deploy.yml',status:'completed',conclusion:'success',html_url:'https://github.com/ramiz28615/my_app/actions/runs/123'}]});
    return reply(404,{message:'Not Found'});
  });
@@ -174,6 +175,29 @@ try{
  checkNoErrors('Launchpad update');
  log('Launchpad update','existing file SHA correctly included');
 
+ const hostUrl=await page.evaluate(()=>window.DimensiaLaunchpad.pageURL({owner:'ramiz28615',repo:'ramiz28615.github.io',site:'portfolio'}));
+ assert.equal(hostUrl,'https://ramiz28615.github.io/sites/portfolio/','GitHub username repository must not duplicate repo path');
+
+ await page.locator('#launchSync').click();
+ await page.waitForFunction(()=>document.querySelector('#launchFeedback')?.textContent.includes('proje klasörü bulundu'));
+ assert.ok((await page.locator('#launchSites').innerText()).includes('aurora-demo'),'GitHub discovery should recover remote sites');
+ checkNoErrors('Launchpad GitHub discovery');
+ log('Launchpad discover','remote sites list reconstructed from GitHub');
+
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('.launch-site').filter({hasText:'e2e-lansman'}).getByRole('button',{name:'⌘ GitHub’dan Aç'}).click();
+ await page.waitForFunction(()=>document.querySelector('#launchFeedback')?.textContent.includes('GitHub kaynağı editöre yüklendi'));
+ assert.ok((await page.locator('#codeEditor').inputValue()).includes('Düzenlenmiş Buton'),'GitHub source should be loaded back into editor');
+ checkNoErrors('Launchpad source restoration');
+ log('Launchpad restore','published HTML restored to live source editor');
+
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#launchImportDemo').click();
+ await page.waitForFunction(()=>document.querySelector('#launchSiteName')?.textContent.includes('Aurora'));
+ assert.ok((await page.locator('#codeEditor').inputValue()).includes('Aurora — Design beyond ordinary'),'Demo import should replace editor with demo source');
+ checkNoErrors('Launchpad example import');
+ log('Launchpad example','Aurora design copied to editor and preview');
+ 
  await page.locator('#launchTokenForget').click();
  assert.equal(await page.locator('#launchToken').inputValue(),'');
  const deploymentMeta=await page.evaluate(()=>localStorage.getItem('dimensia-published-sites-v1')||'');
