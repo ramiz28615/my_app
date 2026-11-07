@@ -16,11 +16,13 @@ const SPECS=[
  {key:'rust',name:'Rust',file:'main.rs',icon:'⚙',runtime:'GitHub Actions rustc'},
  {key:'bash',name:'Bash / SH',file:'main.sh',icon:'⌁',runtime:'GitHub Actions Bash'},
  {key:'perl',name:'Perl',file:'main.pl',icon:'◆',runtime:'GitHub Actions Perl'},
- {key:'reactnative',name:'React Native',file:'App.js',icon:'▣',runtime:'Expo proje kontrolü'}
+ {key:'reactnative',name:'React Native',file:'App.js',icon:'▣',runtime:'Expo proje kontrolü'},
+ {key:'shared',name:'Ortak Veri',file:'numbers.txt',icon:'≡',runtime:'5 dilin ortak veri girdisi (1–100 tam sayı)'}
 ];
 const RESULTS=['web','javascript','python','rust','bash','perl','reactnative'];
 const NAMES={web:'HTML / CSS',javascript:'JavaScript',python:'Python',rust:'Rust',bash:'Bash',perl:'Perl',reactnative:'React Native'};
 const initial=lab().getFiles();
+initial.shared='1 2 3 4 5\n';
 const files={...initial},updated=new Set();
 for(const x of SPECS)if(typeof files[x.key]!=='string')files[x.key]='';
 let current='',busy=false,report=null,task=null,selected='python',timer=null,stopRequested=false,previewOn=false;
@@ -33,7 +35,7 @@ panel.innerHTML=
  '<div class="poly-head-actions"><span class="poly-live">● Çoklu dil çalışma alanı</span>'+
  '<button type="button" class="poly-button" id="polyGotoToken">⚙ GitHub bağlantısı</button></div></header>'+
  '<div class="poly-body"><aside class="poly-sidebar" aria-label="Proje dosyaları">'+
- '<div class="poly-sidebar-title">PROJE DOSYALARI <small id="polyFileCount">8 dosya</small></div>'+
+ '<div class="poly-sidebar-title">PROJE DOSYALARI <small id="polyFileCount">9 dosya</small></div>'+
  '<div class="poly-files" id="polyFiles"></div>'+
  '<div class="poly-sidebar-foot">Tüm dosyalar tek projede düzenlenir. Çalıştırılmamış kod kendiliğinden GitHub’a yüklenmez.</div></aside>'+
  '<div class="poly-editor-area"><div class="poly-current"><div><strong id="polyFileName">main.py</strong>'+
@@ -45,6 +47,9 @@ panel.innerHTML=
  '<div class="poly-toolbar"><button id="polyPreview" type="button" class="poly-button">◎ HTML/CSS/JS Önizle</button>'+
  '<button id="polyCloud" type="button" class="poly-button poly-primary">▶ Tüm Dilleri Çalıştır</button>'+
  '<button id="polySaveAll" type="button" class="poly-button">↑ Dosyaları GitHub’a Kaydet</button>'+ 
+ '<button id="polyDraftSave" type="button" class="poly-button">◈ Yerel taslağı kaydet</button>'+ 
+ '<button id="polyDraftOpen" type="button" class="poly-button">↶ Yerel taslağı aç</button>'+ 
+ '<button id="polyDraftDelete" type="button" class="poly-button">× Yerel taslağı sil</button>'+  
  '<button id="polyBackup" type="button" class="poly-button">↓ Proje yedeği</button>'+ 
  '<button id="polyRestore" type="button" class="poly-button">↑ Yedek yükle</button>'+ 
  '<input id="polyRestoreFile" type="file" accept=".json,application/json" hidden></div>'+
@@ -60,7 +65,9 @@ panel.innerHTML=
  '<div class="poly-run-steps" id="polySteps"><span data-poly-step="0">1 · Dosyaları hazırla</span>'+
  '<span data-poly-step="1">2 · GitHub’a yükle</span><span data-poly-step="2">3 · Bulutta çalıştır</span>'+
  '<span data-poly-step="3">4 · Sonuçları göster</span></div>'+
- '<div class="poly-result-grid" id="polyResultGrid"></div>'+
+ '<div class="poly-result-grid" id="polyResultGrid"></div>'+ 
+ '<div id="polyContract" class="poly-contract" aria-live="polite">Ortak test: numbers.txt dosyasını değiştir, dilleri çalıştır ve sonuçları karşılaştır.</div>'+ 
+ '<div class="poly-actions"><button type="button" class="poly-button" id="polyFix">✧ Seçili Dili AI ile Düzelt</button><small>Hata çıktısına göre öneri; yalnızca sen onaylarsan dosyaya uygulanır.</small></div>'+ 
  '<div class="poly-output-box"><div class="poly-output-title"><strong id="polyOutputTitle">⌁ Python çıktısı</strong>'+
  '<span id="polyOutputStatus">Bekleniyor</span></div>'+
  '<pre id="polyOutput" aria-live="polite">Bir dili çalıştırdığında gerçek stdout/stderr, exit kodu ve durum burada görünür.</pre></div>'+
@@ -75,7 +82,7 @@ function count(){
  const text=editor.value;$('polyCount').textContent=text.split('\n').length.toLocaleString('tr-TR')+' satır · '+text.length.toLocaleString('tr-TR')+' karakter';
 }
 function syncCurrent(){
- if(files[current]!==editor.value){files[current]=editor.value;updated.add(current);lab().setFile(current,editor.value)}
+ if(current&&files[current]!==editor.value){files[current]=editor.value;updated.add(current);if(current!=='shared')lab().setFile(current,editor.value)}
 }
 function renderFileList(){
  const root=$('polyFiles');root.replaceChildren();
@@ -107,7 +114,7 @@ function downloadCurrent(){
 function resetCurrent(){
  const original=initial[current]||'';
  if(!confirm(selectedSpec().file+' dosyasındaki değişiklikler örnek kodla değiştirilsin mi?'))return;
- files[current]=original;lab().setFile(current,original);editor.value=original;updated.delete(current);
+ files[current]=original;if(current!=='shared')lab().setFile(current,original);editor.value=original;updated.delete(current);
  renderFileList();count();message('Örnek kaynak geri yüklendi.');
 }
 function backupProject(){
@@ -118,7 +125,7 @@ function backupProject(){
   const url=URL.createObjectURL(new Blob([JSON.stringify(doc,null,2)],{type:'application/json;charset=utf-8'}));
   const a=document.createElement('a');a.href=url;a.download='dimensia-multilang-project.json';a.click();
   setTimeout(()=>URL.revokeObjectURL(url),3500);
-  message('✓ 8 kaynak dosyası JSON proje yedeği olarak indirildi. GitHub bağlantısı gerekmez.');
+  message('✓ 9 dosya JSON proje yedeği olarak indirildi. GitHub bağlantısı gerekmez.');
  }catch(e){message('Yedekleme hatası: '+short(e.message,220),true)}
 }
 async function restoreProject(input){
@@ -128,16 +135,16 @@ async function restoreProject(input){
  if(doc?.schema!=='dimensia-multilang-project-v1'||!doc.files||typeof doc.files!=='object')throw Error('Bu dosya Dimensia çok dilli proje yedeği değil.');
  const validated={};
  for(const spec of SPECS){
-  const text=doc.files[spec.key];
+  const text=spec.key==='shared'&&doc.files.shared===undefined?initial.shared:doc.files[spec.key];
   if(typeof text!=='string'||new TextEncoder().encode(text).length>100000||secret(text))
    throw Error('Yedekte geçersiz veya hassas kaynak var: '+spec.file);
   validated[spec.key]=text;
  }
- if(!confirm('8 mevcut kod dosyan bu yedekteki sürümlerle değiştirilsin mi?'))return;
+ if(!confirm('9 proje dosyan, yedek içeriğiyle değiştirilsin mi?'))return;
  for(const spec of SPECS){
-  files[spec.key]=validated[spec.key];lab().setFile(spec.key,validated[spec.key]);updated.add(spec.key);
+  files[spec.key]=validated[spec.key];if(spec.key!=='shared')lab().setFile(spec.key,validated[spec.key]);updated.add(spec.key);
  }
- editor.value=files[current];renderFileList();count();message('✓ Proje yedeği yüklendi: 8 dosya değiştirildi. Henüz GitHub’a yüklenmedi.');
+ editor.value=files[current];renderFileList();count();message('✓ Proje yedeği yüklendi: 9 dosya güncellendi. Henüz GitHub’a yüklenmedi.');
 }
 function previewWeb(){
  syncCurrent();
@@ -199,14 +206,14 @@ function ensureConsent(){
  if(!$('polyConsent').checked)throw Error('Önce herkese açık kaynak kodu ve sonuç paylaşımını onayla.');
  if(!github()?.savePolyglotFiles||!github()?.startPolyglotRun)throw Error('GitHub bağlantı modülü henüz yüklenmedi.');
  const details=$('launchOwner')?.value.trim()+'/'+$('launchRepo')?.value.trim();
- if(!confirm(details+' deposuna 8 kaynak dosyasını HERKESE AÇIK yüklemek istiyor musun? Kodlar daha sonra bulutta çalıştırılabilir. Gizli bilgilerin olmadığından emin ol.'))throw Error('GitHub yükleme işlemi iptal edildi.');
+ if(!confirm(details+' deposuna 9 proje dosyasını HERKESE AÇIK yüklemek istiyor musun? Kodlar daha sonra bulutta çalıştırılabilir. Gizli bilgilerin olmadığından emin ol.'))throw Error('GitHub yükleme işlemi iptal edildi.');
 }
 async function saveAll(){
  if(busy)return;
  busy=true;setBusy(true);showStep(1);
  try{
   ensureConsent();const payload=collectFiles();
-  message('Dosyalar sırayla GitHub’a yükleniyor (8 dosya). Kodlar herkese açık olacak.');
+  message('Dosyalar sırayla GitHub’a yükleniyor (9 dosya). Kodlar herkese açık olacak.');
   const saved=await github().savePolyglotFiles(payload);
   message('✓ '+saved.length+' dosya GitHub’a kaydedildi. Tüm Dilleri Çalıştır ile bulut testini başlat.');
   updated.clear();renderFileList();
@@ -218,7 +225,7 @@ async function runAll(){
  busy=true;stopRequested=false;setBusy(true);report=null;setupResults();showStep(1);
  try{
   ensureConsent();const payload=collectFiles();
-  message('1/4 · 8 proje dosyası yetkili GitHub depoya aktarılıyor…');
+  message('1/4 · 9 proje dosyası yetkili GitHub depoya aktarılıyor…');
   await github().savePolyglotFiles(payload);
   updated.clear();renderFileList();
   if(stopRequested)throw Error('İşlem kullanıcı tarafından durduruldu.');
@@ -259,7 +266,7 @@ async function generateAI(){
  const prompt=$('polyPrompt').value.trim();
  if(prompt.length<20)return message('AI için en az 20 karakterlik proje hedefi yaz.',true);
  if(!openRouter()?.hasKey?.())return message('Ayarlar → OpenRouter bölümüne kendi API anahtarını gir.',true);
- if(!confirm('AI önerisi düzenlediğin 8 dosyanın kaynaklarını değiştirebilir. Devam edilsin mi?'))return;
+ if(!confirm('AI önerisi sekiz kod dosyanı değiştirebilir. Ortak veri dosyası korunur. Devam edilsin mi?'))return;
  busy=true;setBusy(true);message('AI proje mantığını dillere ayırıp JSON kaynak dosyaları oluşturmaya çalışıyor…');
  try{
   const response=await openRouter().ask([
@@ -273,7 +280,7 @@ async function generateAI(){
   for(const x of SPECS){
    const value=data.files[x.key];
    if(typeof value==='string'&&value.length>15&&value.length<=100000&&!secret(value)){
-    files[x.key]=value;lab().setFile(x.key,value);updated.add(x.key);changed++;
+    files[x.key]=value;if(x.key!=='shared')lab().setFile(x.key,value);updated.add(x.key);changed++;
    }
   }
   if(changed<4)throw Error('AI yalnızca '+changed+' geçerli dosya üretti. Daha kısa bir istekle tekrar dene.');
@@ -335,6 +342,6 @@ if(menu){
 }
 selectFile('python');showStep(0);setupResults();message('Çok dilli editör hazır · GitHub Actions ile tüm dilleri paralel test edebilirsin.');
 window.DimensiaPolyglot={show,runAll,saveAll,previewWeb,getFiles:()=>{syncCurrent();return{...files}},
- setFile:(language,content)=>{if(!SPECS.some(x=>x.key===language)||typeof content!=='string')return false;files[language]=content;lab().setFile(language,content);updated.add(language);if(current===language)editor.value=content;renderFileList();count();return true},
+ setFile:(language,content)=>{if(!SPECS.some(x=>x.key===language)||typeof content!=='string')return false;files[language]=content;if(language!=='shared')lab().setFile(language,content);updated.add(language);if(current===language)editor.value=content;renderFileList();count();return true},
  getState:()=>({busy,current,updated:[...updated],reportReady:!!report,reportId:report?.requestId,results:report?.jobs||null})};
 })();
