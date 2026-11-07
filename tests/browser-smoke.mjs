@@ -429,6 +429,10 @@ try{
    bottom:Math.round(box.bottom),top:Math.round(box.top),
    width:Math.round(box.width),viewport:innerHeight,
    overflow:document.documentElement.scrollWidth-innerWidth,
+   root:document.querySelector('#dimensiaChatHub').getBoundingClientRect().toJSON(),
+   main:document.querySelector('#dhMain').getBoundingClientRect().toJSON(),
+   scroll:document.querySelector('#dhScroll').getBoundingClientRect().toJSON(),
+   composerWrap:document.querySelector('.dh-composer-wrap').getBoundingClientRect().toJSON(),
    hidden:document.querySelector('#dhWelcome').hidden};
  });
  console.log('[CHAT MOBILE]',JSON.stringify(chatGeometry));
