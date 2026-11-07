@@ -1,0 +1,50 @@
+name: Authorized Public URL Analysis
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Public HTTP(S) URL you own or are authorized to inspect"
+        required: true
+        type: string
+      request_id:
+        description: "Safe unique report ID, starts with r"
+        required: true
+        type: string
+permissions:
+  contents: write
+concurrency:
+  group: authorized-url-analysis
+  cancel-in-progress: false
+jobs:
+  analyse:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Fetch and summarize public HTML/CSS/JS metadata
+        run: node scripts/cloud-scan.mjs
+        env:
+          TARGET_URL: ${{ inputs.url }}
+          REQUEST_ID: ${{ inputs.request_id }}
+      - name: Commit sanitized metadata report
+        env:
+          REQUEST_ID: ${{ inputs.request_id }}
+        run: |
+          set -euo pipefail
+          test -f "reports/${REQUEST_ID}.json"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "reports/${REQUEST_ID}.json"
+          git commit -m "docs: public architecture metadata report ${REQUEST_ID}"
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then exit 0; fi
+            git fetch origin main
+            git rebase origin/main
+          done
+          echo "Unable to publish metadata report" >&2
+          exit 1
