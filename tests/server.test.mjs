@@ -53,7 +53,7 @@ test('Public repository site includes module references',async()=>{
  assert.ok(source.includes('studio-flow.js'));
  assert.ok(source.includes('studio-launchpad.js'));
  assert.ok(source.includes('studio-launchpad.css'));
- assert.match(source,/studio-launchpad\.js\?v=4\.1\.0/)
+ assert.match(source,/studio-launchpad\.js\?v=4\.1\.1/)
  assert.ok(source.includes('DimensiaDevTools.instrument'));
 });
 
