@@ -56,7 +56,7 @@ test('Public repository site includes module references',async()=>{
  assert.ok(source.includes('studio-mobile-fix.css'));
  assert.ok(source.includes('studio-mobile-fix.js'));
  assert.match(source,/studio-mobile-fix\.js\?v=5\.2\.1/);
- assert.match(source,/studio-launchpad\.js\?v=4\.1\.1/)
+ assert.match(source,/studio-launchpad\.js\?v=7\.0\.0/)
  assert.ok(source.includes('DimensiaDevTools.instrument'));
 });
 
