@@ -1,0 +1,48 @@
+/* Dimensia Code Lab — calm, compact multi-language file editor. */
+.code-lab{margin:20px 0 26px;overflow:hidden;border:1px solid #536175;border-radius:19px;background:#141d2d;color:#e8eff5;box-shadow:0 18px 52px #05091577;font:12px/1.6 system-ui,-apple-system,Segoe UI,sans-serif;}
+.code-lab:before{content:"";display:block;height:3px;background:linear-gradient(90deg,#84d9c7,#a9a1d9,#b6e2cd);}
+.lab-head{display:flex;justify-content:space-between;gap:13px;flex-wrap:wrap;align-items:center;padding:19px 21px;border-bottom:1px solid #3d4b61;}
+.lab-head h2{font:800 21px/1.25 system-ui!important;color:#edf1f7;margin:5px 0!important;letter-spacing:-.6px!important;}
+.lab-head p{color:#a8b9c9!important;font-size:11px!important;margin:0!important;line-height:1.65!important;max-width:700px;}
+.lab-eyebrow{font-size:10px;letter-spacing:1.7px;color:#9bdecd;font-weight:800;}
+.lab-main{display:grid;grid-template-columns:185px minmax(0,1fr);min-height:460px;}
+.lab-side{border-right:1px solid #3a4b5f;background:#131b29;padding:14px 10px;display:grid;gap:6px;align-content:start;}
+.lab-side button{width:100%;border:1px solid transparent;text-align:left;color:#b2c3d5;background:transparent;padding:11px 12px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;}
+.lab-side button:hover{background:#273649;color:white;}
+.lab-side button.active{border-color:#7abcb2;background:#284941;color:#d5f9ed;}
+.lab-workspace{padding:17px 18px;min-width:0;display:flex;flex-direction:column;gap:12px;}
+.lab-current{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;}
+.lab-current strong{font-size:12px;color:#dceaf1;}
+.lab-current small{display:block;color:#98aabf;font-size:10px;margin-top:4px;}
+.lab-editor{width:100%;min-height:252px;resize:vertical;color:#a9e7d6;background:#0b1422;border:1px solid #435369;border-radius:11px;outline:0;padding:14px;font:11px/1.75 ui-monospace,SFMono-Regular,Consolas,monospace!important;tab-size:2;white-space:pre;overflow:auto;}
+.lab-editor:focus{border-color:#82bfac;box-shadow:0 0 0 3px #85d1c21c;}
+.lab-actions{display:flex;gap:7px;flex-wrap:wrap;}
+.lab-btn{border:1px solid #53637b;background:#26374a;border-radius:9px;color:#e1edf0;padding:10px 12px;font-size:10px!important;font-weight:800!important;cursor:pointer;}
+.lab-btn:hover{border-color:#a8d9c9;background:#325057;}
+.lab-btn:disabled{opacity:.45;cursor:wait;}
+.lab-btn.primary{background:#4a776e;border-color:#8fc8b6;color:white;}
+.lab-output{border:1px solid #425269;border-radius:11px;background:#0a1420;color:#c9d8e2;padding:12px;min-height:70px;max-height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;font:11px/1.65 ui-monospace,Consolas,monospace;}
+.lab-note{color:#a9bdd0!important;font-size:10px!important;margin:0!important;line-height:1.75!important;}
+.lab-capability{border:1px solid #496c69;background:#18302f;color:#a4e6d2;padding:5px 9px;font-size:10px;font-weight:700;border-radius:999px;max-width:100%;}
+.lab-example{padding:9px 11px;border-radius:9px;background:#1a2935;color:#b4cbd8;font-size:11px;line-height:1.5;}
+.lab-status{padding:11px 18px;background:#101c2b;border-top:1px solid #36485d;color:#9bb3c5;font-size:10px;}
+.lab-status.error{color:#ffb9b8;}
+.lab-lang{display:flex;align-items:center;gap:7px;}
+.lab-lang small{font-weight:600;font-size:9px;color:#9cb3c4;}
+.lab-file-box{display:grid;grid-template-columns:1fr;gap:10px;}
+.code-lab[data-soft=true]{background:#1c292c;color:#eef1eb;border-color:#677e78;}
+.code-lab[data-soft=true] .lab-side{background:#1b282b;border-color:#56706b;}
+.code-lab[data-soft=true] .lab-workspace{background:#202f31;}
+.code-lab[data-soft=true] .lab-editor,.code-lab[data-soft=true] .lab-output{background:#112128;}
+body[data-arch-comfort=paper] .code-lab{background:#f1eee6;color:#273235;border-color:#b5b3a7;box-shadow:0 16px 40px #55442c18;}
+body[data-arch-comfort=paper] .code-lab h2,body[data-arch-comfort=paper] .lab-current strong{color:#243237;}
+body[data-arch-comfort=paper] .lab-head,body[data-arch-comfort=paper] .lab-side{background:#e9e6dd;border-color:#b7b2a7;}
+body[data-arch-comfort=paper] .lab-head p,body[data-arch-comfort=paper] .lab-current small,body[data-arch-comfort=paper] .lab-note{color:#58656b!important;}
+body[data-arch-comfort=paper] .lab-workspace{background:#fbf9f2;}
+body[data-arch-comfort=paper] .lab-side button{color:#505d60;}
+body[data-arch-comfort=paper] .lab-side button.active{background:#d6e5dd;color:#2c5750;}
+body[data-arch-comfort=paper] .lab-editor{background:#fffefa;color:#1b3c36;border-color:#a5aea8;}
+body[data-arch-comfort=paper] .lab-output{background:#f8f7f1;color:#334248;border-color:#acb5b4;}
+body[data-arch-comfort=paper] .lab-btn{background:#e0e9e4;color:#28453d;border-color:#9daea7;}
+@media(max-width:780px){.lab-main{grid-template-columns:1fr}.lab-side{display:flex;overflow-x:auto;border-right:0;border-bottom:1px solid #445567}.lab-side button{min-width:116px;white-space:nowrap}.lab-workspace{padding:13px}.lab-editor{min-height:300px}}
+@media(prefers-reduced-motion:reduce){.code-lab *{transition:none!important;animation:none!important}}
