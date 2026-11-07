@@ -22,6 +22,10 @@ const TEMPLATES={
   name:'Python',file:'main.py',mode:'Python / Pyodide WebAssembly · ilk çalışmada internet gerekir',runnable:'python',
   content:'# Python: tarayıcıda isteğe bağlı Pyodide çalışma motoru\nprint("Merhaba Dimensia!")\nnumbers = [1, 2, 3, 4, 5]\nprint("Toplam:", sum(numbers))\n'
  },
+ perl:{
+  name:'Perl',file:'main.pl',mode:'Perl · GitHub Actions bulut çalıştırıcısında çalışır',runnable:'cloud',
+  content:'#!/usr/bin/env perl\nuse strict;\nuse warnings;\nuse feature "say";\nmy @numbers=(1,2,3,4,5);\nmy $sum=0;\n$sum += $_ for @numbers;\nsay "Merhaba Dimensia Perl!";\nsay "Toplam: $sum";\n'
+ },
  rust:{
   name:'Rust',file:'main.rs',mode:'Rust · rustc veya GitHub Actions gerekiyor',runnable:'cloud',
   content:'// Rust: yerel rustc ya da GitHub Actions ile derlenir\nfn main() {\n    println!("Merhaba Dimensia!");\n    let numbers = [1, 2, 3, 4, 5];\n    let total: i32 = numbers.iter().sum();\n    println!("Toplam: {}", total);\n}\n'
@@ -40,7 +44,7 @@ let lang='javascript',worker=null,runner=null,running=false;
 const shell=document.createElement('section');shell.className='code-lab';shell.id='dimensiaCodeLab';
 shell.innerHTML=
  '<div class="lab-head"><div><div class="lab-eyebrow">DIMENSIA / POLYGLOT CODE LAB</div><h2>Tek stüdyo. Çoklu yazılım dilleri.</h2>'+
- '<p>HTML · CSS · JavaScript · Python · Rust · Bash/SH · React Native kaynak kodlarını düzenle ve indir. Desteklenenleri güvenli çalışma alanında test et; diğerlerini GitHub Actions üzerinde doğrula.</p></div>'+
+ '<p>HTML · CSS · JavaScript · Python · Rust · Perl · Bash/SH · React Native kaynak kodlarını düzenle ve indir. Desteklenenleri güvenli çalışma alanında test et; diğerlerini GitHub Actions üzerinde doğrula.</p></div>'+
  '<span class="lab-capability" id="labCapability">İzole tarayıcı çalıştırma</span></div>'+
  '<div class="lab-main"><div class="lab-side" id="labMenu"></div><div class="lab-workspace">'+
  '<div class="lab-current"><div><strong id="labFileName">main.js</strong><small id="labRuntime">JavaScript</small></div>'+
@@ -49,6 +53,7 @@ shell.innerHTML=
  '<div class="lab-actions"><button type="button" class="lab-btn primary" id="labRun">▶ Çalıştır / Önizle</button>'+
  '<button type="button" class="lab-btn" id="labDownload">↓ Dosya indir</button>'+
  '<button type="button" class="lab-btn" id="labSaveGitHub">↗ GitHub’a Kaydet</button>'+
+ '<button type="button" class="lab-btn" id="labPolyglot">⚡ Tüm Dilleri Çalıştır</button>'+
  '<button type="button" class="lab-btn" id="labRestore">↻ Örnek Kod</button>'+
  '<button type="button" class="lab-btn" id="labStop">■ Durdur</button></div>'+
  '<p class="lab-note" id="labNote">JavaScript çalıştırma izole iframe ile yapılır. Rust, Bash ve React Native burada native olarak çalıştırılmaz; kaynakları GitHub Actions veya uygun yerel araçlarla test edebilirsin.</p>'+
@@ -145,9 +150,11 @@ $('labRun').onclick=async()=>{
   showHTML('<!doctype html>\n'+doc.documentElement.outerHTML,state.siteName||'Yeni Site');
   setStatus('CSS kodu kendi projenin HTML kaynağına eklendi.');return;
  }
- const url='https://github.com/ramiz28615/my_app/actions/workflows/polyglot-check.yml';
+ const full=window.DimensiaPolyglot;
+ if(full?.show){full.show(lang);setStatus('Bulut kod çalıştırıcısı açıldı: dosyaları GitHub’a yüklemek ve bütün dilleri test etmek için kendi tokenini bağla.');return}
+ const url='https://github.com/ramiz28615/my_app/actions/workflows/polyglot-execute.yml';
  window.open(url,'_blank','noopener,noreferrer');
- setStatus(TEMPLATES[lang].name+' tarayıcı içinde çalıştırılamaz. Kodu GitHub’a kaydet ve Actions test akışını başlat veya yerel araç zincirini kullan.');
+ setStatus('Bulut çalışma alanı henüz yüklenemedi. GitHub Actions üzerinden çalıştırabilirsin.');
 };
 $('labDownload').onclick=()=>{
  saveCurrent();const code=files[lang],url=URL.createObjectURL(new Blob([code],{type:'text/plain;charset=utf-8'}));
@@ -168,6 +175,19 @@ $('labSaveGitHub').onclick=async()=>{
  }catch(e){setStatus(e.message||'GitHub’a kaydetme hatası.',true)}
  finally{button.disabled=false;button.textContent='↗ GitHub’a Kaydet'}
 };
+$('labPolyglot').onclick=()=>{
+ const full=window.DimensiaPolyglot;
+ if(!full?.show)return setStatus('Bulut çalışma alanı henüz yüklenemedi.',true);
+ saveCurrent();full.show(lang);
+};
 load('javascript');
-window.DimensiaCodeLab={list:()=>Object.keys(TEMPLATES),getFiles:()=>({...files})};
+window.DimensiaCodeLab={
+ list:()=>Object.keys(TEMPLATES),
+ getFiles:()=>{saveCurrent();return{...files}},
+ setFile:(language,source)=>{
+  if(!Object.hasOwn(TEMPLATES,language)||typeof source!=='string'||source.length>100000)throw Error('Dil veya kaynak boyutu geçersiz.');
+  files[language]=source;if(lang===language){$('labEditor').value=source;output('Kaynak eşitlendi: '+TEMPLATES[language].file)}
+ },
+ select:(language)=>{if(Object.hasOwn(TEMPLATES,language))load(language)}
+};
 })();
