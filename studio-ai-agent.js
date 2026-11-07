@@ -290,7 +290,7 @@
      await build(settings);
     }
    }
-  }catch(e){status('İşlem hatası: '+trim(e.message||e,500),true)}
+  }catch(e){status('İşlem hatası: '+trimmed(e.message||e,500),true)}
   finally{
    if(id===runGeneration){busy=false;buttons.forEach(x=>$(x).disabled=false);render();}
   }
