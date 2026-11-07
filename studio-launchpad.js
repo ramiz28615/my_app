@@ -558,7 +558,27 @@
     if(parsed.requestId!==task.id)throw Error('GitHub raporu farklı bir analiz isteğine ait.');
     return parsed;
   }
-  window.DimensiaLaunchpad={slug,validSlug,validOwner,validRepo,pageURL,checkStatus,refreshPreview,startCloudAnalysis,fetchCloudAnalysis};
+  async function saveCodeLabFile(language,filename,content){
+    const allow={html:'index.html',css:'style.css',javascript:'main.js',python:'main.py',rust:'main.rs',bash:'main.sh',reactnative:'App.js'};
+    if(!Object.prototype.hasOwnProperty.call(allow,language)||allow[language]!==filename)throw Error('Code Lab sadece güvenli dosya yollarına kaydedebilir.');
+    if(typeof content!=='string'||new TextEncoder().encode(content).length>100000)throw Error('Kod en fazla 100 KB olabilir.');
+    if(/(?:github_pat_[a-zA-Z0-9_]{15,}|ghp_[a-zA-Z0-9]{20,}|sk-or-v1-[a-zA-Z0-9_-]{16,})/.test(content))throw Error('Kodda gizli API tokeni bulunuyor. GitHub’a yüklenmesi engellendi.');
+    if(!accessToken||accessToken.length<20)throw Error('GitHub Launchpad’e önce kişisel tokenini gir. Contents: Read and write izni gerekir.');
+    const t={owner:el('launchOwner').value.trim(),repo:el('launchRepo').value.trim()};
+    if(!validOwner(t.owner)||!validRepo(t.repo))throw Error('GitHub kullanıcı/depo bilgisi geçersiz.');
+    if(connectedRepo!==t.owner.toLowerCase()+'/'+t.repo.toLowerCase()||!authenticated)await connect(t);
+    const filePath='code-lab/'+language+'/'+filename;
+    const endpoint=paths(t)+'/contents/'+filePath.split('/').map(encodeURIComponent).join('/');
+    const existing=await api('GET',endpoint+'?ref='+encodeURIComponent(connectedBranch),undefined,true);
+    const uploaded=await api('PUT',endpoint,{
+      message:'Code Lab: save '+language+' '+filename,
+      branch:connectedBranch,
+      content:toBase64(content),
+      ...(existing?.sha?{sha:existing.sha}:{})
+    });
+    return{path:filePath,sha:uploaded?.commit?.sha||'',url:'https://github.com/'+t.owner+'/'+t.repo+'/blob/'+connectedBranch+'/'+filePath};
+  }
+  window.DimensiaLaunchpad={slug,validSlug,validOwner,validRepo,pageURL,checkStatus,refreshPreview,startCloudAnalysis,fetchCloudAnalysis,saveCodeLabFile};
   el('launchSlug').value=slug(state.siteName||'yeni-site')||'yeni-site';
   refreshAddress();renderRecords();refreshPreview();step(0);
 })();
