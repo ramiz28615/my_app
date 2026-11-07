@@ -9,53 +9,168 @@
  ref.innerHTML='<h3>🔗 Website Reference Lab</h3><p>URL veya HTML kaynağındaki herkese açık menü, buton, form ve renk yapısını incele. Gizli backend veya oturum trafiği kopyalanamaz.</p><label class="field-title" for="referenceUrl">Referans bağlantısı</label><div class="reference-controls"><input type="url" id="referenceUrl" placeholder="https://ornek.com"><button type="button" id="inspectReference">URL Analiz</button></div><label class="reference-file" for="referenceFile">⬆ HTML dosyası yükle<input id="referenceFile" type="file" accept=".html,.htm,text/html" hidden></label><details class="reference-details"><summary>HTML kaynak kodunu yapıştır</summary><textarea id="referenceHtml" aria-label="HTML kaynak kodu"></textarea><button id="inspectPastedHtml" class="reference-paste" type="button">HTML Analiz</button></details><div id="referenceReport" class="reference-report" role="status" aria-live="polite" hidden></div>';
  builder.prepend(ref);
  const ai=document.createElement('section');ai.className='settings-card panel or-card';
- ai.innerHTML='<div class="settings-icon">✧</div><h2>OpenRouter · Ücretsiz AI</h2><p>Kendi API anahtarını gir. Anahtar GitHub veya tarayıcı depolamasına kaydedilmez; yalnızca bu açık sekmenin belleğinde tutulur.</p><div class="or-connection-grid"><div><label for="orKey">OpenRouter API key</label><div class="or-key-row"><input id="orKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk-or-v1-..."><button id="orReveal" type="button" aria-label="Anahtarı göster veya gizle">◉</button></div></div><div><label for="orModel">Free model</label><select id="orModel"><option value="openrouter/free">openrouter/free · Otomatik</option><option value="custom">Başka bir :free model</option></select><input id="orCustomModel" hidden style="margin-top:9px" placeholder="saglayici/model:free" aria-label="Ücretsiz model kodu"></div></div><div class="settings-actions"><button class="btn btn-primary btn-small" type="button" id="orCheck">Bağlantıyı Test Et</button><button class="btn btn-outline btn-small" type="button" id="orForget">Anahtarı Unut</button><a class="or-link" target="_blank" rel="noopener noreferrer" href="https://openrouter.ai/settings/keys">API anahtarı al ↗</a></div><p class="or-hint">Ücretsiz modellerde kota uygulanır. Tarayıcı ile doğrudan API çağrısında anahtarın isteği geliştirici araçlarından görülebilir; çok kullanıcılı ürünlerde sunucu aracısı kullan.</p><div id="orStatus" class="or-status" role="status">● Henüz bağlı değil</div>';
+ ai.innerHTML='<div class="settings-icon">✧</div><h2>OpenRouter · Ücretsiz AI</h2><p>Kendi API anahtarını gir. Anahtar GitHub veya tarayıcı depolamasına kaydedilmez; yalnızca bu açık sekmenin belleğinde tutulur.</p><div class="or-connection-grid"><div><label for="orKey">OpenRouter API key</label><div class="or-key-row"><input id="orKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk-or-v1-..."><button id="orReveal" type="button" aria-label="Anahtarı göster veya gizle">◉</button></div></div><div><label for="orModel">Free model</label><select id="orModel"><option value="openrouter/free">openrouter/free · Otomatik</option><option value="custom">Model kimliği: :free</option></select><input id="orCustomModel" hidden style="margin-top:9px" placeholder="saglayici/model:free" aria-label="Ücretsiz model kodu"><small id="orModelHelp" class="or-model-help">Otomatik yönlendirici farklı ücretsiz modelleri seçebilir. Güncel modelleri listeleyebilirsin.</small></div></div><div class="settings-actions"><button class="btn btn-primary btn-small" type="button" id="orCheck">Anahtarı Doğrula</button><button class="btn btn-outline btn-small" type="button" id="orReplyTest">Model Yanıtını Test Et</button><button class="btn btn-outline btn-small" type="button" id="orRefresh">Ücretsiz Modelleri Yenile</button><button class="btn btn-outline btn-small" type="button" id="orForget">Anahtarı Unut</button><a class="or-link" target="_blank" rel="noopener noreferrer" href="https://openrouter.ai/settings/keys">API anahtarı al ↗</a></div><p class="or-hint">Ücretsiz modellerde kota uygulanır. Tarayıcı ile doğrudan API çağrısında anahtarın isteği geliştirici araçlarından görülebilir; çok kullanıcılı ürünlerde sunucu aracısı kullan.</p><div id="orStatus" class="or-status" role="status">● Henüz bağlı değil</div>';
  settings.prepend(ai);
+ let verified='unchecked',modelResult='untested',keyInfo=null,lastModel='',lastError='',freeModels=[];
  const ready=()=>secret.startsWith('sk-or-')&&secret.length>=24;
- const setStatus=(m,bad)=>{const x=$('orStatus');x.textContent=(bad?'⚠ ':'● ')+m;x.style.color=bad?'#ffb4b4':'#a7e3d1'};
- function renderMode(){
-   const yes=ready();state.aiConnected=yes;
-   $('aiModeBadge').innerHTML='<i></i> '+(yes?'OPENROUTER FREE':'YEREL MOD');
-   $('generationHelp').textContent=yes?'OpenRouter ile gerçek site kodu üretebilirsin.':'Anahtarsız şablon motoru kullanılabilir.';
-   setStatus(yes?'Anahtar hazır. Model bağlantısını test et.':'Anahtar bekleniyor.',false);
+ const setStatus=(message,bad=false)=>{
+   const x=$('orStatus');x.textContent=(bad?'⚠ ':'● ')+message;
+   x.style.color=bad?'#ffc2bb':'#a7e3d1';
+ };
+ function describeState(){
+   const canUse=ready();
+   const auth=canUse?verified:'missing';
+   return {keyPresent:canUse,authentication:auth,model:modelResult,selectedModel:lastModel||model(),message:lastError};
  }
- $('orKey').addEventListener('input',e=>{secret=e.target.value.trim();renderMode()});
+ function renderMode(silent=false){
+   const has=ready();
+   state.aiConnected=has;
+   const display=has?(verified==='valid'?'OPENROUTER · ANAHTAR ONAYLI':'OPENROUTER · TEST BEKLİYOR'):'YEREL MOD';
+   $('aiModeBadge').innerHTML='<i></i> '+display;
+   $('generationHelp').textContent=has?'OpenRouter API ile kod üretebilirsin; modelin çalışmasını ayrıca test et.':'Anahtar olmadan yerel HTML şablonları oluşturulabilir.';
+   if(!silent)setStatus(has?'Anahtar girildi, henüz doğrulanmadı. “Anahtarı Doğrula” düğmesine bas.':'API anahtarı bekleniyor.');
+   document.dispatchEvent(new CustomEvent('dimensia:openrouter-status',{detail:describeState()}));
+ }
+ $('orKey').addEventListener('input',e=>{
+   secret=e.target.value.trim();
+   verified='unchecked';modelResult='untested';keyInfo=null;lastError='';lastModel='';
+   renderMode();
+ });
  $('orReveal').onclick=()=>{$('orKey').type=$('orKey').type==='password'?'text':'password'};
- $('orForget').onclick=()=>{secret='';$('orKey').value='';renderMode()};
- $('orModel').onchange=()=>{$('orCustomModel').hidden=$('orModel').value!=='custom'};
+ $('orForget').onclick=()=>{secret='';$('orKey').value='';verified='unchecked';modelResult='untested';keyInfo=null;lastError='';lastModel='';renderMode()};
+ $('orModel').onchange=()=>{
+   $('orCustomModel').hidden=$('orModel').value!=='custom';
+   modelResult='untested';renderMode(true);
+ };
+ $('orCustomModel').addEventListener('input',()=>{modelResult='untested';renderMode(true)});
  function model(){
-   const value=$('orModel').value==='custom'?$('orCustomModel').value.trim():'openrouter/free';
-   if(value!=='openrouter/free'&&!/^[\w.-]+\/[\w.:-]+:free$/.test(value))throw Error('Yalnızca openrouter/free veya :free bitişli model seç.');
+   const value=$('orModel').value==='custom'?$('orCustomModel').value.trim():$('orModel').value;
+   if(value!=='openrouter/free'&&!/^[\w.-]+\/[\w.:-]+:free$/i.test(value))throw Error('Ücretlendirilmemesi için yalnızca openrouter/free veya :free son ekli modeller seçilebilir.');
    return value;
+ }
+ function errorMessage(status,info){
+   if(status===401||status===403)return 'OpenRouter anahtarı reddedildi veya izni yok (HTTP '+status+'). Anahtarı OpenRouter hesabından kontrol et.';
+   if(status===402)return 'OpenRouter hesabı/bakiye sınırı (HTTP 402). Ücretsiz model ve hesap durumunu kontrol et.';
+   if(status===429)return 'Ücretsiz model istek kotası dolmuş olabilir (HTTP 429). Bir süre sonra dene; başarısız istekler de kotadan düşebilir.';
+   if(status===404)return 'Seçilen ücretsiz model artık mevcut olmayabilir (HTTP 404). Model listesini yenile.';
+   if(status>=500)return 'OpenRouter veya model sağlayıcısı geçici hata verdi (HTTP '+status+'). Farklı ücretsiz model deneyebilirsin.';
+   const text=trim(info?.error?.message||info?.message||'İstek başarısız',160);
+   return 'OpenRouter HTTP '+status+': '+text;
+ }
+ async function request(url,options={},timeoutMs=30000){
+   const ctrl=new AbortController(),timeout=setTimeout(()=>ctrl.abort(),timeoutMs);
+   try{
+     const response=await fetch(url,{
+       mode:'cors',credentials:'omit',cache:'no-store',signal:ctrl.signal,
+       headers:{'Accept':'application/json',...(options.body?{'Content-Type':'application/json'}:{}),
+         ...(options.needsAuth===false?{}:{'Authorization':'Bearer '+secret}),
+         ...(options.body?{'X-Title':'Dimensia Studio'}:{})},
+       method:options.method||'GET',
+       ...(options.body?{body:JSON.stringify(options.body)}:{})
+     });
+     const text=await response.text();
+     let data={};
+     try{data=text?JSON.parse(text):{}}catch{throw Error('OpenRouter JSON yanıtı okunamadı (HTTP '+response.status+').')}
+     if(!response.ok||data.error)throw Error(errorMessage(response.status,data));
+     return data;
+   }catch(error){
+     if(error.name==='AbortError')throw Error('OpenRouter bağlantısı zaman aşımına uğradı.');
+     if(error instanceof TypeError)throw Error('OpenRouter API erişimi tarayıcı veya ağ tarafından engellenmiş olabilir (CORS, DNS, VPN veya reklam engelleyici).');
+     throw error;
+   }finally{clearTimeout(timeout)}
+ }
+ async function verifyKey(){
+   if(!ready())throw Error('Önce geçerli bir OpenRouter anahtarı gir.');
+   const payload=await request('https://openrouter.ai/api/v1/key',{},25000);
+   if(!payload.data||typeof payload.data!=='object')throw Error('OpenRouter anahtar bilgisi beklenen formatta değil.');
+   verified='valid';keyInfo=payload.data;lastError='';
+   renderMode(true);
+   return payload.data;
  }
  async function ask(messages,limit=6000){
    if(!ready())throw Error('OpenRouter anahtarı eksik.');
-   const ctrl=new AbortController(),timeout=setTimeout(()=>ctrl.abort(),90000);
-   try{
-     const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{
-       method:'POST',mode:'cors',credentials:'omit',signal:ctrl.signal,
-       headers:{'Content-Type':'application/json','Authorization':'Bearer '+secret,'X-Title':'Dimensia Studio'},
-       body:JSON.stringify({model:model(),messages,temperature:0.55,max_tokens:limit})
-     });
-     let data;try{data=await r.json()}catch{throw Error('API yanıtı okunamadı: '+r.status)}
-     if(!r.ok||data.error)throw Error('OpenRouter '+r.status+': '+trim(data.error?.message||data.error||'İstek başarısız',200));
-     const c=data.choices?.[0]?.message?.content;
-     const text=Array.isArray(c)?c.filter(i=>i.type==='text').map(i=>i.text||'').join('\n'):String(c||'');
-     if(!text.trim())throw Error('Model boş yanıt verdi.');
-     return text.trim();
-   }catch(e){
-     if(e.name==='AbortError')throw Error('OpenRouter yanıt vermedi (90 saniye).');
-     if(e instanceof TypeError)throw Error('Ağ / CORS nedeniyle OpenRouter erişilemiyor.');
-     throw e;
-   }finally{clearTimeout(timeout)}
+   if(!Array.isArray(messages)||messages.length===0)throw Error('Model için mesaj gerekiyor.');
+   const selected=model();
+   const tokenCap=Math.min(12000,Math.max(512,Math.trunc(Number(limit))||6000));
+   const body={model:selected,messages,temperature:0.45,max_tokens:tokenCap,stream:false};
+   const payload=await request('https://openrouter.ai/api/v1/chat/completions',{method:'POST',body},120000);
+   const choice=payload.choices?.[0]||{};
+   const content=choice.message?.content;
+   let answer='';
+   if(typeof content==='string')answer=content;
+   else if(Array.isArray(content))answer=content.filter(p=>p?.type==='text').map(p=>p.text||'').join('\n');
+   else if(typeof payload.output_text==='string')answer=payload.output_text;
+   lastModel=String(payload.model||selected).slice(0,120);
+   if(!answer.trim()){
+     modelResult='empty';
+     const reason=choice.finish_reason||'unknown';
+     const usage=payload.usage||{};
+     const reasoning=usage.completion_tokens_details?.reasoning_tokens;
+     const consumed=usage.completion_tokens;
+     const exhausted=reason==='length'||(Number.isFinite(reasoning)&&Number.isFinite(consumed)&&reasoning>=Math.max(1,consumed-3));
+     const details=exhausted?
+       'Düşünme tokenleri çıktı sınırını tüketmiş olabilir. Başka bir :free model seç veya kod üretimini daha küçük parçalara böl.':
+       'Sağlayıcı yoğunluğu veya geçici model sorunu olabilir. Başka bir :free model seç ya da tekrar dene.';
+     lastError='Model metin üretmedi (finish_reason: '+reason+', model: '+lastModel+'). '+details;
+     renderMode(true);
+     throw Error(lastError);
+   }
+   modelResult='ok';lastError='';renderMode(true);
+   return answer.trim();
  }
- $('orCheck').onclick=async()=>{
-   const button=$('orCheck');button.disabled=true;button.textContent='Test ediliyor…';
-   try{const a=await ask([{role:'user',content:'Reply only OK'}],32);setStatus('Bağlandı · '+model()+' · '+a.slice(0,20),false)}
-   catch(e){setStatus(e.message,true)}
-   finally{button.disabled=false;button.textContent='Bağlantıyı Test Et'}
+ async function loadFreeModels(){
+   const result=await request('https://openrouter.ai/api/v1/models?output_modalities=text', {needsAuth:false},30000);
+   const arr=Array.isArray(result.data)?result.data:[];
+   const usable=arr.filter(m=>typeof m.id==='string'&&m.id.endsWith(':free')&&(
+     Array.isArray(m.architecture?.output_modalities)?m.architecture.output_modalities.includes('text'):true
+   ) && m.pricing && Number(m.pricing.prompt)===0 && Number(m.pricing.completion)===0);
+   usable.sort((a,b)=>String(a.name||a.id).localeCompare(String(b.name||b.id),'tr'));
+   freeModels=usable.slice(0,140);
+   const select=$('orModel');
+   const previous=select.value;
+   const opts=[{id:'openrouter/free',label:'openrouter/free · Otomatik'},...freeModels.map(x=>({id:x.id,label:trim(x.name||x.id,65)+' · '+x.id}))];
+   select.replaceChildren();
+   for(const item of opts){const node=document.createElement('option');node.value=item.id;node.textContent=item.label;select.append(node)}
+   const other=document.createElement('option');other.value='custom';other.textContent='Başka bir :free model kodu';select.append(other);
+   select.value=opts.some(x=>x.id===previous)?previous:'openrouter/free';
+   $('orCustomModel').hidden=select.value!=='custom';
+   $('orModelHelp').textContent=freeModels.length+' adet ücretsiz sohbet modeli listelendi. Ücretsiz modellerin kota ve uygunluğu değişebilir.';
+   renderMode(true);
+   return freeModels;
+ }
+ $('orRefresh').onclick=async()=>{
+   const b=$('orRefresh');b.disabled=true;b.textContent='Liste alınıyor…';
+   try{const list=await loadFreeModels();setStatus('Ücretsiz model kataloğu güncellendi: '+list.length+' model. Anahtar doğrulaması ayrı yapılır.')}
+   catch(e){setStatus('Model listesi alınamadı: '+trim(e.message,220),true)}
+   finally{b.disabled=false;b.textContent='Ücretsiz Modelleri Yenile'}
  };
- $('checkApi')?.addEventListener('click',e=>{if(ready()){e.stopImmediatePropagation();$('orCheck').click()}},true);
+ $('orCheck').onclick=async()=>{
+   const b=$('orCheck');b.disabled=true;b.textContent='Doğrulanıyor…';
+   try{
+     const info=await verifyKey();
+     setStatus('API anahtarı OpenRouter tarafından doğrulandı. '+(info.is_free_tier?'Ücretsiz hesap. ':'')+'Model yanıtını doğrulamak için “Model Yanıtını Test Et” düğmesine bas.');
+   }catch(e){
+     verified='failed';lastError=trim(e.message,240);renderMode(true);
+     setStatus('Anahtar doğrulanamadı: '+lastError,true);
+   }finally{b.disabled=false;b.textContent='Anahtarı Doğrula'}
+ };
+ $('orReplyTest').onclick=async()=>{
+   const b=$('orReplyTest');b.disabled=true;b.textContent='Model test ediliyor…';
+   try{
+     if(verified!=='valid')await verifyKey();
+     const answer=await ask([{role:'system',content:'Reply concisely in Turkish.'},{role:'user',content:'Yanıtın yalnızca TAMAM olsun.'}],900);
+     setStatus('OpenRouter bağlı ve model yanıtı başarılı · '+(lastModel||model())+' · '+trim(answer,50));
+   }catch(e){
+     lastError=trim(e.message,300);
+     setStatus((verified==='valid'?'Anahtar doğrulandı, fakat model testi başarısız: ':'Bağlantı kontrolü başarısız: ')+lastError,true);
+   }finally{b.disabled=false;b.textContent='Model Yanıtını Test Et'}
+ };
+ // Show the connected provider state separately from the site's optional Node server.
+ $('checkApi')?.addEventListener('click',e=>{
+   e.stopImmediatePropagation();
+   if(!ready()){setStatus('Önce OpenRouter anahtarını gir.',true);return}
+   $('orCheck').click();
+ },true);
  function analyse(html,url){
    const doc=new DOMParser().parseFromString(html,'text/html');
    const texts=(selector,n)=>unique([...doc.querySelectorAll(selector)].map(e=>trim(e.textContent||e.getAttribute('aria-label')||'',96)),n);
@@ -142,6 +257,6 @@
    }catch(err){toast(err.message||'AI üretim başarısız.',true)}
    finally{state.loading=false;$('generateButton').disabled=false;$('generateButtonText').textContent='Siteyi Oluştur'}
  },true);
- window.DimensiaOpenRouter={hasKey:ready,ask};window.DimensiaReference={getReport:()=>report,analyse,present};
+ window.DimensiaOpenRouter={hasKey:ready,ask,verifyKey,loadFreeModels,getStatus:describeState};window.DimensiaReference={getReport:()=>report,analyse,present};
  renderMode();
 })();
