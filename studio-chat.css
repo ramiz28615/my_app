@@ -19,6 +19,7 @@ body.dh-home-active .topbar .status-dot{background:#a88cf0;box-shadow:0 0 10px #
 body.dh-home-active .app-footer{display:none}
 .dh-shell{display:flex;flex-direction:column;flex:1;min-height:calc(100dvh - 58px);background:radial-gradient(ellipse 42% 36% at 56% 6%,#4c376b1a,transparent 85%),#111115;color:var(--dh-ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;position:relative;overflow:hidden}
 .dh-shell *{box-sizing:border-box}
+.dh-shell [hidden]{display:none!important}
 .dh-shell button,.dh-shell textarea,.dh-shell input,.dh-shell select{font:inherit}
 .dh-shell button{cursor:pointer;touch-action:manipulation}
 .dh-shell button:disabled{opacity:.52;cursor:wait}
