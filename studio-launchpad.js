@@ -42,7 +42,7 @@
     '<iframe id="launchPreviewFrame" title="Yayınlanacak web sitesi önizlemesi" sandbox="allow-scripts allow-forms" referrerpolicy="no-referrer" loading="lazy"></iframe>'+
     '</div></div><div class="launch-underpreview"><span><strong id="launchSiteName">İlk Web Sitem</strong> · <span id="launchFileSize">0 KB</span></span>'+
     '<div class="launch-actions"><button class="launch-btn" id="launchViewCode" type="button">⌘ Kod</button>'+
-    '<button class="launch-btn" id="launchDownload" type="button">↓ HTML indir</button><button class="launch-btn" id="launchImportDemo" type="button">✧ Demo'yu Düzenle</button></div></div>'+
+    '<button class="launch-btn" id="launchDownload" type="button">↓ HTML indir</button><button class="launch-btn" id="launchImportDemo" type="button">✧ Örnek Siteyi Düzenle</button></div></div>'+
     '<div class="launch-stepper" id="launchSteps"><span class="active">1. Hazırla</span><i>→</i><span>2. Bağlan</span><i>→</i><span>3. Yayınla</span><i>→</i><span>4. Canlı</span></div>'+
     '<div class="launch-help">Yayınlamadan önce kodu kontrol et. GitHub Pages yalnızca statik dosyaları sunar; PHP, Node.js sunucusu, gizli API anahtarları veya veritabanı backend’i barındırmaz.</div>'+
     '</div><div class="launch-form">'+
