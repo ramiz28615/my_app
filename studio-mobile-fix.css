@@ -79,3 +79,18 @@ html.dim-handset .dim-mobile-banner{display:flex!important}
  .launch-field input,.arch-studio input,.arch-studio textarea,.ai-agent input,.ai-agent textarea{font-size:16px!important}
 }
 @media(prefers-reduced-motion:reduce){html.dim-handset .sidebar{transition:none}}
+
+/* Manual one-tap phone layout switch for Android custom tabs and desktop-mode browsers. */
+.dim-mobile-toggle{
+ display:inline-flex;align-items:center;justify-content:center;gap:4px;
+ padding:8px 10px;min-height:36px;background:#243747;
+ color:#d6ebe7;border:1px solid #688d8b;border-radius:9px;
+ font:700 11px/1.2 system-ui,sans-serif;white-space:nowrap;cursor:pointer;
+}
+.dim-mobile-toggle:hover,.dim-mobile-toggle:focus-visible{background:#36565f;outline:2px solid #7dbcb1;outline-offset:2px;}
+html.dim-handset .top-left{flex-wrap:wrap;align-items:center;}
+html.dim-handset .dim-mobile-toggle{padding:8px;}
+@media(min-width:761px){
+ .dim-mobile-toggle{border-color:#506174;background:#212c43;color:#a8d6d0}
+}
+@media(max-width:760px){.dim-mobile-toggle{font-size:10px;padding:7px 8px;}}
