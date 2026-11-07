@@ -125,6 +125,7 @@
   setBusy(true);progression(0);notice('1/6 · URL ve erişim izni kontrol ediliyor…');
   let reason='';
   try{
+  try{
    // Local Node server provides multi-page safe crawling. GitHub Pages does not.
    const api=new URL('api/architect?'+new URLSearchParams({url:target.href,consent:'yes',pages:'5',assets:'10'}),document.baseURI);
    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),32000);
