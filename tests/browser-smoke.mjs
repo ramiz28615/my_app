@@ -350,6 +350,47 @@ try{
  assert.ok((await page.locator('#agentPanel').innerText()).includes('v2'),'Agent should preserve original and new HTML versions');
  checkNoErrors('AI Agent workflow');
  log('AI Agent','local fallback plan, mocked OpenRouter plan/build, review and undo history passed');
+
+ // New conversation-first homepage: mock real AI transport, test chat, code build,
+ // local persistence, device preview, saved project and conversation history.
+ await page.route('https://openrouter.ai/api/v1/chat/completions',async route=>{
+  const request=route.request().postDataJSON();
+  const system=String(request.messages?.[0]?.content||'');
+  const content=system.includes('senior frontend product engineer')?
+   '<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dimensia Chat Build</title><style>body{background:#121c2a;color:white;font-family:system-ui}</style></head><body><h1>Conversation Site E2E</h1><button type="button" onclick="this.textContent=\'Clicked\'">Try</button></body></html>':
+   'Merhaba! ChatLLM tarzı Dimensia sohbet yanıtı hazır.';
+  await route.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify({model:'mock/fast-free:free',choices:[{finish_reason:'stop',message:{content}}]})});
+ });
+ await page.locator('[data-nav="home"]').click();
+ assert.ok(await page.locator('#dhWelcome').isVisible());
+ assert.equal(await page.locator('#dhSuggestions .dh-suggestion').count(),4);
+ await page.locator('#dhNew').click();
+ await page.locator('#dhInput').fill('Merhaba, kısa bir yazılım önerisi ver.');
+ await page.locator('#dhSend').click();
+ await page.waitForFunction(()=>document.querySelector('#dhThread')?.textContent.includes('Dimensia sohbet yanıtı hazır'),{timeout:12000});
+ assert.ok((await page.locator('#dhHistory').innerText()).includes('Merhaba'));
+ assert.equal(await page.evaluate(()=>window.DimensiaChatHub.getChats()[0].count),2);
+ checkNoErrors('Conversation chat');
+ log('Conversation chat','OpenRouter response rendered, local chat history and New Chat worked');
+
+ await page.locator('#dhModeBuild').click();
+ await page.locator('#dhInput').fill('Bir premium tanıtım sitesi oluştur.');
+ await page.locator('#dhSend').click();
+ await page.waitForFunction(()=>document.querySelector('#dhArtifact')?.hidden===false,{timeout:15000});
+ assert.ok((await page.locator('#dhPreview').getAttribute('srcdoc')).includes('Conversation Site E2E'));
+ await page.locator('#dhMobile').click();
+ assert.equal(await page.locator('#dhFrameWrap').getAttribute('data-preview'),'mobile');
+ await page.locator('#dhSave').click();
+ const projectSnapshot=await page.evaluate(()=>localStorage.getItem('dimensia-projects-v1')||'');
+ assert.ok(projectSnapshot.includes('Conversation Site E2E'),'Saved project must persist generated source');
+ assert.ok((await page.locator('#dhHistory').innerText()).includes('Merhaba'));
+ await page.locator('#dhNew').click();
+ assert.ok(await page.locator('#dhWelcome').isVisible());
+ assert.equal(await page.evaluate(()=>window.DimensiaChatHub.getChats().length),2);
+ assert.equal(await page.evaluate(()=>document.body.classList.contains('dh-home-active')),true);
+ checkNoErrors('Conversation build and history');
+ log('Conversation build','complete HTML build, isolated preview, mobile, project save and history passed');
+
  await page.locator('[data-nav="settings"]').click();
  await page.locator('#orForget').click();
  assert.equal(await page.locator('#orKey').inputValue(),'');
