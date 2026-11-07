@@ -57,9 +57,13 @@ try{
  await page.locator('#tabPreview').click();
  const button=page.frameLocator('#siteFrame').locator('#samplePick');
  await button.waitFor({timeout:12000});
+ await page.evaluate(()=>{window.__dimReEvents=[];window.addEventListener('message',e=>{if(e.data?.channel==='DIMENSIA_RE_EDITOR')window.__dimReEvents.push({event:e.data.event,data:e.data.data?.tag||''})})});
  await page.locator('#rePick').click();
  await button.click();
- await page.locator('#reText').waitFor({timeout:9000});
+ await page.waitForTimeout(700);
+ const inspected=await page.evaluate(()=>({pickLabel:document.getElementById('rePick').innerText,events:window.__dimReEvents,iframeSource:document.getElementById('siteFrame').srcdoc.includes('DIMENSIA_RE_EDITOR'),frameBytes:document.getElementById('siteFrame').srcdoc.length,selectedVisible:!!document.getElementById('reText')}));
+ console.log('[RE DIAGNOSTICS]',JSON.stringify(inspected));
+ await page.locator('#reText').waitFor({timeout:2200});
  await page.locator('#reText').fill('Düzenlenmiş Buton');
  await page.locator('#reApply').click();
  await page.frameLocator('#siteFrame').locator('#samplePick').waitFor();
