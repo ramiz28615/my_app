@@ -250,6 +250,21 @@ try{
  checkNoErrors('Browser-only URL import');
  log('Architect no Node','public CORS HTML analyzed without Node server');
 
+ // Cross-origin blocked URL: show actionable alternatives instead of a fake Node requirement.
+ await page.route('https://blocked-example.test/**',route=>route.abort('failed'));
+ await page.locator('#archURL').fill('https://blocked-example.test/');
+ await page.locator('#archURLScan').click();
+ await page.locator('#archFallback:not([hidden])').waitFor({timeout:12000});
+ assert.equal(await page.locator('.arch-fallback-options button').count(),4);
+ assert.ok((await page.locator('#archNotice').innerText()).includes('CORS'),'CORS error must be explained');
+ assert.ok(!(await page.locator('#archNotice').innerText()).includes('Node kurulu değil'),'Do not instruct Node installation for browser CORS');
+ await page.locator('.arch-fallback-options button').nth(2).click();
+ await page.waitForFunction(()=>document.querySelector('#archNotice')?.textContent.includes('sayfa analiz edildi'));
+ assert.equal(await page.locator('#archFallback:not([hidden])').count(),0,'Successful own-site analysis should hide fallback');
+ checkNoErrors('CORS fallback');
+ log('Architect fallback','blocked remote URL provides four working no-Node alternatives');
+
+
  // Code Lab JavaScript executes in sandbox, no execution of Rust/Bash/React Native in browser.
  await page.locator('#labMenu [data-lang="javascript"]').click();
  await page.locator('#labEditor').fill('console.log("Dimensia browser sandbox verification");');
@@ -295,6 +310,17 @@ try{
  assert.ok(!dataKeys.includes('sk-or-test-for-e2e-placeholder'),'OpenRouter key must not be persisted');
  await page.locator('[data-nav="studio"]').click();
 
+ assert.equal(await page.locator('#dimMobileToggle').count(),1,'Accessible manual mobile toggle should be present');
+ await page.locator('#dimMobileToggle').click();
+ assert.ok(await page.evaluate(()=>document.documentElement.classList.contains('dim-handset')),'Manual phone mode must force responsive layout');
+ await page.locator('#openMenu').click();
+ assert.ok(await page.locator('#sidebar').evaluate(el=>el.classList.contains('open')),'Mobile menu should open');
+ await page.locator('#sidebarScrim').click({position:{x:350,y:100}});
+ assert.equal(await page.locator('#sidebar').evaluate(el=>el.classList.contains('open')),false);
+ await page.locator('#dimMobileToggle').click();
+ assert.equal(await page.evaluate(()=>document.documentElement.classList.contains('dim-handset')),false);
+ checkNoErrors('Mobile toggle');
+ log('Mobile toggle','manual phone layout and navigation open/close passed');
  await page.setViewportSize({width:390,height:844});
  await page.evaluate(()=>window.scrollTo(0,0));
  const offenders=await page.evaluate(()=>{
@@ -306,6 +332,33 @@ try{
  assert.ok(scroll.scroll<=scroll.inner+2,'Mobile horizontal overflow: '+JSON.stringify(scroll));
  checkNoErrors('Mobile');
  log('Mobile','no horizontal overflow');
+
+ // Android custom tab may report a wider layout viewport than physical screen.
+ // This handset emulation verifies that responsive rescue works in desktop-site mode.
+ const android=await browser.newContext({
+   viewport:{width:980,height:845},screen:{width:393,height:845},
+   isMobile:true,hasTouch:true,reducedMotion:'reduce',
+   userAgent:'Mozilla/5.0 (Linux; Android 13; Redmi Note 10 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Mobile Safari/537.36'
+ });
+ const mobile=await android.newPage();
+ const mobileErrors=[];
+ mobile.on('pageerror',e=>mobileErrors.push(String(e.stack||e)));
+ await mobile.goto(base+'/',{waitUntil:'domcontentloaded'});
+ await mobile.locator('#dimMobileToggle').waitFor({timeout:12000});
+ const metrics=await mobile.evaluate(()=>({
+   forced:window.DimensiaMobile?.forced(),inner:innerWidth,screen:screen.width,
+   columns:getComputedStyle(document.querySelector('.studio-workspace')).gridTemplateColumns,
+   sidebar:getComputedStyle(document.querySelector('#sidebar')).position
+ }));
+ console.log('[ANDROID SCREEN]',JSON.stringify(metrics));
+ assert.ok(metrics.forced,'Android desktop-site mode must activate mobile rescue for 393px physical display');
+ assert.equal(metrics.sidebar,'fixed');
+ await mobile.locator('[data-nav="studio"]').evaluate(node=>node.click());
+ assert.ok(await mobile.locator('#architectStudio').isVisible());
+ assert.deepEqual(mobileErrors,[],'Android desktop-site emulation caused page errors');
+ log('Android custom tab','physical screen-aware responsive rescue enabled');
+ await android.close();
+
 
 
  // Deployed site example: real page HTML, prices, accordion and mobile navigation.
