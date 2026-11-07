@@ -146,6 +146,7 @@ async function restoreProject(input){
    throw Error('Yedekte geçersiz veya hassas kaynak var: '+spec.file);
   validated[spec.key]=text;
  }
+ validateSharedInput(validated.shared);
  if(!confirm('9 proje dosyan, yedek içeriğiyle değiştirilsin mi?'))return;
  for(const spec of SPECS){
   files[spec.key]=validated[spec.key];if(spec.key!=='shared')lab().setFile(spec.key,validated[spec.key]);updated.add(spec.key);
@@ -311,6 +312,7 @@ async function generateAI(){
   if(!data?.files||typeof data.files!=='object')throw Error('AI dosya listesi oluşturamadı.');
   let changed=0;
   for(const x of SPECS){
+   if(x.key==='shared')continue; // AI code generation must preserve the user's shared fixture.
    const value=data.files[x.key];
    if(typeof value==='string'&&value.length>15&&value.length<=100000&&!secret(value)){
     files[x.key]=value;if(x.key!=='shared')lab().setFile(x.key,value);updated.add(x.key);changed++;
