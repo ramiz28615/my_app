@@ -54,6 +54,7 @@ body { background:#070b15; }
 @media(prefers-reduced-motion:reduce){.dim-card,.page.active{animation:none;transition:none}}
 
 </style>
+<link rel="stylesheet" href="./studio-enhancements.css">
 </head>
 <body>
   <svg class="svg-sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -291,18 +292,18 @@ $('paletteGrid').innerHTML=Object.entries(PALETTES).map(([id,p])=>`<button class
 document.querySelectorAll('[data-prompt]').forEach(b=>b.addEventListener('click',()=>{$('promptInput').value=b.dataset.prompt;$('promptInput').focus()}));
 function currentOptions(){return {prompt:$('promptInput').value.trim(),type:$('siteType').value,palette:state.selectPalette,customTitle:$('customTitle').value.trim(),showFeatures:$('featuresToggle').checked}}
 function makeSiteName(options){return options.customTitle||(options.prompt.match(/([\p{L}][\p{L}\d-]{2,26}) (adlı|isimli)/iu)||[])[1]||TEMPLATE_META.find(t=>t.id===options.type)?.name||'Yeni Web Sitesi'}
-function showHTML(html,name,{saved=false}={}){state.siteHtml=html;state.siteName=name||'Yeni Web Sitesi';state.dirty=!saved;$('siteFrame').srcdoc=html;$('codeEditor').value=html;$('currentSiteName').textContent=state.siteName;$('previewPath').textContent=slug(state.siteName);$('savedIndicator').textContent=saved?'Kaydedildi':'Kaydedilmedi';if(state.tab==='code')toggleTab('code')}
+function showHTML(html,name,{saved=false}={}){state.siteHtml=html;state.siteName=name||'Yeni Web Sitesi';state.dirty=!saved;$('siteFrame').srcdoc=window.DimensiaDevTools?window.DimensiaDevTools.instrument(html):html;$('codeEditor').value=html;$('currentSiteName').textContent=state.siteName;$('previewPath').textContent=slug(state.siteName);$('savedIndicator').textContent=saved?'Kaydedildi':'Kaydedilmedi';if(state.tab==='code')toggleTab('code')}
 function toggleTab(tab){state.tab=tab;$('tabCode').classList.toggle('active',tab==='code');$('tabPreview').classList.toggle('active',tab==='preview');$('codePanel').classList.toggle('hidden',tab!=='code');$('previewFrameWrap').classList.toggle('hidden',tab==='code')}
 $('tabCode').addEventListener('click',()=>toggleTab('code'));$('tabPreview').addEventListener('click',()=>toggleTab('preview'));
 $('codeEditor').addEventListener('input',()=>{state.siteHtml=$('codeEditor').value;state.dirty=true;$('savedIndicator').textContent='Düzenlendi';$('siteFrame').srcdoc=state.siteHtml});
 function setWidth(w){state.width=w;document.querySelectorAll('[data-width]').forEach(b=>{b.classList.toggle('active',b.dataset.width===w);b.setAttribute('aria-pressed',String(b.dataset.width===w))});$('previewFrameWrap').className='preview-frame-wrap '+(w==='desktop'?'':w)}
 document.querySelectorAll('[data-width]').forEach(b=>b.addEventListener('click',()=>setWidth(b.dataset.width)));
-$('refreshPreview').addEventListener('click',()=>{$('siteFrame').srcdoc=state.siteHtml;toast('Önizleme yenilendi')});
+$('refreshPreview').addEventListener('click',()=>{$('siteFrame').srcdoc=window.DimensiaDevTools?window.DimensiaDevTools.instrument(state.siteHtml):state.siteHtml;toast('Önizleme yenilendi')});
 $('downloadSite').addEventListener('click',()=>download(slug(state.siteName)+'.html',state.siteHtml,'text/html;charset=utf-8'));
 $('copyCode').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(state.siteHtml);toast('HTML kodu panoya kopyalandı')}catch{toast('Kopyalama izni verilmedi. Kod sekmesinden seçerek kopyalayabilirsin.',true)}});
 $('newProject').addEventListener('click',()=>{state.projectId=null;$('promptInput').value='';$('customTitle').value='';$('iterateToggle').checked=false;$('siteType').value='auto';setPalette('aurora');showHTML(generateSite({type:'saas'}),'Yeni Web Sitesi');toggleTab('preview');toast('Yeni bir proje hazır')});
 
-async function checkAPI(){try{const res=await fetch('/api/status',{cache:'no-store'});if(!res.ok)throw Error('offline');const obj=await res.json();state.apiAvailable=true;state.aiConnected=!!obj.aiEnabled;$('apiStatusText').textContent=obj.aiEnabled?'AI bağlantısı hazır. Komutundan gerçek HTML oluşturulabilir.':'Sunucu çalışıyor. API anahtarı tanımlanmadığı için yerel şablon motoru kullanılacak.'}catch{state.apiAvailable=false;state.aiConnected=false;$('apiStatusText').textContent='API sunucusuna ulaşılamıyor. Yerel şablon motoru kullanılabilir; Node.js sunucusunu başlatın.'}const mode=state.aiConnected?'AI BAĞLI':'YEREL MOD';$('aiModeBadge').innerHTML=`<i></i> ${mode}`;$('generationHelp').textContent=state.aiConnected?'AI ile yeni bir HTML sitesi üretilecek.':'API anahtarı olmadan da şablon motoru çalışır.'}
+async function checkAPI(){try{const res=await fetch('/api/status',{cache:'no-store'});if(!res.ok)throw Error('offline');const obj=await res.json();state.apiAvailable=true;state.aiConnected=!!obj.aiEnabled || !!window.DimensiaOpenRouter?.hasKey();$('apiStatusText').textContent=obj.aiEnabled?'AI bağlantısı hazır. Komutundan gerçek HTML oluşturulabilir.':'Sunucu çalışıyor. API anahtarı tanımlanmadığı için yerel şablon motoru kullanılacak.'}catch{state.apiAvailable=false;state.aiConnected=!!window.DimensiaOpenRouter?.hasKey();$('apiStatusText').textContent='API sunucusuna ulaşılamıyor. Yerel şablon motoru kullanılabilir; Node.js sunucusunu başlatın.'}const mode=state.aiConnected?'AI BAĞLI':'YEREL MOD';$('aiModeBadge').innerHTML=`<i></i> ${mode}`;$('generationHelp').textContent=state.aiConnected?'AI ile yeni bir HTML sitesi üretilecek.':'API anahtarı olmadan da şablon motoru çalışır.'}
 $('checkApi').addEventListener('click',()=>{checkAPI();toast('Bağlantı kontrol edildi')});
 $('generateButton').addEventListener('click',async()=>{if(state.loading)return;const options=currentOptions();if(!options.prompt){toast('Önce nasıl bir site istediğini yaz.',true);$('promptInput').focus();return}state.loading=true;$('generateButton').disabled=true;$('generateButtonText').textContent=state.aiConnected?'AI Oluşturuyor...':'Tasarım hazırlanıyor...';try{let html;if(state.aiConnected){if($('iterateToggle').checked)options.currentHtml=state.siteHtml.slice(0,24000);const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(options)});const data=await res.json();if(!res.ok)throw Error(data.error||'AI isteği başarısız');html=data.html}else html=generateSite(options);showHTML(html,makeSiteName(options));state.projectId=null;toggleTab('preview');toast(state.aiConnected?'AI tasarım tamamlandı. Önizlemeyi düzenleyebilirsin.':'Şablon motoruyla tasarım hazırlandı.');}catch(error){toast(error.message||'Üretim sırasında hata oluştu',true)}finally{state.loading=false;$('generateButton').disabled=false;$('generateButtonText').textContent='Siteyi Oluştur'}});
 
@@ -357,5 +358,7 @@ showHTML(generateSite({type:'saas',palette:'aurora'}),'İlk Web Sitem');updateCo
   document.addEventListener("pointermove",e=>{const card=e.target.closest?.(".dim-card");if(!card)return;const b=card.getBoundingClientRect();card.style.setProperty("--spot-x",(e.clientX-b.left)+"px");card.style.setProperty("--spot-y",(e.clientY-b.top)+"px")},{passive:true});
 })();
 </script>
+<script src="./studio-devtools.js" defer></script>
+<script src="./studio-reference.js" defer></script>
 </body>
 </html>
