@@ -155,6 +155,15 @@ const server=http.createServer(async(req,res)=>{
        return json(res,200,{kind,resolvedURL:page.url.href,content:page.html,bytes:Buffer.byteLength(page.html,'utf8')});
      }catch(error){return json(res,422,{error:String(error.message||error).slice(0,220)})}
    }
+   // Serve locally generated site folders only; no user-supplied path traversal.
+   const siteMatch=/^\/sites\/([a-z0-9](?:[a-z0-9-]{0,44}[a-z0-9])?)\/(?:index\.html)?$/.exec(incoming.pathname);
+   if(siteMatch){
+     try{
+       const html=await readFile(path.join(ROOT,'sites',siteMatch[1],'index.html'));
+       res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-cache','Referrer-Policy':'strict-origin-when-cross-origin','X-Content-Type-Options':'nosniff'});
+       res.end(html);return;
+     }catch{return json(res,404,{error:'Site bulunamadı'})}
+   }
    const asset=allowed.get(incoming.pathname);
    if(!asset)return json(res,404,{error:'Bulunamadı'});
    const file=await readFile(path.join(ROOT,asset[0]));
