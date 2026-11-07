@@ -39,7 +39,7 @@
  const bottom=artifact.querySelector('.dh-artifact-bottom');
  bottom?.insertBefore(runTop,$('dhEdit'));
  const textArea=$('dceSource');
- let currentId='',source='',draft='',tab='html',dirty=false,opened=false,history=[],pointer=0,timer=0,logs=[],changeMode='none';
+ let currentId='',source='',draft='',tab='html',dirty=false,opened=false,history=[],pointer=0,timer=0,logs=[],applying=false;
  const limit=650000;
  const filename=t=>({html:'index.html',css:'style.css',js:'app.js'}[t]||'index.html');
  const info=()=>hub.getArtifact?.();
@@ -150,7 +150,8 @@
  }
  function apply(html,{record=true}={}){
   const complete=validate(html);
-  hub.updateArtifact(complete);
+  applying=true;
+  try{hub.updateArtifact(complete)}finally{applying=false}
   source=complete;draft=complete;dirty=false;
   if(record&&history[pointer]!==complete){
    history=history.slice(0,pointer+1);
@@ -183,6 +184,7 @@
   notify('HTML indirildi · '+Math.round(draft.length/1024)+' KB');
  }
  function updateFromHub(e){
+  if(applying)return;
   const data=e.detail||{};
   if(!data.available){hide();currentId='';source='';draft='';return}
   if(data.id!==currentId){load({id:data.id,html:data.html})}
