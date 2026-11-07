@@ -1,0 +1,78 @@
+name: Dimensia Chat — Execute Python Bash Perl PHP
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Unique run identifier
+        required: true
+        type: string
+      sources_b64:
+        description: Base64 JSON with up to four source snippets, max 38 KB decoded
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: dimensia-chat-${{ inputs.run_id }}
+  cancel-in-progress: false
+jobs:
+  execute:
+    name: Run ${{ matrix.language }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [python, bash, perl, php]
+    steps:
+      - name: Checkout runner source only
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Run snippets with output limits and no forwarded GitHub token
+        env:
+          DIMENSIA_RUN_ID: ${{ inputs.run_id }}
+        run: node scripts/run-chat-code.mjs "${{ matrix.language }}"
+      - name: Upload bounded language report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chat-result-${{ matrix.language }}
+          path: chat-run-output/${{ matrix.language }}.json
+          if-no-files-found: warn
+          retention-days: 1
+  publish:
+    name: Publish public output without executing chat code
+    runs-on: ubuntu-24.04
+    needs: execute
+    if: always()
+    timeout-minutes: 3
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: chat-result-*
+          merge-multiple: true
+          path: chat-reports-upload
+      - name: Collect only sanitized result fields
+        env:
+          DIMENSIA_RUN_ID: ${{ inputs.run_id }}
+        run: node scripts/collect-chat-code.mjs
+      - name: Push public report only (never the submitted code)
+        env:
+          DIMENSIA_RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "code-lab/chat-reports/${DIMENSIA_RUN_ID}.json"
+          git commit -m "chat: result ${DIMENSIA_RUN_ID}"
+          for attempt in 1 2 3 4; do
+            if git push origin HEAD:main; then exit 0; fi
+            git fetch origin main
+            git rebase origin/main
+          done
+          echo "Could not publish chat result" >&2
+          exit 1
