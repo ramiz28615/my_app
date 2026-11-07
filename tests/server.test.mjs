@@ -141,5 +141,5 @@ test('OpenRouter API diagnostics separate key verification, model completion and
  assert.ok(reference.includes("pricing.prompt")&&reference.includes("pricing.completion"),'Only zero-priced model variants should be listed');
  assert.ok(html.includes('OpenRouter bağlantı durumu'),'Legacy backend status card should be corrected');
  assert.ok(!html.includes('API sunucusuna ulaşılamıyor. Yerel şablon motoru'),'Legacy Node warning must not claim OpenRouter is offline');
- assert.ok(!reference.includes('d3289232d1b6'),'Exposed user key must not enter the public site bundle.');
+ assert.ok(!/sk-or-v1-[a-f0-9]{40,}/i.test(reference),'No actual-looking OpenRouter API keys in public source.');
 });
