@@ -1,0 +1,13 @@
+{
+  "name": "dimensia-studio",
+  "version": "2.1.0",
+  "private": true,
+  "type": "module",
+  "description": "2D–7D visual lab, OpenRouter Free website studio and public URL reference inspector",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.mjs",
+    "check": "node --check server.mjs && node --check studio-reference.js && node --check studio-devtools.js",
+    "test": "node --test tests/*.test.mjs"
+  }
+}
