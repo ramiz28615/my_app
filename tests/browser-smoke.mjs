@@ -218,6 +218,83 @@ try{
  checkNoErrors('Launchpad token security');
  log('Launchpad security','token not persisted, session forget works');
 
+
+ // New Architect and Code Lab: browser source, visual style, diagram and sandboxed JS.
+ for(const id of ['architectStudio','dimensiaCodeLab','dimensiaAIAgent','archOwnScan','labRun','agentPlan'])await page.locator('#'+id).waitFor();
+ await page.locator('#archOwnScan').click();
+ await page.waitForFunction(()=>document.getElementById('archNotice')?.textContent.includes('1 sayfa analiz'));
+ await page.locator('[data-tab="flow"]').click();
+ assert.ok(await page.locator('#archContent svg').count(),'Architecture diagram should show nodes/flows');
+ await page.locator('[data-tab="components"]').click();
+ assert.ok((await page.locator('#archContent').innerText()).includes('Butonlar'));
+ await page.locator('[data-tab="design"]').click();
+ await page.locator('#archFont').fill('17');
+ await page.locator('#archApplyDesign').click();
+ assert.ok((await page.locator('#codeEditor').inputValue()).includes('data-dimensia-architect'),'Design changes must modify editable HTML');
+ await page.locator('[data-tab="source"]').click();
+ assert.ok(await page.locator('#archCode').count(),'HTML sources should be exposed as editable text');
+ checkNoErrors('Architect');
+ log('Architect','HTML/DOM analysis, visual flow, style editor and source explorer passed');
+
+ // Simulate a public CORS-permitted URL when local Node analysis is unavailable.
+ await page.route('http://127.0.0.1:31876/api/architect?**',r=>r.fulfill({status:404,contentType:'application/json',body:'{"error":"No API"}'}));
+ await page.route('https://allowed-example.test/**',r=>r.fulfill({
+  status:200,headers:{'access-control-allow-origin':'*','content-type':'text/html; charset=utf-8'},
+  body:'<!doctype html><html><head><title>Remote E2E</title><style>h1{color:#123abc;font-size:24px}</style></head><body><h1>İzinli Sayfa</h1><button>İşlem</button></body></html>'
+ }));
+ await page.locator('#archConsent').check();
+ await page.locator('#archURL').fill('https://allowed-example.test/');
+ await page.locator('#archURLScan').click();
+ await page.waitForFunction(()=>document.querySelector('#archNotice')?.textContent.includes('Tarayıcı CORS analizi'),{timeout:10000});
+ assert.ok((await page.locator('#archStats').innerText()).includes('Buton'));
+ checkNoErrors('Browser-only URL import');
+ log('Architect no Node','public CORS HTML analyzed without Node server');
+
+ // Code Lab JavaScript executes in sandbox, no execution of Rust/Bash/React Native in browser.
+ await page.locator('#labMenu [data-lang="javascript"]').click();
+ await page.locator('#labEditor').fill('console.log("Dimensia browser sandbox verification");');
+ await page.locator('#labRun').click();
+ await page.waitForFunction(()=>document.getElementById('labOutput')?.textContent.includes('Dimensia browser sandbox verification'),{timeout:5000});
+ await page.locator('#labStop').click();
+ await page.locator('#labMenu [data-lang="reactnative"]').click();
+ assert.ok((await page.locator('#labRuntime').innerText()).includes('Expo'),'React Native must explain native toolchain');
+ checkNoErrors('Code Lab runtime');
+ log('Code Lab','sandbox JS and React Native scaffold controls passed');
+
+ // Agent local plan must function without API; mocked API then exercises real plan/build/quality.
+ await page.locator('#agentPrompt').fill('Çalışan menü, etkileşimli kartlar ve mobil destek sunan modern bir web sitesi oluştur.');
+ await page.locator('#agentPlan').click();
+ await page.waitForFunction(()=>document.getElementById('agentMeta')?.textContent.includes('plan adımı'),{timeout:5000});
+ assert.ok((await page.locator('#agentPanel').innerText()).includes('İhtiyaç analizi'));
+ await page.route('https://openrouter.ai/api/v1/chat/completions',async route=>{
+  const request=route.request().postDataJSON();
+  const system=request.messages?.[0]?.content||'';
+  const content=system.includes('lead software architect')?
+    '{"steps":[{"title":"AI mock plan","detail":"Responsive HTML CSS JS application"},{"title":"Build","detail":"Working buttons and navigation"}]}':
+    '<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AI Smoke</title><style>body{background:#182c2b;color:#eeffee;font:16px system-ui}button{padding:10px}</style></head><body><main><h1>AI Generated E2E</h1><button id="aiExample" type="button">Test Eylemi</button></main><script>document.querySelector("#aiExample").onclick=()=>console.log("AI clicked");</scr'+'ipt></body></html>';
+  await route.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify({choices:[{message:{content}}]})});
+ });
+ await page.locator('[data-nav="settings"]').click();
+ await page.locator('#orKey').fill('sk-or-test-for-e2e-placeholder-not-a-real-key-12345');
+ await page.locator('[data-nav="studio"]').click();
+ await page.locator('#agentPlan').click();
+ await page.waitForFunction(()=>document.getElementById('agentPanel')?.textContent.includes('AI mock plan'),{timeout:10000});
+ await page.locator('#agentBuild').click();
+ await page.frameLocator('#siteFrame').locator('#aiExample').waitFor({timeout:12000});
+ assert.ok((await page.locator('#codeEditor').inputValue()).includes('AI Generated E2E'));
+ await page.locator('#agentReview').click();
+ assert.ok((await page.locator('#agentPanel').innerText()).includes('Temel kontroller'));
+ await page.locator('[data-ai-tab="versions"]').click();
+ assert.ok((await page.locator('#agentPanel').innerText()).includes('v2'),'Agent should preserve original and new HTML versions');
+ checkNoErrors('AI Agent workflow');
+ log('AI Agent','local fallback plan, mocked OpenRouter plan/build, review and undo history passed');
+ await page.locator('[data-nav="settings"]').click();
+ await page.locator('#orForget').click();
+ assert.equal(await page.locator('#orKey').inputValue(),'');
+ const dataKeys=await page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.keys(localStorage).map(k=>[k,localStorage.getItem(k)]))));
+ assert.ok(!dataKeys.includes('sk-or-test-for-e2e-placeholder'),'OpenRouter key must not be persisted');
+ await page.locator('[data-nav="studio"]').click();
+
  await page.setViewportSize({width:390,height:844});
  await page.evaluate(()=>window.scrollTo(0,0));
  const scroll=await page.evaluate(()=>({inner:innerWidth,scroll:document.documentElement.scrollWidth}));
