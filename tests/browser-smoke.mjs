@@ -189,6 +189,36 @@ try{
  checkNoErrors('Mobile');
  log('Mobile','no horizontal overflow');
 
+
+ // Deployed site example: real page HTML, prices, accordion and mobile navigation.
+ const demo=await browser.newPage({viewport:{width:1365,height:900},reducedMotion:'reduce'});
+ const demoErrors=[];
+ demo.on('pageerror',e=>demoErrors.push(String(e.stack||e)));
+ const demoResponse=await demo.goto(base+'/sites/aurora-demo/',{waitUntil:'domcontentloaded'});
+ assert.equal(demoResponse.status(),200,'Example site must be served through the same static route as Pages');
+ await demo.locator('h1').waitFor();
+ assert.ok((await demo.locator('h1').innerText()).includes('bir dünya olsun'));
+ assert.equal(await demo.locator('.feature').count(),6);
+ assert.equal(await demo.locator('.plan').count(),3);
+ await demo.locator('[data-period="yearly"]').click();
+ assert.ok((await demo.locator('.plan.highlight .price').innerText()).includes('₺149'));
+ await demo.locator('[data-period="monthly"]').click();
+ assert.ok((await demo.locator('.plan.highlight .price').innerText()).includes('₺199'));
+ await demo.locator('#faq details').first().locator('summary').click();
+ assert.ok(await demo.locator('#faq details').first().getAttribute('open')!==null);
+ assert.deepEqual(demoErrors,[],'Example site browser errors on desktop');
+ log('Aurora example desktop','original demo loads, pricing toggle and FAQ work');
+ await demo.setViewportSize({width:390,height:844});
+ await demo.locator('#menuBtn').click();
+ assert.equal(await demo.locator('#menuBtn').getAttribute('aria-expanded'),'true');
+ await demo.locator('#navLinks a').first().click();
+ assert.equal(await demo.locator('#menuBtn').getAttribute('aria-expanded'),'false');
+ const demoOverflow=await demo.evaluate(()=>({inner:innerWidth,scroll:document.documentElement.scrollWidth}));
+ assert.ok(demoOverflow.scroll<=demoOverflow.inner+2,'Example mobile overflow '+JSON.stringify(demoOverflow));
+ assert.deepEqual(demoErrors,[],'Example site browser errors on mobile');
+ log('Aurora example mobile','responsive menu and no horizontal overflow');
+ await demo.close();
+
  await page.close();
  console.log('PASS: full browser smoke suite');
 }catch(e){
