@@ -396,6 +396,7 @@ try{
  // Browser-to-GitHub integration: mock public source uploads, workflow_dispatch,
  // and a real-format report without exposing any user token.
  let cloudDispatch=null;
+ let chatDispatch=null;
  const cloudUploads=[];
  await page.route('https://api.github.com/repos/ramiz28615/my_app/**',async route=>{
   const req=route.request(),url=new URL(req.url()),verb=req.method();
@@ -403,11 +404,30 @@ try{
    'Access-Control-Allow-Headers':'Authorization,Content-Type,Accept,X-GitHub-Api-Version'};
   const reply=(status,obj)=>route.fulfill({status,headers,contentType:'application/json',body:JSON.stringify(obj)});
   if(verb==='OPTIONS')return route.fulfill({status:204,headers});
+  if(url.pathname==='/repos/ramiz28615/my_app/actions/workflows/chat-code-execute.yml/dispatches'&&verb==='POST'){
+   chatDispatch=req.postDataJSON();
+   return route.fulfill({status:204,headers});
+  }
   if(url.pathname==='/repos/ramiz28615/my_app/actions/workflows/polyglot-execute.yml/dispatches'&&verb==='POST'){
    cloudDispatch=req.postDataJSON();
    return route.fulfill({status:204,headers});
   }
   if(url.pathname.startsWith('/repos/ramiz28615/my_app/contents/code-lab/')){
+   if(url.pathname.includes('/chat-reports/')&&verb==='GET'){
+    if(!chatDispatch)return reply(404,{message:'Not Found'});
+    const runId=chatDispatch.inputs.run_id;
+    const sent=JSON.parse(Buffer.from(chatDispatch.inputs.sources_b64,'base64').toString('utf8'));
+    const results=Object.fromEntries(['python','bash','perl','php'].map(lang=>[lang,{
+     status:sent[lang]?'passed':'skipped',label:lang,exitCode:0,
+     stdout:sent[lang]?'HELLO_CHAT_'+lang.toUpperCase()+' 15':'',
+     stderr:'',durationMs:21,
+     steps:sent[lang]?[{name:'Run '+lang,status:'passed',exitCode:0,durationMs:21}]:[]
+    }]));
+    const report={schema:'dimensia-chat-run-v1',requestId:runId,
+     passed:Object.values(results).filter(x=>x.status==='passed').length,failed:0,
+     skipped:Object.values(results).filter(x=>x.status==='skipped').length,results};
+    return reply(200,{encoding:'base64',content:Buffer.from(JSON.stringify(report)).toString('base64')});
+   }
    if(url.pathname.includes('/reports/')&&verb==='GET'){
     if(!cloudDispatch)return reply(404,{message:'Not Found'});
     const id=cloudDispatch.inputs.run_id;
@@ -474,6 +494,44 @@ try{
  await page.unroute('https://openrouter.ai/api/v1/chat/completions');
  checkNoErrors('Polyglot repair');
  log('Polyglot repair','failed language diagnostics, AI suggestion review, explicit apply and zero silent uploads passed');
+
+ // Chat-native four-language runner: editable snippets, explicit public-run consent,
+ // and displayed PHP/Python/Bash/Perl stdout without editing existing GitHub code.
+ await page.locator('[data-nav="home"]').evaluate(el=>el.click());
+ await page.locator('#dhRunQuick').click();
+ assert.ok(await page.locator('#dhrPanel').isVisible(),'The in-chat code console must open');
+ assert.equal(await page.locator('#dhrTabs [data-dhr-lang]').count(),4);
+ await page.locator('#dhrExample').click();
+ for(const lang of ['python','bash','perl','php']){
+  assert.ok((await page.evaluate(language=>window.DimensiaChatRunner.getSources()[language],lang)).length>15);
+ }
+ await page.locator('[data-dhr-lang="php"]').click();
+ assert.ok((await page.locator('#dhrEditor').inputValue()).includes('Merhaba Dimensia PHP'),'PHP must be editable inside chat');
+ const beforeUploads=cloudUploads.length;
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#dhrRunAll').click();
+ await page.waitForFunction(()=>window.DimensiaChatRunner.getState().hasReport,{timeout:30000});
+ assert.equal(chatDispatch.ref,'main');
+ assert.equal(Object.keys(JSON.parse(Buffer.from(chatDispatch.inputs.sources_b64,'base64').toString('utf8'))).length,4);
+ assert.equal(await page.evaluate(()=>window.DimensiaChatRunner.getState().results.php.status),'passed');
+ assert.ok((await page.locator('#dhrOutput').innerText()).includes('HELLO_CHAT_PHP'));
+ assert.equal(cloudUploads.length,beforeUploads,'Chat run must not write submitted source into repository contents');
+ assert.equal(await page.locator('#dhrDownload').isDisabled(),false);
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('dimensia:chat-code-request',{
+  detail:{sources:{python:'print("SINGLE_SNIPPET")'},chatId:window.DimensiaChatHub.getState().active}
+ })));
+ page.once('dialog',dialog=>dialog.accept());
+ await page.waitForFunction(()=>window.DimensiaChatRunner.getState().hasReport&&
+  !!window.DimensiaChatRunner.getState().results&&
+  window.DimensiaChatRunner.getState().results.python?.status==='passed',{timeout:30000});
+ assert.equal(Object.keys(JSON.parse(Buffer.from(chatDispatch.inputs.sources_b64,'base64').toString('utf8'))).length,1,
+  'Clicking one code block must run only that snippet');
+ assert.equal(await page.evaluate(()=>window.DimensiaChatRunner.getState().results.php.status),'skipped');
+ await page.locator('#dhrClose').click();
+ checkNoErrors('Chat code runner');
+ log('Chat code runner','real GitHub API dispatch mocked, 4 languages, PHP tab, single fence run, results and no source writes passed');
+ await page.locator('[data-nav="studio"]').evaluate(el=>el.click());
+
 
 
 
