@@ -421,6 +421,26 @@ try{
  checkNoErrors('Mobile');
  log('Mobile','no horizontal overflow');
 
+ await page.locator('[data-nav="home"]').click();
+ const chatGeometry=await page.evaluate(()=>{
+  const root=document.querySelector('#dimensiaChatHub');
+  const box=document.querySelector('.dh-composer').getBoundingClientRect();
+  return{visible:!!root&&getComputedStyle(root).display!=='none',
+   bottom:Math.round(box.bottom),top:Math.round(box.top),
+   width:Math.round(box.width),viewport:innerHeight,
+   overflow:document.documentElement.scrollWidth-innerWidth,
+   hidden:document.querySelector('#dhWelcome').hidden};
+ });
+ console.log('[CHAT MOBILE]',JSON.stringify(chatGeometry));
+ assert.ok(chatGeometry.visible,'Chat-first homepage must be visible on mobile');
+ assert.ok(chatGeometry.bottom<=chatGeometry.viewport+6,'Chat composer should stay inside phone viewport: '+JSON.stringify(chatGeometry));
+ assert.ok(chatGeometry.top>=20,'Chat composer cannot cover the page header');
+ assert.ok(chatGeometry.overflow<=2,'Chat UI should not overflow horizontal viewport');
+ assert.ok(await page.locator('#dhSend').isVisible());
+ log('Chat mobile','mobile 390px composer visible, controls usable, no horizontal overflow');
+ await page.locator('[data-nav="studio"]').click();
+
+
  // Android custom tab may report a wider layout viewport than physical screen.
  // This handset emulation verifies that responsive rescue works in desktop-site mode.
  const android=await browser.newContext({
