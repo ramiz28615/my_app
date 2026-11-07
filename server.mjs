@@ -247,4 +247,7 @@ const server=http.createServer(async(req,res)=>{
    res.end(file);
  }catch(error){json(res,500,{error:'Sunucu hatası.'})}
 });
-server.listen(PORT,HOST,()=>console.log('Dimensia Studio: http://'+HOST+':'+PORT));
+if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
+  server.listen(PORT,HOST,()=>console.log('Dimensia Studio: http://'+HOST+':'+PORT));
+}
+export {architectScan};
