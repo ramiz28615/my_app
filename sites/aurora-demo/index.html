@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080d1c">
+<meta name="description" content="Aurora Demo — Dimensia Launchpad ile GitHub Pages üzerinde yayınlanan profesyonel örnek web sitesi.">
+<title>Aurora — Design beyond ordinary</title>
+<style>
+:root{--bg:#080c19;--panel:#121a2b;--white:#f0f3ff;--muted:#9ba8c4;--stroke:#344058;--cyan:#86f6df;--purple:#b6a0ff;--accent:#a893ff}
+*,*:before,*:after{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:90px}
+body{margin:0;background:var(--bg);color:var(--white);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:hidden}
+a{color:inherit;text-decoration:none}button,input{font:inherit}button{cursor:pointer}
+::selection{background:#8573ef;color:#fff}
+.ambient{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden}.ambient:before,.ambient:after{content:"";position:absolute;border-radius:50%;filter:blur(85px);opacity:.46}.ambient:before{background:#7255df;width:610px;height:610px;top:-230px;left:27%;animation:drift 18s ease-in-out infinite alternate}.ambient:after{background:#17aa9c;width:420px;height:470px;top:300px;right:-250px;animation:drift 13s ease-in-out infinite alternate-reverse}
+@keyframes drift{to{transform:translate(80px,80px) scale(1.13)}}
+.shell{max-width:1210px;padding:0 28px;margin:auto}
+.topbar{position:sticky;top:0;z-index:40;background:#0b1023dd;backdrop-filter:blur(20px);border-bottom:1px solid #ffffff16}
+.nav{height:77px;display:flex;align-items:center;justify-content:space-between;gap:15px}
+.brand{display:flex;align-items:center;gap:11px;font-weight:900;letter-spacing:-.5px;font-size:19px}.brand-logo{height:35px;width:35px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:conic-gradient(from 80deg,#a992ff,#7bede7,#cca7ff,#a992ff);color:#121328;box-shadow:0 0 28px #ab85ff55}
+.brand sup{font-size:8px;border:1px solid #4a4f6b;color:#c0b0ff;border-radius:6px;padding:2px 5px;font-weight:700;letter-spacing:.8px;align-self:start;margin-top:4px}
+.nav-links{display:flex;align-items:center;gap:28px}.nav-links a{font-size:12px;color:#aab6d1;font-weight:600;transition:color .15s}.nav-links a:hover{color:#f7f5ff}
+.btn{display:inline-flex;gap:9px;justify-content:center;align-items:center;border-radius:11px;border:1px solid #4b5270;color:#e8e3fa;padding:13px 17px;background:#242b42;font-size:12px;font-weight:800;transition:transform .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px #0005}.btn-primary{border-color:#a18cf1;background:linear-gradient(110deg,#a180fa,#7b6be6);color:#fff;box-shadow:0 12px 40px #7e65d83d}.btn-ghost{background:#21263b8a}.btn-wide{width:100%}
+.menu-btn{display:none;background:transparent;border:1px solid #3e465f;color:#fff;padding:10px 12px;border-radius:9px}
+.hero{padding:115px 0 80px;position:relative;text-align:center}.eyebrow{display:inline-flex;align-items:center;gap:9px;border:1px solid #7368ac6e;border-radius:999px;padding:9px 15px;background:#a182ff13;color:#c6bcfa;font-size:10px;font-weight:850;letter-spacing:1.3px}
+.eyebrow i{width:7px;height:7px;background:#78e8c9;box-shadow:0 0 12px #78e8c9;border-radius:50%}
+h1{font-size:clamp(44px,6.7vw,88px);line-height:1.04;letter-spacing:-4.5px;max-width:960px;margin:30px auto 22px;font-weight:900}
+.gradient{background:linear-gradient(100deg,#f2edff,#bdabff 37%,#7cebdd 80%,#c1d8ff);color:transparent;background-clip:text}
+.hero-sub{max-width:620px;margin:0 auto 30px;color:#aab7d0;font-size:15px;line-height:1.85}
+.hero-cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.hero-trust{display:flex;justify-content:center;gap:21px;color:#8293b3;font-size:10px;font-weight:700;margin-top:32px;flex-wrap:wrap}
+.hero-trust span:before{content:"✓ ";color:#7cebcf}
+.showcase{margin:0 auto 110px;position:relative;perspective:1100px}
+.canvas-card{position:relative;border-radius:25px;background:linear-gradient(135deg,#141d34,#10162b);border:1px solid #51527c;box-shadow:0 45px 120px #0009,0 0 100px #6a56cf1c;padding:16px;transform:rotateX(4deg);transform-origin:50% 0}
+.canvas-card:after{content:"";position:absolute;inset:-1px;border-radius:25px;pointer-events:none;background:linear-gradient(125deg,#ffffff12,transparent 25%,transparent 85%,#a3ffe60e)}
+.browser{height:30px;display:flex;gap:6px;align-items:center;padding:0 9px}.browser i{height:8px;width:8px;border-radius:50%;background:#ed8d9e}.browser i:nth-child(2){background:#efc77c}.browser i:nth-child(3){background:#72ceb1}.browser small{margin-left:18px;color:#707e9a;font:10px ui-monospace,monospace}
+.dashboard{display:grid;grid-template-columns:205px 1fr;border:1px solid #354361;border-radius:16px;overflow:hidden;min-height:428px;background:#111a2e}
+.d-side{background:#10162a;border-right:1px solid #2a3852;padding:22px 13px;display:flex;flex-direction:column;gap:10px}
+.d-side strong{font-size:12px;padding:10px 12px;color:#d5d3f7;margin-bottom:12px}.d-side span{padding:11px 13px;border-radius:8px;color:#8999b9;font-size:11px}.d-side span.selected{background:#343053;color:#dbcdff}.d-side .push{margin-top:auto;border-top:1px solid #2d354c;padding-top:20px;color:#8bdbcd}
+.d-main{padding:24px}.d-head{display:flex;justify-content:space-between;gap:10px;align-items:center}.d-head small{color:#8f9ebe}.d-head h3{font-size:18px;margin:6px 0 0}.d-badge{padding:7px 10px;background:#19372f;border:1px solid #366857;border-radius:8px;color:#88efd0;font-size:10px;font-weight:700}
+.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:25px 0}
+.metric{padding:18px;border:1px solid #36445f;background:#171f33;border-radius:14px}.metric small{font-size:10px;color:#93a2bd}.metric b{display:block;font-size:26px;letter-spacing:-.9px;margin:9px 0 3px}.metric em{font-style:normal;font-size:10px;color:#8be2c6}
+.chart{height:210px;position:relative;overflow:hidden;border:1px solid #334158;border-radius:14px;padding:18px;background:radial-gradient(ellipse at 50% 100%,#2d305d,transparent 65%),#131d31}
+.chart h4{font-size:12px;margin:0 0 9px}.chart small{color:#9aa9c6;font-size:10px}
+.chart svg{width:100%;height:142px;display:block;overflow:visible}.chart polyline{fill:none;stroke:#8bdbec;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 7px #68c7f0)}
+.section{padding:65px 0}.section-title{font-size:clamp(31px,4.1vw,49px);letter-spacing:-1.8px;line-height:1.13;margin:10px 0 13px}.section-desc{color:#98abc6;max-width:580px;font-size:13px;line-height:1.85}.section-over{color:#86e6d7;text-transform:uppercase;letter-spacing:2px;font-weight:850;font-size:10px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:35px}
+.feature{padding:27px;border-radius:19px;border:1px solid #36415d;background:linear-gradient(145deg,#182036,#111929);transition:transform .2s,border-color .2s;min-height:240px}.feature:hover{transform:translateY(-6px);border-color:#857bd0}
+.feature .icon{font-size:23px;height:48px;width:48px;display:grid;place-items:center;background:#313258;border:1px solid #5e5e96;border-radius:14px;margin-bottom:19px}.feature h3{font-size:16px;letter-spacing:-.4px;margin:0 0 10px}.feature p{font-size:12px;color:#a2aec8;line-height:1.8;margin:0}
+.pricing-wrap{background:radial-gradient(ellipse at center,#24204e,transparent 78%);padding:36px 0}
+.pricing-head{text-align:center}.pricing-head p{margin:0 auto;color:#9badc7;font-size:13px}.toggle{display:inline-flex;background:#1b233a;border:1px solid #4a526b;border-radius:12px;padding:5px;margin-top:20px;gap:5px}
+.toggle button{padding:9px 14px;border:0;border-radius:8px;background:none;color:#9ba8c3;font-size:11px;font-weight:800}.toggle button.active{color:#fff;background:#564e86}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px}
+.plan{background:#111a2f;border:1px solid #3f4a65;border-radius:18px;padding:24px;position:relative}.plan.highlight{border-color:#9d7ff5;background:linear-gradient(165deg,#332954,#161c34);box-shadow:0 15px 50px #795bd22b}.plan .tag{font-size:10px;color:#b0a9fb}.plan h3{margin:13px 0 8px;font-size:18px}.plan p{min-height:44px;color:#93a3be;font-size:12px;line-height:1.6}.plan .price{font-size:34px;font-weight:900;letter-spacing:-1.3px;margin:19px 0}.plan .price small{font-size:11px;font-weight:500;color:#a2a8c5}.plan ul{list-style:none;padding:0;margin:18px 0 26px}.plan li{font-size:11px;color:#b8c5dc;padding:8px 0}.plan li:before{content:"✓ ";color:#80e7d0;font-weight:800}
+.faq{max-width:770px;margin:30px auto 0}.faq details{border:1px solid #37425c;border-radius:12px;margin:9px 0;background:#131d2e;padding:16px 19px}.faq summary{font-size:13px;cursor:pointer;font-weight:700;color:#e4e3f8}.faq p{color:#9badc6;line-height:1.8;font-size:12px;margin-bottom:2px}
+.last-cta{text-align:center;margin:55px auto 80px;padding:57px 24px;border:1px solid #595187;border-radius:24px;background:radial-gradient(ellipse at center top,#4935758c,transparent 80%),#17182b}.last-cta h2{font-size:clamp(31px,4vw,53px);line-height:1.15;letter-spacing:-2px;margin:5px auto 14px;max-width:750px}.last-cta p{font-size:13px;color:#aab4d2;margin:0 auto 24px;max-width:550px;line-height:1.7}
+footer{border-top:1px solid #303b52;padding:29px 0 40px;color:#8f9eb9}.footer-grid{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:11px}.footer-grid strong{color:#e9e0f7}
+.toast{position:fixed;right:20px;bottom:20px;z-index:100;padding:13px 18px;border-radius:12px;border:1px solid #77cfc6;background:#173b43;color:#e3fffc;box-shadow:0 9px 33px #0008;font-size:12px;max-width:min(390px,calc(100vw - 30px));opacity:0;transform:translateY(20px);pointer-events:none;transition:opacity .2s,transform .2s}.toast.show{opacity:1;transform:translateY(0)}
+@media(max-width:850px){.nav-links{gap:14px}.dashboard{grid-template-columns:155px 1fr}.grid,.plans{grid-template-columns:repeat(2,minmax(0,1fr))}.metric-grid{gap:7px}.metric{padding:12px}.d-side{padding:10px}.d-main{padding:16px}}
+@media(max-width:620px){.shell{padding:0 18px}.nav{height:64px}.menu-btn{display:block}.nav-links{display:none;position:absolute;left:18px;right:18px;top:66px;border:1px solid #434d69;background:#141b30;padding:16px;border-radius:13px;flex-direction:column;align-items:stretch;box-shadow:0 20px 40px #000a}.nav-links.open{display:flex}.nav .btn{padding:10px 12px}.hero{padding:75px 0 52px}h1{letter-spacing:-2.4px}.hero-sub{font-size:13px}.showcase{margin-bottom:38px}.canvas-card{padding:7px;transform:none}.dashboard{grid-template-columns:1fr;min-height:320px}.d-side{display:none}.d-main{padding:15px}.d-head h3{font-size:14px}.metric-grid{gap:7px;margin:14px 0}.metric b{font-size:17px}.metric small,.metric em{font-size:8px}.chart{height:160px}.chart svg{height:96px}.grid,.plans{grid-template-columns:1fr}.feature{min-height:0}.section{padding:42px 0}.last-cta{padding:42px 18px}.footer-grid{justify-content:center;text-align:center}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:0.01ms!important;scroll-behavior:auto!important;transition-duration:0.01ms!important}}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="shell nav">
+<a class="brand" href="#top" aria-label="Aurora ana sayfa"><span class="brand-logo">✧</span>Aurora<sup>STUDIO</sup></a>
+<nav class="nav-links" id="navLinks" aria-label="Ana navigasyon"><a href="#features">Özellikler</a><a href="#workspace">Platform</a><a href="#pricing">Fiyatlar</a><a href="#faq">SSS</a></nav>
+<div style="display:flex;align-items:center;gap:8px"><button class="btn btn-primary" data-action="start" type="button">Başla ↗</button><button class="menu-btn" id="menuBtn" aria-label="Menüyü aç" aria-expanded="false">☰</button></div>
+</div></header>
+<main id="top"><div class="ambient" aria-hidden="true"></div>
+<section class="hero shell"><span class="eyebrow"><i></i> DIMENSIA PAGES DEPLOYMENT SHOWCASE</span>
+<h1>Yarattığın her fikir,<br><span class="gradient">bir dünya olsun.</span></h1>
+<p class="hero-sub">Tasarım, kod ve yayınlama tek bir akışta. Fikirden yaşayan dijital deneyime uzanan büyüleyici bir stüdyo.</p>
+<div class="hero-cta"><button class="btn btn-primary" type="button" data-action="start">Bir Proje Oluştur ↗</button><a class="btn btn-ghost" href="#workspace">Platformu Keşfet ◎</a></div>
+<div class="hero-trust"><span>Responsive arayüz</span><span>Canlı önizleme</span><span>Ücretsiz GitHub Pages</span></div>
+</section>
+<div class="shell showcase" id="workspace"><div class="canvas-card">
+<div class="browser"><i></i><i></i><i></i><small>https://aurora.studio / analytics / overview — demonstration</small></div>
+<div class="dashboard"><aside class="d-side"><strong>✦ Aurora Console</strong><span class="selected">▦ Genel Bakış</span><span>◌ Analizler</span><span>⌘ Kod Editörü</span><span>⟷ Dağıtımlar</span><span>⚙ Ayarlar</span><span class="push">● All systems operational</span></aside>
+<div class="d-main"><div class="d-head"><div><small>WORKSPACE / DASHBOARD</small><h3>Günün görünümü</h3></div><span class="d-badge">● Live Demo</span></div>
+<div class="metric-grid"><div class="metric"><small>Toplam görüntüleme</small><b>28,491</b><em>↗ +12.8% bu ay</em></div>
+<div class="metric"><small>Etkileşim oranı</small><b>84.6%</b><em>↗ +4.2% bu ay</em></div>
+<div class="metric"><small>Aktif projeler</small><b>16</b><em>✓ Senkronize</em></div></div>
+<div class="chart"><h4>Proje erişimi</h4><small>Temsili veri · Son 12 ay</small><svg viewBox="0 0 720 142" preserveAspectRatio="none" aria-label="Temsili artan proje erişim grafiği" role="img"><defs><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#85dbeb" stop-opacity=".24"/><stop offset="1" stop-color="#85dbeb" stop-opacity="0"/></linearGradient></defs><path d="M 0 130 L 45 115 L 95 123 L 142 88 L 193 96 L 246 75 L 295 81 L 344 50 L 392 64 L 449 32 L 500 49 L 561 25 L 618 36 L 668 18 L 720 8 L 720 142 L 0 142 Z" fill="url(#fill)"/><g stroke="#405064" stroke-width=".8" stroke-dasharray="3 6"><path d="M0 42 H720 M0 86 H720 M0 128 H720"/></g><polyline points="0,130 45,115 95,123 142,88 193,96 246,75 295,81 344,50 392,64 449,32 500,49 561,25 618,36 668,18 720,8"/></svg></div>
+</div></div></div></div>
+<section class="section shell" id="features"><span class="section-over">Geleceğin çalışma alanı</span><h2 class="section-title">Sadece bir web sitesi değil.<br><span class="gradient">Yaratıcı bir ekosistem.</span></h2>
+<p class="section-desc">Her bileşeni titizlikle düşünülmüş, hızlı, ulaşılabilir ve kusursuz biçimde çalışan orijinal arayüzler oluştur.</p>
+<div class="grid">
+<article class="feature"><span class="icon">⌘</span><h3>Akıllı kod stüdyosu</h3><p>HTML, CSS ve JavaScript ile modern deneyimler tasarla. Kodunu gör, düzenle ve güncelle.</p></article>
+<article class="feature"><span class="icon">◈</span><h3>Canlı cihaz önizlemesi</h3><p>Oluşturduğun sayfaları masaüstü, tablet ve mobil görünümde karşılaştır.</p></article>
+<article class="feature"><span class="icon">↗</span><h3>GitHub Pages yayınlama</h3><p>Kendi GitHub hesabınla statik projelerini ücretsiz bir Pages adresinde sun.</p></article>
+<article class="feature"><span class="icon">◌</span><h3>Görsel düzenleme</h3><p>Öğeleri seç, yazıları ve stilleri değiştir. Düzenlenen HTML ile ilerle.</p></article>
+<article class="feature"><span class="icon">⟷</span><h3>Versiyon ve geri alma</h3><p>Proje revizyonlarını kaydet, değişikliklerini karşılaştır ve güvenle düzenle.</p></article>
+<article class="feature"><span class="icon">✧</span><h3>Özgün dijital kimlik</h3><p>Yumuşak ışıklar, seçkin tipografi ve güçlü arayüz sistemleriyle fark yarat.</p></article>
+</div></section>
+<section class="section pricing-wrap" id="pricing"><div class="shell">
+<div class="pricing-head"><span class="section-over">Demo fiyatlandırma alanı</span><h2 class="section-title">Büyük fikirler için<br><span class="gradient">özgür başlangıç.</span></h2><p>Bu kartlar arayüz etkileşimini göstermek için hazırlanmış temsili örnektir; gerçek ücret veya ürün taahhüdü içermez.</p>
+<div class="toggle" role="group" aria-label="Fiyat gösterimi"><button type="button" class="active" data-period="monthly">Aylık</button><button type="button" data-period="yearly">Yıllık</button></div></div>
+<div class="plans"><article class="plan"><span class="tag">START</span><h3>Keşfet</h3><p>İlk fikir ve prototipler için.</p><div class="price" data-month="₺0" data-year="₺0">₺0<small> / ay</small></div><ul><li>Görsel tasarım</li><li>Örnek şablonlar</li><li>Kaynak kod düzenleme</li></ul><button type="button" data-action="demo" class="btn btn-ghost btn-wide">Planı incele</button></article>
+<article class="plan highlight"><span class="tag">MOST POPULAR · EXAMPLE</span><h3>Yaratıcı</h3><p>Bir sonraki büyük tasarım fikrin için.</p><div class="price" data-month="₺199" data-year="₺149">₺199<small> / ay</small></div><ul><li>Tasarım ve kod geliştirme</li><li>Takım deneyimi konsepti</li><li>Özel bileşen galerisi</li></ul><button type="button" data-action="demo" class="btn btn-primary btn-wide">Planı incele</button></article>
+<article class="plan"><span class="tag">SCALE</span><h3>Stüdyo</h3><p>Büyük ölçekli arayüz tasarımlarına ilham.</p><div class="price" data-month="₺499" data-year="₺399">₺499<small> / ay</small></div><ul><li>Kurumsal stil sistemleri</li><li>Gelişmiş tasarım iş akışları</li><li>Örnek yayın yönetimi</li></ul><button type="button" data-action="demo" class="btn btn-ghost btn-wide">Planı incele</button></article></div>
+</div></section>
+<section class="section shell" id="faq"><div style="text-align:center"><span class="section-over">Sıkça sorulanlar</span><h2 class="section-title">Merak ettiklerin,<br><span class="gradient">bir tık uzağında.</span></h2></div>
+<div class="faq"><details><summary>Bu örnek site gerçekten GitHub Pages üzerinde mi?</summary><p>Evet. Sayfa Dimensia Studio’nun açık GitHub deposundaki sites/aurora-demo/index.html dosyasından yayınlanır. Statik hosting için özel sunucu gerekmez.</p></details>
+<details><summary>GitHub Pages gerçek bir ücretsiz alt alan adı verir mi?</summary><p>GitHub Pages proje sitelerini genellikle kullanici.github.io/depo/ şeklinde barındırır. İstediğin özel alt alan adı için sana ait domain ve DNS kaydı gerekir.</p></details>
+<details><summary>Site üzerindeki fiyatlar gerçek mi?</summary><p>Hayır. Bu bir etkileşimli tasarım ve yayınlama gösterimidir. Fiyat kartları sadece UI örneğidir.</p></details>
+<details><summary>HTML, CSS ve JavaScript kodunu düzenleyebilir miyim?</summary><p>Dimensia Studio’daki görsel editör ve kod alanıyla kendi oluşturduğun sitenin kaynaklarını değiştirebilirsin. Yeniden yayınlama GitHub üzerinde mevcut dosyayı günceller.</p></details>
+</div></section>
+<section class="shell last-cta"><span class="eyebrow"><i></i> MADE WITH DIMENSIA STUDIO</span><h2>Fikrini internete taşımanın <span class="gradient">tam zamanı.</span></h2><p>Bu canlı örnek, ücretsiz GitHub Pages yayınlama mimarisinin çalışan bir gösterimidir.</p><a class="btn btn-primary" href="https://ramiz28615.github.io/my_app/#studio" target="_blank" rel="noopener noreferrer">Dimensia Studio’yu Aç ↗</a></section>
+</main>
+<footer><div class="shell footer-grid"><strong>✧ Aurora Demo</strong><span>Orijinal tasarım · 2026 · Dimensia Studio Launchpad</span><a href="https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html" target="_blank" rel="noopener noreferrer">Kaynak kod ↗</a></div></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(()=>{
+const toast=document.querySelector('#toast');let timer;
+function message(text){toast.textContent=text;toast.classList.add('show');clearTimeout(timer);timer=setTimeout(()=>toast.classList.remove('show'),3600)}
+document.querySelectorAll('[data-action]').forEach(button=>button.addEventListener('click',()=>{
+  if(button.dataset.action==='start')location.hash='features';
+  else message('Bu yalnızca bir arayüz demosudur; gerçek ödeme veya plan satışı yapılmaz.');
+}));
+document.querySelectorAll('[data-period]').forEach(button=>button.addEventListener('click',()=>{
+  const yearly=button.dataset.period==='yearly';
+  document.querySelectorAll('[data-period]').forEach(x=>x.classList.toggle('active',x===button));
+  document.querySelectorAll('.price[data-month]').forEach(x=>{
+    const base=yearly?x.dataset.year:x.dataset.month;
+    x.innerHTML=base+'<small> / ay</small>';
+  });
+  message(yearly?'Temsili yıllık fiyatlar gösteriliyor.':'Temsili aylık fiyatlar gösteriliyor.');
+}));
+const nav=document.querySelector('#navLinks'),menu=document.querySelector('#menuBtn');
+menu.addEventListener('click',()=>{
+ const expanded=menu.getAttribute('aria-expanded')==='true';
+ menu.setAttribute('aria-expanded',String(!expanded));
+ nav.classList.toggle('open',!expanded);
+ menu.textContent=expanded?'☰':'✕';
+});
+nav.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{
+ nav.classList.remove('open');menu.setAttribute('aria-expanded','false');menu.textContent='☰';
+}));
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&nav.classList.contains('open')){nav.classList.remove('open');menu.setAttribute('aria-expanded','false');menu.textContent='☰'}
+});
+})();
+</script>
+</body>
+</html>
