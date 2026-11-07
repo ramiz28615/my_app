@@ -1,9 +1,9 @@
 {
   "name": "dimensia-studio",
-  "version": "5.2.1",
+  "version": "5.3.0",
   "private": true,
   "type": "module",
-  "description": "Dimensia Studio 5.2.1: Android responsive recovery, CORS fallback URLs, AI builder and multilingual RE Architect",
+  "description": "Dimensia Studio 5.3: OpenRouter key authentication and free model diagnostic fixes, responsive AI builder, GitHub Launchpad",
   "engines": {
     "node": ">=20"
   },
