@@ -64,7 +64,12 @@ const $=id=>document.getElementById(id);
 const setStatus=(s,err=false)=>{const x=$('labStatus');x.textContent=s;x.classList.toggle('error',!!err)};
 const output=s=>{$('labOutput').textContent=String(s).slice(0,18000)};
 const addOutput=s=>{const x=$('labOutput');x.textContent=(x.textContent===''?'':x.textContent+'\n')+String(s).slice(0,1400);x.scrollTop=x.scrollHeight};
-function saveCurrent(){files[lang]=$('labEditor').value}
+function saveCurrent(){
+ const code=$('labEditor').value;
+ if(files[lang]===code)return;
+ files[lang]=code;
+ document.dispatchEvent(new CustomEvent('dimensia:codelab-changed',{detail:{language:lang,content:code}}));
+}
 function load(kind){
  if($('labEditor').dataset.loaded==='true')saveCurrent();
  lang=kind;const def=TEMPLATES[kind];
@@ -88,6 +93,7 @@ function stop(){
  running=false;$('labRun').disabled=false;
 }
 $('labStop').onclick=()=>{stop();setStatus('Çalışan kod ortamı kapatıldı.')};
+$('labEditor').addEventListener('input',saveCurrent);
 async function jsRun(code){
  stop();running=true;$('labRun').disabled=true;
  const fid='run'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
