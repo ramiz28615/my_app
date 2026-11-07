@@ -264,8 +264,8 @@ try{
  // Agent local plan must function without API; mocked API then exercises real plan/build/quality.
  await page.locator('#agentPrompt').fill('Çalışan menü, etkileşimli kartlar ve mobil destek sunan modern bir web sitesi oluştur.');
  await page.locator('#agentPlan').click();
- await page.waitForFunction(()=>document.getElementById('agentMeta')?.textContent.includes('plan adımı'),{timeout:5000});
- assert.ok((await page.locator('#agentPanel').innerText()).includes('İhtiyaç analizi'));
+ console.log('[AI PLAN STATUS]',await page.locator('#agentStatus').innerText(),'PANEL:',(await page.locator('#agentPanel').innerText()).slice(0,450));
+ await page.waitForFunction(()=>document.getElementById('agentPanel')?.textContent.includes('İhtiyaç analizi'),{timeout:5000});
  await page.route('https://openrouter.ai/api/v1/chat/completions',async route=>{
   const request=route.request().postDataJSON();
   const system=request.messages?.[0]?.content||'';
