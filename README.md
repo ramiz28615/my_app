@@ -1,13 +1,45 @@
-# Dimensia RE Studio + Launchpad 4.1.1
+# Dimensia AI Studio + RE Architect + Launchpad 5.1
 
 **AI destekli HTML/CSS/JavaScript oluştur, düzenle, önizle ve GitHub Pages'e yayınla.** Bu sürüm, kişisel deneyler ve statik web projeleri için çalışan açık kaynaklı bir stüdyodur. Bir SaaS platformunun tüm kurumsal özelliklerini veya dünya sıralamasında üstünlüğü iddia etmez.
 
 | | Bağlantı |
 |---|---|
-| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=4.1.1#studio |
+| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=5.1.0#studio |
 | **Gerçek yayınlanmış örnek** | https://ramiz28615.github.io/my_app/sites/aurora-demo/ |
 | **Örneğin kaynak kodu** | https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html |
 | **Otomatik testler** | https://github.com/ramiz28615/my_app/actions |
+
+## Dimensia 5.1 — Yapay zekâ geliştirme akışı
+
+**AI Software Architect** paneli: fikrini Türkçe yaz, tasarım dilini seç ve **Plan Oluştur → AI ile Site Üret → Kod Denetimi → AI ile Düzelt** adımlarıyla ilerle. **Tam Akış** düğmesi plan, HTML/CSS/JS üretimi ve statik denetimi birleştirir. HTML değişiklikleri izole iframe önizlemesine uygulanır, en fazla 20 sürüm geçici geçmişe alınır ve istenirse tek HTML olarak indirilebilir.
+
+- **OpenRouter Free:** Ayarlar içinde kendi OpenRouter API anahtarını gir. Varsayılan \`openrouter/free\` ücretsiz modeller arasında yönlendirme yapar; kota, kapasite ve yanıt uzunluğu değişebilir. Varsayılan ücretsiz yönlendirici ve \`:free\` uzantılı model alanı desteklenir.
+- **Güvenlik:** Anahtar GitHub'a, HTML export dosyalarına veya localStorage'a eklenmez. Yalnızca oturum belleğinde kullanılır; tarayıcı geliştirici araçlarında görülebilir. Sohbette, herkese açık dosyada veya hata kaydında paylaşılan anahtar derhal iptal edilip değiştirilmelidir.
+- **Gerçek çalışma sınırı:** Planlama, tek dosyalı HTML/CSS/JS üretimi, temel erişilebilirlik analizi, AI tabanlı kaynak yeniden oluşturma ve yerel sürüm geri alma uygulanmıştır. Bu, tüm bug'ların otomatik çözüldüğü, veritabanı/backend kurulduğu veya üretim ortamı güvenlik denetimi tamamlandığı anlamına gelmez.
+- **Model testi:** CI yalnızca **sahte OpenRouter yanıtları** kullanır; gerçek hesap anahtarı veya gerçek model fiyat/kota testi yapmaz.
+
+## RE Architect — Node kurmadan URL analizi
+
+1. **AI Website Studio → RE Architect** bölümünü aç.
+2. İnceleme hakkın olan sitenin URL'sini yaz, izin onayını işaretle ve **URL Analiz Et** düğmesini kullan.
+3. Önce yerel API bulunursa onunla çoklu sayfa taraması, sonra doğrudan tarayıcıdan CORS izinli HTML erişimi denenir.
+4. Tarayıcı HTML'ye erişemiyorsa **☁ GitHub Bulut Tarama** düğmesiyle GitHub Actions üzerinden isteğe bağlı analiz yapabilirsin. Bunun için **GitHub Contents: read ve Actions: write** yetkili, yalnızca seçili depoya erişen fine-grained token gerekir; ilgili \`public-url-audit.yml\` workflow depoda bulunmalıdır.
+5. Bulut taraması sonucunda yalnızca **herkese açık yapısal metadata** \`reports/r...json\` biçiminde GitHub'daki **public repo'ya** kaydedilir. Herkese açık rapora yazılmasını istemediğin URL'yi bulutta analiz etme.
+6. **Akış Diyagramı**, **Buton/Form**, **Renk/Font**, **HTML/CSS/JS** sekmeleriyle analiz sonuçlarına bak. CORS izinli veya yüklenmiş HTML kodu düzenlenebilir. GitHub bulut raporu gizli kaynakları veya ham HTML/JS dosyalarını içermez.
+
+**CORS**: İzinli olmayan hedefler rastgele URL girilerek kopyalanamaz. **Node.js kurulumu URL analizi için tek yol değildir**, ama **her URL'de sorunsuz tarama garantisi** de yoktur.
+
+## Code Lab — çoklu dil düzenleme
+
+**HTML, CSS, JavaScript, Python, Rust, Bash/SH ve React Native/Expo** kaynakları düzenlenir; GitHub'a kullanıcı izniyle kaydedilebilir veya dosya olarak indirilebilir.
+
+- **JavaScript:** yalnızca sandbox iframe'de çalıştırılır.
+- **HTML/CSS:** stüdyonun kendi önizlemesine aktarılabilir.
+- **Python:** isteğe bağlı Pyodide WebAssembly motoru indirilebilir; ilk çalıştırmada internet ve yeterli RAM gerekir.
+- **Rust / Bash/SH:** tarayıcıda sistem komutu olarak çalıştırılmaz; GitHub Actions \`polyglot-check.yml\` üzerinde örnekleri doğrular veya yerel native derleyici/shell kullanılır.
+- **React Native:** düzenlenebilir Expo/App.js başlangıç dosyası ve package.json şablonu sunulur; Android APK/iOS için Expo/EAS Build veya yerel geliştirme aracı gereklidir.
+- **Full-stack:** RE Architect sekmesinden kendi projen için Node.js CRUD API taslağı indirilebilir. GitHub Pages yalnızca statik dosya barındırır; gerçek API ve veri kalıcılığı ayrı backend üzerinde çalışır.
+
 
 ## Özellikler
 
@@ -53,7 +85,7 @@ Resmî rehber: https://docs.github.com/en/pages/configuring-a-custom-domain-for-
 - GitHub Pages yalnızca **statik hosting** sağlar. PHP, Node.js API, veritabanı veya gizli server key çalıştırmaz.
 - **Önemli same-origin uyarısı:** Tek bir Pages deposunun `/sites/` alt klasörleri ve stüdyo aynı origin'i paylaşır. Güvenmediğin JavaScript kodunu kendi yönetim stüdyonla aynı origin'de barındırma. İzole bir repo veya kendi alan adını kullan.
 - Kaynak içe alma/uzak site inceleme yalnızca hak sahibi olduğun veya kullanım izni verilmiş kod için kullanılmalıdır.
-- Tarayıcıda dış URL taraması hedefin CORS ayarına bağlıdır; kamuya açık kaynaklar için opsiyonel Node.js sunucu vardır.
+- Tarayıcıda dış URL taraması hedefin CORS ayarına bağlıdır; alternatif olarak yetkili GitHub Actions üzerinden herkese açık metadata raporu alınabilir veya opsiyonel Node.js sunucusu çalıştırılır.
 
 ## Kurulum ve test
 
@@ -81,13 +113,20 @@ GitHub Actions:
 - `.github/workflows/check.yml`: JavaScript sözdizimi ve güvenlik duman testleri
 - `.github/workflows/browser.yml`: gerçek Chromium ile masaüstü/mobil editör, kaynak akışı ve **taklit GitHub API** üzerinde yeni yayın/güncelleme/geri yükleme/örnek site aktarma; gerçek erişim tokeni kullanılmaz
 - `.github/workflows/deploy.yml`: Pages yayınlaması
+- `.github/workflows/public-url-audit.yml`: izinli URL için GitHub Actions metadata analizi
+- `.github/workflows/polyglot-check.yml`: örnek JavaScript/Python/Rust/POSIX sh ve React Native başlangıç dosyaları
 
 ## Kaynak dosyaları
 
 | Dosya | Ne yapar? |
 |---|---|
 | `index.html` | Dimensia Studio uygulaması ve 2D–7D çizimler |
-| `studio-reference.js` | OpenRouter entegrasyonu ve referans analizi |
+| `studio-reference.js` | OpenRouter ücretsiz model bağlantısı ve referans analizi |
+| `studio-ai-agent.js`, `studio-ai-agent.css` | Planlama, AI HTML/CSS/JS üretimi, kalite ve kod revizyonları |
+| `studio-architect.js`, `studio-architect.css` | Node olmadan URL inceleme seçenekleri, akış diyagramı ve renk/font analizi |
+| `studio-code-lab.js`, `studio-code-lab.css` | Python/JS/HTML/CSS/Rust/Bash/React Native kaynak editörü |
+| `architect-core.mjs` | Sunucu tarafı güvenli sayfa/CSS/JS ayrıştırma |
+| `backend-template.mjs` | İndirilebilir, yerel Node.js CRUD API şablonu |
 | `studio-re-engineer.js`, `studio-re.css` | Görsel editör, sürüm ve kaynak gezgini |
 | `studio-flow.js` | Etkileşim akış kaydedici |
 | `studio-devtools.js` | İzole önizleme Console/Network/Actions |
