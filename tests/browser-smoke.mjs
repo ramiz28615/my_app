@@ -133,6 +133,8 @@ try{
    if(u.pathname==='/user')return reply(200,{login:'ramiz28615'});
    if(u.pathname==='/repos/ramiz28615/my_app')return reply(200,{default_branch:'main',permissions:{push:true},private:false,archived:false});
    if(u.pathname==='/repos/ramiz28615/my_app/pages')return reply(200,{html_url:'https://ramiz28615.github.io/my_app/'});
+   if(u.pathname==='/repos/ramiz28615/portfolio-host')return reply(200,{default_branch:'main',permissions:{push:true},private:false,archived:false});
+   if(u.pathname==='/repos/ramiz28615/portfolio-host/pages')return reply(403,{message:'Pages: read permission required'});
    if(u.pathname==='/repos/ramiz28615/my_app/contents/sites/e2e-lansman/index.html'){
      if(method==='GET')return fileExists?reply(200,{type:'file',sha:'mock-old-blob',encoding:'base64',content:ghWrites.at(-1)?.payload?.content||''}):reply(404,{message:'Not Found'});
      if(method==='PUT'){
@@ -198,6 +200,16 @@ try{
  checkNoErrors('Launchpad example import');
  log('Launchpad example','Aurora design copied to editor and preview');
  
+
+ await page.locator('#launchRepo').fill('portfolio-host');
+ await page.locator('#launchSlug').fill('markam');
+ await page.locator('#launchConnect').click();
+ await page.waitForFunction(()=>document.querySelector('#launchAuthChip')?.textContent.includes('ramiz28615 bağlı'));
+ assert.ok((await page.locator('#launchLinkPreview').innerText()).includes('ramiz28615.github.io/portfolio-host/sites/markam/'));
+ assert.ok((await page.locator('#launchFeedback').innerText()).includes('Pages ayarı API izni nedeniyle doğrulanamadı'));
+ checkNoErrors('GitHub Pages limited token');
+ log('Launchpad permissions','Contents-only token works without Pages: read permission');
+
  await page.locator('#launchTokenForget').click();
  assert.equal(await page.locator('#launchToken').inputValue(),'');
  const deploymentMeta=await page.evaluate(()=>localStorage.getItem('dimensia-published-sites-v1')||'');
