@@ -323,6 +323,32 @@ try{
  checkNoErrors('Code Lab runtime');
  log('Code Lab','sandbox JS and React Native scaffold controls passed');
 
+ // Polyglot multi-file workspace (real execution covered in tests/polyglot.test.mjs).
+ await page.locator('#dimensiaPolyglot').waitFor({timeout:12000});
+ assert.equal(await page.locator('#polyFiles .poly-file').count(),8,'Polyglot workspace must expose eight editable source files');
+ assert.ok((await page.locator('#polyEditor').inputValue()).includes('print('),'Python source must not be wiped on initial loading');
+ await page.locator('#polyFiles button[data-language="perl"]').click();
+ assert.ok((await page.locator('#polyEditor').inputValue()).includes('use strict'),'Perl source example should be editable');
+ await page.locator('#polyEditor').fill('use strict;\nuse warnings;\nprint "Perl E2E source saved!\\n";');
+ await page.locator('#polyFiles button[data-language="python"]').click();
+ assert.ok((await page.locator('#polyEditor').inputValue()).includes('print('),'Python source should survive language switching');
+ await page.locator('#polyFiles button[data-language="perl"]').click();
+ assert.ok((await page.locator('#polyEditor').inputValue()).includes('Perl E2E'),'Perl edits must survive switching');
+ assert.ok(await page.locator('#polyResultGrid button').count()===7,'Cloud runner displays seven job statuses');
+ await page.locator('#polyFiles button[data-language="javascript"]').click();
+ await page.locator('#polyEditor').fill('console.log("POLYGLOT_JAVASCRIPT_E2E")');
+ await page.locator('#polyPreview').click();
+ await page.waitForFunction(()=>document.querySelector('#codeEditor')?.value.includes('POLYGLOT_JAVASCRIPT_E2E'),{timeout:12000});
+ assert.ok((await page.locator('#codeEditor').inputValue()).includes('data-polyglot'),'Web preview must merge separate CSS/JS sources');
+ assert.equal((await page.locator('#polyRunText').innerText()).includes('önizleme'),true);
+ assert.equal(await page.locator('#polyConsent').isChecked(),false,'Public source uploads require explicit consent');
+ await page.locator('#polyCloud').click();
+ await page.waitForFunction(()=>document.querySelector('#polyRunText')?.textContent.includes('onayla'));
+ assert.equal(await page.evaluate(()=>window.DimensiaPolyglot.getState().busy),false);
+ checkNoErrors('Polyglot frontend');
+ log('Polyglot frontend','Python Perl JS editing, file state, merged HTML preview and consent safety passed');
+
+
  // Agent local plan must function without API; mocked API then exercises real plan/build/quality.
  await page.locator('#agentPrompt').fill('Çalışan menü, etkileşimli kartlar ve mobil destek sunan modern bir web sitesi oluştur.');
  await page.locator('#agentPlan').click();
