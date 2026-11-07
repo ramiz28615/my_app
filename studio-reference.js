@@ -103,7 +103,7 @@
    else if(typeof payload.output_text==='string')answer=payload.output_text;
    lastModel=String(payload.model||selected).slice(0,120);
    if(!answer.trim()){
-     modelResult='empty';
+     verified='valid';modelResult='empty';
      const reason=choice.finish_reason||'unknown';
      const usage=payload.usage||{};
      const reasoning=usage.completion_tokens_details?.reasoning_tokens;
@@ -116,7 +116,7 @@
      renderMode(true);
      throw Error(lastError);
    }
-   modelResult='ok';lastError='';renderMode(true);
+   verified='valid';modelResult='ok';lastError='';renderMode(true);
    return answer.trim();
  }
  async function loadFreeModels(){
