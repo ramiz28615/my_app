@@ -16,7 +16,9 @@ const allowed=new Map([
  ['/index.html',['index.html','text/html; charset=utf-8']],
  ['/studio-enhancements.css',['studio-enhancements.css','text/css; charset=utf-8']],
  ['/studio-devtools.js',['studio-devtools.js','application/javascript; charset=utf-8']],
- ['/studio-reference.js',['studio-reference.js','application/javascript; charset=utf-8']]
+ ['/studio-reference.js',['studio-reference.js','application/javascript; charset=utf-8']],
+ ['/studio-re.css',['studio-re.css','text/css; charset=utf-8']],
+ ['/studio-re-engineer.js',['studio-re-engineer.js','application/javascript; charset=utf-8']]
 ]);
 const hits=new Map();
 const json=(res,status,body)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(body))};
@@ -87,7 +89,7 @@ async function checkURL(value){
  url.hash='';
  return {url,pinned:ipv4[0].address};
 }
-async function requestHTML(target,redirects=0){
+async function requestHTML(target,redirects=0,kind='html'){
  if(redirects>3)throw Error('Çok fazla yönlendirme.');
  const {url,pinned}=await checkURL(target);
  return new Promise((resolve,reject)=>{
@@ -97,11 +99,12 @@ async function requestHTML(target,redirects=0){
      headers:{'User-Agent':'Dimensia-Public-Reference-Inspector/1.0','Accept':'text/html,application/xhtml+xml','Accept-Encoding':'gzip, deflate, br'}
    },res=>{
      if([301,302,303,307,308].includes(res.statusCode)&&res.headers.location){
-       res.resume();requestHTML(new URL(res.headers.location,url).href,redirects+1).then(resolve,reject);return;
+       res.resume();requestHTML(new URL(res.headers.location,url).href,redirects+1,kind).then(resolve,reject);return;
      }
      if(res.statusCode!==200){res.resume();reject(Error('Hedef HTTP '+res.statusCode));return}
      const type=String(res.headers['content-type']||'');
-     if(!/html|xhtml/i.test(type)){res.resume();reject(Error('HTML içeriği alınamadı.'));return}
+     const valid=kind==='html'?/html|xhtml/i.test(type):kind==='css'?/css|plain|octet-stream/i.test(type):/javascript|ecmascript|plain|octet-stream/i.test(type);
+     if(!valid){res.resume();reject(Error('Beklenmeyen kaynak Content-Type.'));return}
      const encoding=String(res.headers['content-encoding']||'').toLowerCase();
      let stream=res;
      if(encoding==='gzip')stream=res.pipe(createGunzip());
@@ -134,6 +137,20 @@ const server=http.createServer(async(req,res)=>{
      if(!value||value.length>1700)return json(res,400,{error:'Kısa ve geçerli bir URL gir.'});
      try{const page=await requestHTML(value);return json(res,200,parsePage(page.html,page.url))}
      catch(error){return json(res,422,{error:String(error.message||error).slice(0,240)})}
+   }
+   if(incoming.pathname==='/api/source'){
+     const ip=req.socket.remoteAddress||'unknown',now=Date.now();
+     const list=(hits.get(ip)||[]).filter(t=>now-t<60000);
+     if(list.length>=18)return json(res,429,{error:'Kaynak alma hız sınırı.'});
+     list.push(now);hits.set(ip,list);
+     const value=incoming.searchParams.get('url');
+     const kind=incoming.searchParams.get('kind');
+     if(!['html','css','js'].includes(kind))return json(res,400,{error:'Kaynak türü html/css/js olmalıdır.'});
+     if(!value||value.length>1700)return json(res,400,{error:'Kısa ve geçerli URL gir.'});
+     try{
+       const page=await requestHTML(value,0,kind);
+       return json(res,200,{kind,resolvedURL:page.url.href,content:page.html,bytes:Buffer.byteLength(page.html,'utf8')});
+     }catch(error){return json(res,422,{error:String(error.message||error).slice(0,220)})}
    }
    const asset=allowed.get(incoming.pathname);
    if(!asset)return json(res,404,{error:'Bulunamadı'});
