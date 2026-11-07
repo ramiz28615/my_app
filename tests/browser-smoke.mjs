@@ -348,6 +348,61 @@ try{
  checkNoErrors('Polyglot frontend');
  log('Polyglot frontend','Python Perl JS editing, file state, merged HTML preview and consent safety passed');
 
+ // Browser-to-GitHub integration: mock public source uploads, workflow_dispatch,
+ // and a real-format report without exposing any user token.
+ let cloudDispatch=null;
+ const cloudUploads=[];
+ await page.route('https://api.github.com/repos/ramiz28615/my_app/**',async route=>{
+  const req=route.request(),url=new URL(req.url()),verb=req.method();
+  const headers={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'GET,PUT,POST,OPTIONS',
+   'Access-Control-Allow-Headers':'Authorization,Content-Type,Accept,X-GitHub-Api-Version'};
+  const reply=(status,obj)=>route.fulfill({status,headers,contentType:'application/json',body:JSON.stringify(obj)});
+  if(verb==='OPTIONS')return route.fulfill({status:204,headers});
+  if(url.pathname==='/repos/ramiz28615/my_app/actions/workflows/polyglot-execute.yml/dispatches'&&verb==='POST'){
+   cloudDispatch=req.postDataJSON();
+   return route.fulfill({status:204,headers});
+  }
+  if(url.pathname.startsWith('/repos/ramiz28615/my_app/contents/code-lab/')){
+   if(url.pathname.includes('/reports/')&&verb==='GET'){
+    if(!cloudDispatch)return reply(404,{message:'Not Found'});
+    const id=cloudDispatch.inputs.run_id;
+    const jobs=Object.fromEntries(['web','javascript','python','rust','bash','perl','reactnative'].map(lang=>[lang,{
+     status:'passed',label:lang,durationMs:42,steps:[{step:'Run '+lang,status:'passed',exitCode:0,ms:42}],
+     stdout:'Merhaba Dimensia '+lang,stderr:''
+    }]));
+    const report={schema:'dimensia-polyglot-v1',requestId:id,total:7,passed:7,failed:0,jobs};
+    return reply(200,{encoding:'base64',content:Buffer.from(JSON.stringify(report)).toString('base64'),sha:'mock-report'});
+   }
+   if(verb==='GET')return reply(404,{message:'Not Found'});
+   if(verb==='PUT'){
+    cloudUploads.push({path:url.pathname,auth:req.headers().authorization,payload:req.postDataJSON()});
+    return reply(201,{commit:{sha:'cloud-commit-'+cloudUploads.length},content:{sha:'code-blob-'+cloudUploads.length}});
+   }
+  }
+  return route.fallback();
+ });
+ await page.locator('#launchRepo').fill('my_app');
+ await page.locator('#launchToken').fill('github_pat_E2E_cloud_mock_token_abcdefgh1234567890');
+ await page.locator('#launchConnect').click();
+ await page.waitForFunction(()=>document.querySelector('#launchAuthChip')?.textContent.includes('ramiz28615 bağlı'));
+ await page.locator('#polyConsent').check();
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#polyCloud').click();
+ await page.waitForFunction(()=>window.DimensiaPolyglot.getState().reportReady,{timeout:30000});
+ assert.equal(cloudUploads.length,8,'Cloud runner must upload all eight editable source files');
+ assert.ok(cloudUploads.some(x=>x.path.endsWith('/perl/main.pl')),'Perl file should be uploaded');
+ assert.equal(cloudDispatch.ref,'main');
+ assert.match(cloudDispatch.inputs.run_id,/^r[a-z0-9]{9,35}$/);
+ assert.equal(await page.evaluate(()=>window.DimensiaPolyglot.getState().results.perl.status),'passed');
+ await page.locator('#polyResultGrid [data-result="rust"]').click();
+ assert.ok((await page.locator('#polyOutput').innerText()).includes('Merhaba Dimensia rust'),'Per-language stdout should appear');
+ assert.equal(await page.locator('#polyReportDownload').isDisabled(),false,'Report download should be enabled');
+ assert.ok(!JSON.stringify(await page.evaluate(()=>Object.values(localStorage).join(' '))).includes('github_pat_'),'Cloud token must not persist');
+ await page.locator('#launchTokenForget').click();
+ checkNoErrors('Polyglot Cloud API');
+ log('Polyglot cloud','8 GitHub file uploads, workflow_dispatch, seven real-format results and stdout drill-down passed');
+
+
 
  // Agent local plan must function without API; mocked API then exercises real plan/build/quality.
  await page.locator('#agentPrompt').fill('Çalışan menü, etkileşimli kartlar ve mobil destek sunan modern bir web sitesi oluştur.');
