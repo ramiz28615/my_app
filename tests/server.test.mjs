@@ -175,9 +175,9 @@ test('Inline web IDE is linked, sandboxed and validates HTML before live executi
  for(const id of ['dcePanel','dceRun','dceSource','dceUndo','dceRedo','dceConsole','dceAuto','dceDownload','dhRunPreview']){
   assert.ok(js.includes(id),'Missing inline web IDE control: '+id);
  }
- for(const marker of ["updateArtifact(complete)","window.DimensiaDevTools","DOMContentLoaded","sk-or-v1-"]){
-  assert.ok(js.includes(marker)||marker==='DOMContentLoaded','Missing expected IDE integration: '+marker);
- }
+ assert.ok(js.includes('updateArtifact(complete)'),'Editor must commit source through ChatHub');
+ assert.ok(js.includes('renderLogs()'),'Editor must show execution logs');
+ assert.ok(js.includes('sandboxed preview iframe'),'Source runtime must stay sandboxed');
  assert.ok(css.includes('.dh-artifact.editor-open .dh-artifact-window'));
  assert.ok(js.includes('channel!==')&&js.includes('DIMENSIA_PREVIEW_V1'),'Only trusted preview window debug messages may be logged');
  assert.ok(!/sk-or-v1-[A-Za-z0-9_-]{40,}/.test(js),'Never embed OpenRouter API secrets in editor source');
