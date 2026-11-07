@@ -257,6 +257,31 @@ try{
  checkNoErrors('GitHub Pages limited token');
  log('Launchpad permissions','Contents-only token works without Pages: read permission');
 
+ // Repair a failed Perl job with OpenRouter mock and explicit, review-first approval.
+ await page.locator('#polyResultGrid [data-result="perl"]').click();
+ assert.ok((await page.locator('#polyOutput').innerText()).includes('Shared contract mismatch'));
+ await page.locator('#orKey').fill('sk-or-'+'v1-'+'fake'.repeat(12));
+ await page.route('https://openrouter.ai/api/v1/chat/completions',async route=>{
+  const proposed='#!/usr/bin/env perl\nuse strict;\nuse warnings;\nprint "DIMENSIA_RESULT:{\\"count\\":5,\\"sum\\":15}\\n";\n';
+  await route.fulfill({status:200,contentType:'application/json',
+   headers:{'access-control-allow-origin':'*'},
+   body:JSON.stringify({model:'mock/fix:free',choices:[{finish_reason:'stop',message:{content:proposed}}]})});
+ });
+ const beforeFix=await page.evaluate(()=>window.DimensiaPolyglot.getFiles().perl);
+ await page.locator('#polyFix').click();
+ await page.locator('#polyFixReview:not([hidden])').waitFor({timeout:13000});
+ assert.equal(await page.evaluate(()=>window.DimensiaPolyglot.getFiles().perl),beforeFix,'AI cannot apply code before user approval');
+ assert.ok((await page.locator('#polyFixCode').inputValue()).includes('DIMENSIA_RESULT'));
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#polyApplyFix').click();
+ assert.ok((await page.evaluate(()=>window.DimensiaPolyglot.getFiles().perl)).includes('DIMENSIA_RESULT'));
+ assert.equal(cloudUploads.length,9,'AI code repair cannot silently upload to public GitHub');
+ assert.equal(await page.locator('#polyFixReview:not([hidden])').count(),0);
+ await page.locator('#orForget').click();
+ await page.unroute('https://openrouter.ai/api/v1/chat/completions');
+ checkNoErrors('Polyglot repair');
+ log('Polyglot repair','failed language diagnostics, AI suggestion review, explicit apply and zero silent uploads passed');
+
  await page.locator('#launchTokenForget').click();
  assert.equal(await page.locator('#launchToken').inputValue(),'');
  const deploymentMeta=await page.evaluate(()=>localStorage.getItem('dimensia-published-sites-v1')||'');
@@ -412,10 +437,11 @@ try{
     if(!cloudDispatch)return reply(404,{message:'Not Found'});
     const id=cloudDispatch.inputs.run_id;
     const jobs=Object.fromEntries(['web','javascript','python','rust','bash','perl','reactnative'].map(lang=>[lang,{
-     status:'passed',label:lang,durationMs:42,steps:[{step:'Run '+lang,status:'passed',exitCode:0,ms:42}],
-     stdout:'Merhaba Dimensia '+lang,stderr:''
+     status:lang==='perl'?'failed':'passed',label:lang,durationMs:42,steps:[{step:'Run '+lang,status:lang==='perl'?'failed':'passed',exitCode:lang==='perl'?1:0,ms:42}],
+     stdout:'Merhaba Dimensia '+lang,stderr:lang==='perl'?'Shared contract mismatch: expected 15, got 10':'',
+     contract:['javascript','python','rust','bash','perl'].includes(lang)?{status:lang==='perl'?'mismatch':'matched',expected:{count:5,sum:15},actual:{count:5,sum:lang==='perl'?10:15}}:undefined
     }]));
-    const report={schema:'dimensia-polyglot-v1',requestId:id,total:7,passed:7,failed:0,jobs};
+    const report={schema:'dimensia-polyglot-v1',requestId:id,total:7,passed:6,failed:1,jobs,sharedContract:{matched:4,mismatch:1,unreported:0,expected:{count:5,sum:15}}};
     return reply(200,{encoding:'base64',content:Buffer.from(JSON.stringify(report)).toString('base64'),sha:'mock-report'});
    }
    if(verb==='GET')return reply(404,{message:'Not Found'});
@@ -439,7 +465,8 @@ try{
  assert.ok(cloudUploads.some(x=>x.path.endsWith('/shared/numbers.txt')),'Shared input must be uploaded');
  assert.equal(cloudDispatch.ref,'main');
  assert.match(cloudDispatch.inputs.run_id,/^r[a-z0-9]{9,35}$/);
- assert.equal(await page.evaluate(()=>window.DimensiaPolyglot.getState().results.perl.status),'passed');
+ assert.equal(await page.evaluate(()=>window.DimensiaPolyglot.getState().results.perl.status),'failed');
+ assert.ok((await page.locator('#polyContract').innerText()).includes('farklı 1/5'),'Contract mismatch must be visible');
  await page.locator('#polyResultGrid [data-result="rust"]').click();
  assert.ok((await page.locator('#polyOutput').innerText()).includes('Merhaba Dimensia rust'),'Per-language stdout should appear');
  assert.equal(await page.locator('#polyReportDownload').isDisabled(),false,'Report download should be enabled');
