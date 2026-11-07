@@ -206,7 +206,7 @@ try{
  await page.locator('#launchConnect').click();
  await page.waitForFunction(()=>document.querySelector('#launchAuthChip')?.textContent.includes('ramiz28615 bağlı'));
  assert.ok((await page.locator('#launchLinkPreview').innerText()).includes('ramiz28615.github.io/portfolio-host/sites/markam/'));
- assert.ok((await page.locator('#launchFeedback').innerText()).includes('Pages ayarı API izni nedeniyle doğrulanamadı'));
+ await page.waitForFunction(()=>document.querySelector('#launchFeedback')?.textContent.includes('Pages ayarı API izni nedeniyle doğrulanamadı'));
  checkNoErrors('GitHub Pages limited token');
  log('Launchpad permissions','Contents-only token works without Pages: read permission');
 
