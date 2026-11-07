@@ -466,7 +466,6 @@ try{
  assert.ok((await page.locator('#polyOutput').innerText()).includes('Merhaba Dimensia rust'),'Per-language stdout should appear');
  assert.equal(await page.locator('#polyReportDownload').isDisabled(),false,'Report download should be enabled');
  assert.ok(!JSON.stringify(await page.evaluate(()=>Object.values(localStorage).join(' '))).includes('github_pat_'),'Cloud token must not persist');
- await page.locator('#launchTokenForget').click();
  checkNoErrors('Polyglot Cloud API');
  log('Polyglot cloud','9 GitHub file uploads, workflow_dispatch, seven real-format results and stdout drill-down passed');
 
@@ -510,8 +509,7 @@ try{
  const beforeUploads=cloudUploads.length;
  page.once('dialog',dialog=>dialog.accept());
  await page.locator('#dhrRunAll').click();
- await page.waitForTimeout(1100);
- console.log('[CHAT RUN DEBUG]',JSON.stringify({status:await page.locator('#dhrStatus').innerText(),dispatch:chatDispatch,runner:await page.evaluate(()=>window.DimensiaChatRunner.getState())}).slice(0,1800));
+
  await page.waitForFunction(()=>window.DimensiaChatRunner.getState().hasReport,{timeout:30000});
  assert.equal(chatDispatch.ref,'main');
  assert.equal(Object.keys(JSON.parse(Buffer.from(chatDispatch.inputs.sources_b64,'base64').toString('utf8'))).length,4);
@@ -533,6 +531,7 @@ try{
  checkNoErrors('Chat code runner');
  log('Chat code runner','real GitHub API dispatch mocked, 4 languages, PHP tab, single fence run, results and no source writes passed');
  await page.locator('[data-nav="studio"]').evaluate(el=>el.click());
+ await page.locator('#launchTokenForget').click();
 
 
 
