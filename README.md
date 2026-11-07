@@ -1,14 +1,37 @@
-# Dimensia AI Studio + RE Architect + Launchpad 5.3.0
+# Dimensia AI Workspace 6.0 · Chat + Website Studio
 
 **AI destekli HTML/CSS/JavaScript oluştur, düzenle, önizle ve GitHub Pages'e yayınla.** Bu sürüm, kişisel deneyler ve statik web projeleri için çalışan açık kaynaklı bir stüdyodur. Bir SaaS platformunun tüm kurumsal özelliklerini veya dünya sıralamasında üstünlüğü iddia etmez.
 
 | | Bağlantı |
 |---|---|
-| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=5.3.0#studio |
+| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=6.0.0#home |
 | **Gerçek yayınlanmış örnek** | https://ramiz28615.github.io/my_app/sites/aurora-demo/ |
 | **Örneğin kaynak kodu** | https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html |
 | **Otomatik testler** | https://github.com/ramiz28615/my_app/actions |
 
+
+## 6.0 — Sohbet odaklı yeni ana ekran
+
+Abacus AI ChatLLM'nin sohbet-öncelikli etkileşim akışından esinlenilmiş, ancak görsel marka, kod ve bileşenleri kendine özgü **Dimensia AI** ana ekranı.
+
+- **Ana sayfa artık AI Sohbet:** Sade, göz yormayan koyu tema, büyük mesaj kutusu, dört hazır proje fikri, ücretsiz OpenRouter model durumu ve hızlı "Yeni sohbet".
+- **Sol menü sohbet geçmişi:** Yeni konuşma, sohbetler arasında geçiş, sohbeti silme; yalnızca bu cihazın localStorage alanında tutulur. API anahtarı, oturum veya doğrudan özel servis entegrasyonu kaydedilmez. Üretilen HTML dosyaları sohbet geçmişinde saklanmaz; kullanıcı Studio'dan projeyi kaydetmelidir.
+- **Sohbet modu:** OpenRouter Ayarlar bölümünde kullanıcının kendisi girdiği session-only anahtar ve seçtiği :free model üzerinden normal konuşma. Kod blokları güvenli metin olarak gösterilir, kopyalama düğmesi vardır. Model yanıtı ücretsiz kota ve servis durumuna bağlıdır.
+- **Site oluştur modu:** Kullanıcı talimatından tek dosyalık HTML/CSS/JS üretir; yeni site otomatik olarak **izole iframe önizlemesine** gönderilir. Masaüstü/mobil görünüm, Studio kaynak editörüne geçiş, projeyi kaydet, HTML indir, GitHub Pages'e yayınla. Yayınlama için kullanıcı tokeni ve onay gerekir.
+- **Dosya ekleme:** En fazla 60 KB HTML/CSS/JS/TXT/JSON/PY/RS/SH metin kaynak dosyası bağlanabilir. Eklenen metin, mesaj gönderildiğinde OpenRouter sağlayıcısına iletilir. Olası token kalıpları engellenmeye çalışılır ancak tüm sırların algılanacağı garanti edilmez. Gizli dosyalar yüklenmemeli.
+- **Kullanıcı arayüzü:** Masaüstünde sohbet + önizleme yan yana; dar ekranlarda uyarlanmış tek sütunlu düzen, cihaz görünümü denetimi, ekranda kalan mesaj kutusu, dar ekranlarda yatay taşma kontrolü. Düşük hareket modu desteklenir.
+- **Önceki modüller yerinde:** 2D–7D boyut laboratuvarı, referans analizi, RE Architect, Code Lab, AI Software Architect, GitHub Launchpad ve kayıtlı projeler korunur.
+- **Sınırlar:** Abacus AI veya ücretli modellerin hesap özellikleri aktarılmaz. Genel sohbet ekranı web araması, veritabanı veya sunucu çalıştırdığını iddia etmez. İleri düzey native derleme ve full-stack hosting ayrı altyapı gerektirir.
+
+### Kullanım
+
+1. **Canlı uygulama:** https://ramiz28615.github.io/my_app/?v=6.0.0#home
+2. **Ayarlar & Kurulum:** OpenRouter API anahtarını sadece uygulamadaki alana kendin gir. Sohbete veya GitHub'a ekleme. Önceden bir yerde paylaşılmış anahtarını iptal edip yenisini oluştur.
+3. **Ana ekran:** Yeni sohbet aç, ücretsiz model durumunu kontrol et ve isteğini yaz. Enter gönderir, Shift+Enter yeni satır açar.
+4. **Site oluştur:** Mesaj kutusu altındaki "Site oluştur" seçeneğine geç, siteni tarif et ve mesajı gönder. Sonucu sağdaki önizlemede incele.
+5. **Düzenle ve yayınla:** "Kodu düzenle" ile HTML/CSS/JS kaynak editörünü aç, "Kaydet" ile tarayıcına kaydet, "Yayınla" ile GitHub Launchpad'e git.
+
+**Gizlilik:** Sohbet geçmişi sadece tarayıcının yerel depolamasındadır; aynı cihazı kullanan başka biri tarafından okunabilir. OpenRouter'a gönderilen mesajlar ve ekli kaynak dosyaları harici sağlayıcıya aktarılır. API anahtarı localStorage'a yazılmaz ancak tarayıcıda gönderilen isteklerde görülebilir.
 
 ## 5.3.0 — OpenRouter bağlantı ve ücretsiz model hata düzeltmeleri
 
