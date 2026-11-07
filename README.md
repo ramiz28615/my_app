@@ -1,16 +1,16 @@
-# Dimensia AI Workspace 6.0.1 · Chat + Website Studio
+# Dimensia AI Workspace 6.0.2 · Chat + Website Studio
 
 **AI destekli HTML/CSS/JavaScript oluştur, düzenle, önizle ve GitHub Pages'e yayınla.** Bu sürüm, kişisel deneyler ve statik web projeleri için çalışan açık kaynaklı bir stüdyodur. Bir SaaS platformunun tüm kurumsal özelliklerini veya dünya sıralamasında üstünlüğü iddia etmez.
 
 | | Bağlantı |
 |---|---|
-| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=6.0.1#home |
+| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=6.0.2#home |
 | **Gerçek yayınlanmış örnek** | https://ramiz28615.github.io/my_app/sites/aurora-demo/ |
 | **Örneğin kaynak kodu** | https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html |
 | **Otomatik testler** | https://github.com/ramiz28615/my_app/actions |
 
 
-## 6.0.1 — Sohbet odaklı yeni ana ekran
+## 6.0.2 — Sohbet odaklı yeni ana ekran
 
 Abacus AI ChatLLM'nin sohbet-öncelikli etkileşim akışından esinlenilmiş, ancak görsel marka, kod ve bileşenleri kendine özgü **Dimensia AI** ana ekranı.
 
@@ -25,7 +25,7 @@ Abacus AI ChatLLM'nin sohbet-öncelikli etkileşim akışından esinlenilmiş, a
 
 ### Kullanım
 
-1. **Canlı uygulama:** https://ramiz28615.github.io/my_app/?v=6.0.1#home
+1. **Canlı uygulama:** https://ramiz28615.github.io/my_app/?v=6.0.2#home
 2. **Ayarlar & Kurulum:** OpenRouter API anahtarını sadece uygulamadaki alana kendin gir. Sohbete veya GitHub'a ekleme. Önceden bir yerde paylaşılmış anahtarını iptal edip yenisini oluştur.
 3. **Ana ekran:** Yeni sohbet aç, ücretsiz model durumunu kontrol et ve isteğini yaz. Enter gönderir, Shift+Enter yeni satır açar.
 4. **Site oluştur:** Mesaj kutusu altındaki "Site oluştur" seçeneğine geç, siteni tarif et ve mesajı gönder. Sonucu sağdaki önizlemede incele.
