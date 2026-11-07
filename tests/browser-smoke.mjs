@@ -325,7 +325,7 @@ try{
 
  // Polyglot multi-file workspace (real execution covered in tests/polyglot.test.mjs).
  await page.locator('#dimensiaPolyglot').waitFor({timeout:12000});
- assert.equal(await page.locator('#polyFiles .poly-file').count(),8,'Polyglot workspace must expose eight editable source files');
+ assert.equal(await page.locator('#polyFiles .poly-file').count(),9,'Polyglot workspace must expose nine editable project files');
  assert.ok((await page.locator('#polyEditor').inputValue()).includes('print('),'Python source must not be wiped on initial loading');
  await page.locator('#polyFiles button[data-language="perl"]').click();
  assert.ok((await page.locator('#polyEditor').inputValue()).includes('use strict'),'Perl source example should be editable');
@@ -348,6 +348,23 @@ try{
  checkNoErrors('Polyglot frontend');
  log('Polyglot frontend','Python Perl JS editing, file state, merged HTML preview and consent safety passed');
 
+ // Shared nine-file input and explicit local browser-only draft.
+ await page.locator('#polyFiles button[data-language="shared"]').click();
+ await page.locator('#polyEditor').fill('2 4 6');
+ assert.equal(await page.evaluate(()=>window.DimensiaPolyglot.getFiles().shared),'2 4 6');
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#polyDraftSave').click();
+ await page.waitForFunction(()=>!!localStorage.getItem('dimensia-polyglot-local-draft-v1'),{timeout:5000});
+ await page.locator('#polyEditor').fill('1 1 1');
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#polyDraftOpen').click();
+ assert.equal(await page.locator('#polyEditor').inputValue(),'2 4 6');
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#polyDraftDelete').click();
+ assert.equal(await page.evaluate(()=>localStorage.getItem('dimensia-polyglot-local-draft-v1')),null);
+ checkNoErrors('Polyglot shared input and local draft');
+ log('Polyglot local draft','nine-file shared input and browser-only save restore delete passed');
+
  const originalPolyFiles=await page.evaluate(()=>window.DimensiaPolyglot.getFiles());
  assert.ok(originalPolyFiles.javascript.includes('POLYGLOT_JAVASCRIPT_E2E'));
  await page.locator('#polyFiles button[data-language="python"]').click();
@@ -357,6 +374,7 @@ try{
   python:'print("RESTORED_PYTHON_E2E")',
   perl:'use strict;\nprint "RESTORED_PERL_E2E\\n";'
  }};
+ delete snapshot.files.shared; // Backwards compatible with old eight-file backups.
  page.once('dialog',dialog=>dialog.accept());
  await page.locator('#polyRestoreFile').setInputFiles({
   name:'dimensia-demo.json',mimeType:'application/json',
@@ -372,7 +390,7 @@ try{
  await page.locator('#labEditor').fill('print("CODE_LAB_SYNC_E2E")');
  assert.ok((await page.locator('#polyEditor').inputValue()).includes('CODE_LAB_SYNC_E2E'),'Legacy Code Lab edits must sync unified workspace');
  checkNoErrors('Polyglot backup and sync');
- log('Polyglot backup','eight-file JSON import and bidirectional Code Lab synchronization passed');
+ log('Polyglot backup','nine-file JSON import and bidirectional Code Lab synchronization passed');
 
 
  // Browser-to-GitHub integration: mock public source uploads, workflow_dispatch,
@@ -416,8 +434,9 @@ try{
  page.once('dialog',dialog=>dialog.accept());
  await page.locator('#polyCloud').click();
  await page.waitForFunction(()=>window.DimensiaPolyglot.getState().reportReady,{timeout:30000});
- assert.equal(cloudUploads.length,8,'Cloud runner must upload all eight editable source files');
+ assert.equal(cloudUploads.length,9,'Cloud runner must upload all nine editable project files');
  assert.ok(cloudUploads.some(x=>x.path.endsWith('/perl/main.pl')),'Perl file should be uploaded');
+ assert.ok(cloudUploads.some(x=>x.path.endsWith('/shared/numbers.txt')),'Shared input must be uploaded');
  assert.equal(cloudDispatch.ref,'main');
  assert.match(cloudDispatch.inputs.run_id,/^r[a-z0-9]{9,35}$/);
  assert.equal(await page.evaluate(()=>window.DimensiaPolyglot.getState().results.perl.status),'passed');
@@ -427,7 +446,7 @@ try{
  assert.ok(!JSON.stringify(await page.evaluate(()=>Object.values(localStorage).join(' '))).includes('github_pat_'),'Cloud token must not persist');
  await page.locator('#launchTokenForget').click();
  checkNoErrors('Polyglot Cloud API');
- log('Polyglot cloud','8 GitHub file uploads, workflow_dispatch, seven real-format results and stdout drill-down passed');
+ log('Polyglot cloud','9 GitHub file uploads, workflow_dispatch, seven real-format results and stdout drill-down passed');
 
 
 
