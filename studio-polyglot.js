@@ -179,6 +179,20 @@ function setupResults(){
   b.append(name,state);b.onclick=()=>selectResult(key);root.append(b);
  }
  selectResult(selected);
+ renderContract();
+}
+function renderContract(){
+ const node=$('polyContract');if(!node)return;
+ const stats=report?.sharedContract;
+ if(!stats){
+  node.textContent='Ortak veri: numbers.txt içindeki sayılar Python, Rust, Bash, Perl ve JavaScript tarafından okunur. Bulut testi sonrası sonuçlar karşılaştırılır.';
+  node.classList.remove('is-error');return;
+ }
+ node.classList.toggle('is-error',Number(stats.mismatch)>0);
+ const expected=stats.expected;
+ node.textContent='Ortak girdi · beklenen '+(expected?'adet '+expected.count+' / toplam '+expected.sum:'hesaplanamadı')+
+  ' · eşleşen '+stats.matched+'/5 · farklı '+stats.mismatch+'/5'+
+  (stats.unreported?' · sonuç bildirmeyen '+stats.unreported:'');
 }
 function selectResult(key){
  if(!RESULTS.includes(key))return;
@@ -188,7 +202,9 @@ function selectResult(key){
  $('polyOutputStatus').textContent=r?r.status+(Number.isFinite(r.durationMs)?' · '+r.durationMs+' ms':''):'bekliyor';
  if(!r){$('polyOutput').textContent='Çalıştırma başladığında bu dilin stdout/stderr çıktısı ve derleme sonuçları burada görünür.';return}
  const steps=(r.steps||[]).map(x=>x.step+' → '+x.status+' (exit '+x.exitCode+', '+x.ms+' ms)').join('\n');
- $('polyOutput').textContent='Durum: '+r.status+'\n'+steps+
+ const contract=r.contract;
+ const info=contract?.status?'\nOrtak veri: '+contract.status+(contract.expected?' · beklenen '+JSON.stringify(contract.expected):'')+(contract.actual?' · gerçek '+JSON.stringify(contract.actual):'')+'\n':'';
+ $('polyOutput').textContent='Durum: '+r.status+'\n'+steps+info+
   '\n\nSTDOUT\n'+(r.stdout||'(boş)')+'\n\nSTDERR\n'+(r.stderr||'(boş)');
 }
 function makeId(){
@@ -196,9 +212,20 @@ function makeId(){
  if(typeof crypto!=='undefined'&&crypto.getRandomValues)crypto.getRandomValues(array);else for(let i=0;i<array.length;i++)array[i]=Math.floor(Math.random()*256);
  return 'r'+Array.from(array,x=>(x%36).toString(36)).join('');
 }
+function validateSharedInput(source){
+ const text=String(source||'').trim();
+ if(!text||text.length>10000)throw Error('Ortak veri 1–100 sayılık, en fazla 10 KB bir dosya olmalı.');
+ const pieces=text.split(/\s+/);
+ if(pieces.length>100||pieces.some(x=>!/^-?\d{1,6}$/.test(x)))throw Error('Ortak veriye sadece en fazla 100 tam sayı yaz (her biri en çok 6 basamak).');
+ const nums=pieces.map(Number);
+ const sum=nums.reduce((a,b)=>a+b,0);
+ if(!Number.isSafeInteger(sum))throw Error('Ortak veri toplamı güvenli sayı aralığını aştı.');
+ return{count:nums.length,sum};
+}
 function collectFiles(){
  syncCurrent();
  const all=lab().getFiles();
+ validateSharedInput(files.shared);
  for(const x of SPECS){const val=files[x.key];if(typeof val!=='string'||new TextEncoder().encode(val).length>100000)throw Error(x.file+' en fazla 100 KB olabilir.');if(secret(val))throw Error(x.file+' gizli API anahtarı içeriyor olabilir; GitHub’a yüklenmedi.');all[x.key]=val}
  return all;
 }
@@ -242,7 +269,7 @@ async function runAll(){
    catch(e){if(/403|429|forbidden|rate.limit/i.test(String(e.message)))throw e;continue}
    if(fetched){
     report=fetched;showStep(3);setupResults();
-    message('✓ Gerçek bulut raporu geldi: '+report.passed+'/'+report.total+' iş başarılı, '+report.failed+' başarısız. Web ve React Native yalnızca yapısal kontroldür.',report.failed>0);
+    message('✓ Bulut raporu: '+report.passed+'/'+report.total+' başarılı · ortak veri eşleşmesi '+(report.sharedContract?.matched??'—')+'/5 · uyuşmazlık '+(report.sharedContract?.mismatch??'—')+'. Web ve React Native yalnızca yapısal kontroldür.',report.failed>0||(report.sharedContract?.mismatch||0)>0);
     $('polyReportDownload').disabled=false;
     return;
    }
