@@ -170,8 +170,9 @@ function renderMessages(){
 function renderArtifact(){
  const available=!!artifact&&artifactChat===active;
  $('dhArtifact').hidden=!available;$('dhMain').classList.toggle('has-artifact',available);
- if(available){$('dhArtifactName').textContent=artifact.name+' · '+Math.ceil(artifact.html.length/1024)+' KB';$('dhPreview').srcdoc=artifact.html}
+ if(available){$('dhArtifactName').textContent=artifact.name+' · '+Math.ceil(artifact.html.length/1024)+' KB';$('dhPreview').srcdoc=window.DimensiaDevTools?.instrument?.(artifact.html)??artifact.html}
  else $('dhPreview').removeAttribute('srcdoc');
+ document.dispatchEvent(new CustomEvent('dimensia:chat-artifact-change',{detail:{id:available?artifactChat:'',available,html:available?artifact.html:'',name:available?artifact.name:''}}));
 }
 function showPreview(){if(!artifact)return;renderArtifact();$('dhArtifact').scrollIntoView({behavior:'smooth',block:'nearest'})}
 function renderAttachment(){
@@ -282,7 +283,7 @@ $('dhSuggestions').querySelectorAll('[data-dh-suggest]').forEach(btn=>btn.onclic
 $('dhDesktop').onclick=()=>$('dhFrameWrap').dataset.preview='desktop';
 $('dhMobile').onclick=()=>$('dhFrameWrap').dataset.preview='mobile';
 $('dhClosePreview').onclick=()=>{$('dhArtifact').hidden=true;$('dhMain').classList.remove('has-artifact')};
-$('dhEdit').onclick=()=>openStudio('code');
+$('dhEdit').onclick=()=>{if(window.DimensiaChatEditor?.open)window.DimensiaChatEditor.open();else openStudio('code')};
 $('dhSave').onclick=()=>{if(!artifact)return;$('saveProject')?.click();alertUser('Proje kaydetme işlemi Studio üzerinden gerçekleştirildi.')};
 $('dhDownload').onclick=()=>{
  if(!artifact)return;const u=URL.createObjectURL(new Blob([artifact.html],{type:'text/html;charset=utf-8'}));
@@ -298,5 +299,20 @@ new MutationObserver(syncPage).observe(home,{attributes:true,attributeFilter:['c
 document.querySelectorAll('[data-nav]').forEach(el=>el.addEventListener('click',()=>requestAnimationFrame(syncPage)));
 document.addEventListener('dimensia:openrouter-status',updateProvider);
 chats=restore();active=chats[0]?.id||'';renderHistory();renderMessages();renderArtifact();renderAttachment();setMode('chat');syncPage();
-window.DimensiaChatHub={newChat,send,setMode,getState:()=>({active,mode,pending,hasArtifact:!!artifact}),getChats:()=>chats.map(s=>({id:s.id,title:s.title,count:s.messages.length}))};
+function updateArtifact(html){
+ if(!artifact||artifactChat!==active)throw Error('Düzenlenecek etkin site bulunamadı.');
+ if(typeof html!=='string'||html.length<45||html.length>650000||!/<html\b/i.test(html)||!/<\/html>/i.test(html))throw Error('Kaynak en fazla 650 KB boyutlu ve tam HTML dokümanı olmalı.');
+ if(unsafe(html))throw Error('HTML içinde olası bir gizli API anahtarı bulundu. Kaydetmeden önce kaldır.');
+ artifact={...artifact,html};
+ showHTML(html,artifact.name);
+ renderArtifact();
+ return artifact.html;
+}
+window.DimensiaChatHub={
+ newChat,send,setMode,
+ getState:()=>({active,mode,pending,hasArtifact:!!artifact&&artifactChat===active}),
+ getChats:()=>chats.map(s=>({id:s.id,title:s.title,count:s.messages.length})),
+ getArtifact:()=>artifact&&artifactChat===active?{html:artifact.html,name:artifact.name,id:artifactChat}:null,
+ updateArtifact,openStudio
+};
 })();
