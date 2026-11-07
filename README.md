@@ -1,14 +1,45 @@
-# Dimensia AI Workspace 6.1.0 · Chat + Website Studio + Canlı Kod Editörü
+# Dimensia AI Workspace 7.0 · Chat + Çok Dilli Kod Çalışma Alanı
 
 **AI destekli HTML/CSS/JavaScript oluştur, düzenle, önizle ve GitHub Pages'e yayınla.** Bu sürüm, kişisel deneyler ve statik web projeleri için çalışan açık kaynaklı bir stüdyodur. Bir SaaS platformunun tüm kurumsal özelliklerini veya dünya sıralamasında üstünlüğü iddia etmez.
 
 | | Bağlantı |
 |---|---|
-| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=6.1.0#home |
+| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=7.0.0#home |
 | **Gerçek yayınlanmış örnek** | https://ramiz28615.github.io/my_app/sites/aurora-demo/ |
 | **Örneğin kaynak kodu** | https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html |
 | **Otomatik testler** | https://github.com/ramiz28615/my_app/actions |
 
+
+## 7.0 — Python, Rust, Bash, Perl ve JavaScript bulut çalıştırma
+
+**Durum:** Aynı proje altında HTML, CSS, JavaScript, Python, Rust, Bash/SH, Perl ve React Native kaynak dosyaları ayrı ayrı düzenlenir. Sekmeler arasında geçildiğinde düzenlemeler korunur. "⚡ Çoklu Diller" tek editörde çalışır.
+
+### Dil bazında destek
+
+| Dil | Editör | Gerçek çalışma |
+|---|---|---|
+| HTML / CSS | Evet | Tarayıcıda canlı önizleme; Actions'da yapısal kontrol |
+| JavaScript | Evet | İzole tarayıcı iframe ve GitHub Actions Node.js 22 |
+| Python 3 | Evet | İsteğe bağlı Pyodide tarayıcı motoru, ayrıca GitHub Actions Python 3 |
+| Rust | Evet | GitHub Actions Ubuntu ortamında rustc ile derleme ve çalıştırma |
+| Bash / SH | Evet | GitHub Actions Ubuntu ortamında Bash kontrolü ve çalıştırma |
+| Perl | Evet | GitHub Actions Ubuntu ortamında Perl sözdizimi kontrolü ve çalıştırma |
+| React Native | Evet | Expo proje yapısı kontrolü; APK üretimi **yok** |
+
+### 7 sonuçlu bulut çalıştırma
+
+1. **AI Website Studio → ⚡ Çoklu Diller** alanını aç; proje içinde index.html, style.css, main.js, main.py, main.rs, main.sh, main.pl ve App.js kaynaklarını düzenle.
+2. **◎ HTML/CSS/JS Önizle** ile HTML/CSS/JS kaynaklarını birleştirip izole tarayıcı iframe'inde çalıştır. Rust/Perl/Bash burada tarayıcıda çalışmaz.
+3. **GitHub Launchpad** bölümüne kendi GitHub hesabındaki public depoya özel bir Fine-grained token gir. Gerekli izinler: Contents: Read and write, Actions: Read and write. Token kodlara veya localStorage'a yazılmaz.
+4. **▶ Tüm Dilleri Çalıştır** düğmesinden önce herkese açık kaynak kodu yükleme onayını açıkça işaretle ve GitHub'a yazmayı ayrıca onayla. 8 dosya code-lab altına kaydedilir; kodlar **public depoda görülebilir**.
+5. GitHub Actions polyglot-execute.yml workflow_dispatch üzerinden 7 ayrı Ubuntu görevi başlatır. JavaScript, Python, Rust, Bash ve Perl gerçek çalıştırılır; HTML/CSS ile React Native yapısal kontrolü yapılır. Kod çalıştıran görevlerde repository write tokeni yoktur.
+6. Ayrı bir collector JSON sonuçlarını birleştirip code-lab/reports/r....json dosyasına yazar. Bu sonuçlar herkese açıktır. Site bu dosyaları okuyarak exit kodlarını, stdout/stderr, hataları ve işlem sürelerini ayrı ayrı gösterir.
+
+**Güvenlik:** GitHub-hosted runner çok kullanıcılı tam korumalı sandbox değildir. Kodlar internete erişebilir. Gizli anahtar, şifre, özel dosya veya hassas içerik yükleme; yaygın token kalıpları taransa da her sırrın bulunacağı garanti edilemez. GitHub Actions ücretsiz kota/sınırlarına tabidir. AI ile otomatik çok dosyalı üretim isteğe bağlı OpenRouter ücretsiz modele bağlıdır.
+
+**Kapsam:** Tek dosyalık Python/Rust/Bash/Perl/Node örnekleri gerçek derleme/çalıştırma kullanır. Karmaşık full-stack projelerin paket yöneticileri, veri tabanı ve kalıcı sunucu gereksinimleri ayrıca yapılandırılmalıdır. React Native APK'sı bu sürümde derlenmez.
+
+**Canlı bağlantı:** https://ramiz28615.github.io/my_app/?v=7.0.0#studio
 
 ## 6.1.0 — Sohbette çalıştırılabilir site önizleme ve kaynak kod düzenleme
 
@@ -21,7 +52,7 @@
 - **Mobil:** 390 piksel telefonlarda kod düzenleme ve önizleme dikey yerleşimle sunulur. Masaüstü geniş ekranlarda önizleme ve kod paneli yan yana açılır.
 - **Sınır:** GitHub Pages PHP, Python, Rust backend veya React Native APK çalıştırmaz. Burada çalışan kod tarayıcı HTML/CSS/JS'dir. Gerçek backend için uygun bir sunucu gerekir. Harici sitelerin CORS/giriş/sunucu kodları otomatik kopyalanmaz.
 
-**Kullanım:** https://ramiz28615.github.io/my_app/?v=6.1.0#home adresini aç → Ayarlar'da OpenRouter'ı bağla → **Site oluştur** modunda isteğini yaz → oluşturulan sitenin **Canlı önizleme** panelinde **⌘ Kodu düzenle** butonunu kullan → HTML/CSS/JS'yi değiştir → **▶ Çalıştır ve önizle** → butonlara tıkla, konsolu kontrol et → **Kaydet** veya **Yayınla**.
+**Kullanım:** https://ramiz28615.github.io/my_app/?v=7.0.0#home adresini aç → Ayarlar'da OpenRouter'ı bağla → **Site oluştur** modunda isteğini yaz → oluşturulan sitenin **Canlı önizleme** panelinde **⌘ Kodu düzenle** butonunu kullan → HTML/CSS/JS'yi değiştir → **▶ Çalıştır ve önizle** → butonlara tıkla, konsolu kontrol et → **Kaydet** veya **Yayınla**.
 
 ## 6.0.2 — Sohbet odaklı yeni ana ekran
 
