@@ -1,0 +1,44 @@
+name: Code Lab Multi-language Checks
+on:
+  push:
+    branches: [main]
+    paths:
+      - "code-lab/**"
+      - ".github/workflows/polyglot-check.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: JavaScript syntax and example
+        run: |
+          node --check code-lab/javascript/main.js
+          node code-lab/javascript/main.js
+      - name: Python compile and example
+        run: |
+          python3 -m py_compile code-lab/python/main.py
+          python3 code-lab/python/main.py
+      - name: Rust compile and example
+        run: |
+          rustc --edition=2021 code-lab/rust/main.rs -o /tmp/dimensia-rust-example
+          /tmp/dimensia-rust-example
+      - name: POSIX shell syntax and example
+        run: |
+          sh -n code-lab/bash/main.sh
+          sh code-lab/bash/main.sh
+      - name: HTML and CSS file checks
+        run: |
+          test -s code-lab/html/index.html
+          test -s code-lab/css/style.css
+      - name: React Native scaffold check
+        run: |
+          node -e "const p=require('./code-lab/reactnative/package.json'); if(!p.dependencies.expo||!p.dependencies['react-native'])process.exit(1); console.log('Expo / React Native dependencies declared')"
+          test -s code-lab/reactnative/App.js
+          echo "React Native JSX is not compiled here. Use Expo or EAS Build for a real Android/iOS build."
