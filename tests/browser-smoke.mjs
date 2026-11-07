@@ -348,6 +348,33 @@ try{
  checkNoErrors('Polyglot frontend');
  log('Polyglot frontend','Python Perl JS editing, file state, merged HTML preview and consent safety passed');
 
+ const originalPolyFiles=await page.evaluate(()=>window.DimensiaPolyglot.getFiles());
+ assert.ok(originalPolyFiles.javascript.includes('POLYGLOT_JAVASCRIPT_E2E'));
+ await page.locator('#polyFiles button[data-language="python"]').click();
+ await page.locator('#polyEditor').fill('print("TEMPORARY CODE BEFORE RESTORE")');
+ const snapshot={schema:'dimensia-multilang-project-v1',files:{
+  ...originalPolyFiles,
+  python:'print("RESTORED_PYTHON_E2E")',
+  perl:'use strict;\nprint "RESTORED_PERL_E2E\\n";'
+ }};
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#polyRestoreFile').setInputFiles({
+  name:'dimensia-demo.json',mimeType:'application/json',
+  buffer:Buffer.from(JSON.stringify(snapshot),'utf8')
+ });
+ await page.waitForFunction(()=>document.querySelector('#polyRunText')?.textContent.includes('Proje yedeği yüklendi'),{timeout:7000});
+ const restored=await page.evaluate(()=>window.DimensiaPolyglot.getFiles());
+ assert.ok(restored.python.includes('RESTORED_PYTHON_E2E'),'Backup restores Python');
+ assert.ok(restored.perl.includes('RESTORED_PERL_E2E'),'Backup restores Perl');
+ assert.ok((await page.locator('#labMenu [data-lang="python"]').count())===1);
+ await page.locator('#labMenu [data-lang="python"]').click();
+ assert.ok((await page.locator('#labEditor').inputValue()).includes('RESTORED_PYTHON_E2E'),'Polyglot backup must sync legacy Code Lab');
+ await page.locator('#labEditor').fill('print("CODE_LAB_SYNC_E2E")');
+ assert.ok((await page.locator('#polyEditor').inputValue()).includes('CODE_LAB_SYNC_E2E'),'Legacy Code Lab edits must sync unified workspace');
+ checkNoErrors('Polyglot backup and sync');
+ log('Polyglot backup','eight-file JSON import and bidirectional Code Lab synchronization passed');
+
+
  // Browser-to-GitHub integration: mock public source uploads, workflow_dispatch,
  // and a real-format report without exposing any user token.
  let cloudDispatch=null;
