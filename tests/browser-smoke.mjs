@@ -167,11 +167,12 @@ try{
  const previewSite=await page.locator('#launchPreviewFrame').getAttribute('srcdoc');
  assert.ok(previewSite.includes('Düzenlenmiş Buton'),'Launchpad preview must reflect current generated HTML');
  const ghWrites=[];
+ const ghNativeRuns=[];
  let fileExists=false;
  const cors={
    'Access-Control-Allow-Origin':'*',
    'Access-Control-Allow-Headers':'Authorization,Content-Type,Accept,X-GitHub-Api-Version',
-   'Access-Control-Allow-Methods':'GET,PUT,OPTIONS'
+   'Access-Control-Allow-Methods':'GET,PUT,POST,OPTIONS'
  };
  await page.route('https://api.github.com/**',async route=>{
    const req=route.request(),u=new URL(req.url()),method=req.method();
@@ -192,6 +193,13 @@ try{
      }
    }
    if(u.pathname==='/repos/ramiz28615/my_app/contents/sites'&&method==='GET')return reply(200,[{name:'e2e-lansman',type:'dir'},{name:'aurora-demo',type:'dir'}]);
+   if(u.pathname==='/repos/ramiz28615/my_app/actions/workflows/native-apk-build.yml/dispatches'&&method==='POST'){
+    ghNativeRuns.push(req.postDataJSON());return route.fulfill({status:204,headers:cors});
+   }
+   if(u.pathname==='/repos/ramiz28615/my_app/actions/workflows/native-apk-build.yml/runs'&&method==='GET')
+    return reply(200,{workflow_runs:[{id:8765,display_title:'Dimensia APK a0123456789abcd',created_at:new Date().toISOString(),status:'completed',conclusion:'success'}]});
+   if(u.pathname==='/repos/ramiz28615/my_app/actions/runs/8765/artifacts')
+    return reply(200,{artifacts:[{id:4567,name:'dimensia-apk-a0123456789abcd',expired:false,size_in_bytes:12345678}]});
    if(u.pathname==='/repos/ramiz28615/my_app/actions/runs')return reply(200,{workflow_runs:[{name:'Deploy Dimensia Studio to GitHub Pages',path:'.github/workflows/deploy.yml',status:'completed',conclusion:'success',html_url:'https://github.com/ramiz28615/my_app/actions/runs/123'}]});
    return reply(404,{message:'Not Found'});
  });
@@ -216,6 +224,25 @@ try{
  await page.waitForFunction(()=>document.querySelector('#launchFeedback')?.textContent.includes('GitHub Pages dağıtımı başarılı'));
  checkNoErrors('Launchpad initial publish');
  log('Launchpad publish','GitHub API create, live link, deployment status passed');
+
+ // GitHub APK dispatch + status + artifact retrieval use the existing in-memory token.
+ const apiBuild=await page.evaluate(async()=>{
+  const runner=window.DimensiaLaunchpad;
+  const source=btoa('import React from "react";\nexport default function App(){return null;}');
+  const task=await runner.startNativeApkBuild({
+   id:'a0123456789abcd',appB64:source,language:'jsx',
+   name:'Uygulamam',androidPackage:'com.dimensia.e2e'
+  });
+  return {task,report:await runner.fetchNativeApkBuild(task)};
+ });
+ assert.equal(ghNativeRuns.length,1,'Approved build dispatch should send exactly one cloud job request');
+ assert.equal(ghNativeRuns[0].inputs.build_id,'a0123456789abcd');
+ assert.equal(ghNativeRuns[0].inputs.app_name,'Uygulamam');
+ assert.equal(apiBuild.report.state,'success');
+ assert.ok(apiBuild.report.downloadUrl.includes('/actions/runs/8765/artifacts/4567'));
+ assert.equal(ghWrites.length,1,'APK dispatch must not write app source into repository files');
+ log('Native APK GitHub API','workflow dispatch, status discovery and artifact link via session-only GitHub token passed');
+
 
  await page.locator('#launchPublish').click();
  await page.waitForFunction(()=>document.querySelector('#launchFeedback')?.textContent.includes('HTML GitHub’a kaydedildi')&&document.querySelector('#launchFeedback')?.textContent.includes('Yayın Durumunu'),{timeout:11000});
