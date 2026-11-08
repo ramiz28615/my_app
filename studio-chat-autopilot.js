@@ -86,7 +86,10 @@ function prepare(kind){
  const mode=kind==='app'?'native':'build';
  hub.setMode(mode);
  const input=$('dhInput');input.value=suggestions[kind];input.focus();
- setStatus(mode==='native'?'Mobil uygulama istemi hazır; gönderince AI App.js oluşturacak.':'Web sitesi istemi hazır; gönderince AI canlı önizleme hazırlayacak.');
+ if(window.DimensiaOpenRouter?.hasKey?.()){
+  setStatus('AI üretimi başlatıldı. İlgili proje sohbetinde oluşturulacak.');
+  void hub.send();
+ }else setStatus('AI üretimi için önce OpenRouter anahtarını bağla. İstek metnin korunuyor.');
 }
 function execute(action){
  const key=String(action||'');
@@ -107,14 +110,17 @@ function execute(action){
   return{message:'Web sitenin HTML dosyasının indirilmesi başlatıldı.',actions:['preview']}
  }
  if(key==='native'||key==='apkguide'||key==='zip'){
-  window.DimensiaNativeStudio?.open?.();setStatus('Mobil uygulama projesi ve APK adımları açıldı.');
+  hub.setMode('native');window.DimensiaNativeStudio?.open?.();setStatus('Mobil uygulama projesi ve APK adımları açıldı.');
   if(key==='zip')window.DimensiaNativeStudio?.exportZIP?.();
   return{message:key==='zip'?'Mobil proje ZIP paketi hazırlama/indirme işlemi başlatıldı. APK için Colab’da derleme yapmalısın.':
    'APK derlemesi Google Colab’da, senin onayınla yapılır. Mobil editörde kaynakları hazırla, ZIP indir, Colab’a yükleyip derle.',
    actions:['native','zip','colab']}
  }
  if(key==='colab'){
-  window.DimensiaNativeStudio?.open?.();setStatus('Colab derleyici bağlantısını açabilirsin; ZIP dosyanı yüklemen gerekir.');
+  window.DimensiaNativeStudio?.open?.();
+  const url=window.DimensiaNativeStudio?.colabUrl;
+  if(url)window.open(url,'_blank','noopener,noreferrer');
+  setStatus('Google Colab not defteri açıldı. ZIP dosyanı oraya yüklemen gerekir.');
   // Do not claim a build or silently send code to Colab.
   return{message:'Google Colab Android derleyicisi hazır. ZIP dosyanı indir, Colab bağlantısını aç, yükle ve hücreleri çalıştır. Derleme Colab kaynaklarına bağlıdır.',actions:['zip','colab']}
  }
