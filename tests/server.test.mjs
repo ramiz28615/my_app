@@ -156,7 +156,7 @@ test('Chat-first homepage remains separate from legacy Studio without storing an
  for(const id of ['dimensiaChatHub','dhConversation','dhInput','dhSend','dhNewSide','dhHistory','dhModeBuild','dhPreview','dhSave','dhPublish']){
   assert.ok(chat.includes(id),'Missing chat feature '+id);
  }
- assert.ok(chat.includes('window.DimensiaOpenRouter.ask'),'Chat must use the established provider');
+ assert.ok(chat.includes('provider.askDetailed')&&reference.includes('askDetailed'),'Chat must use the established OpenRouter provider with finish-reason metadata');
  assert.ok(chat.includes('sandbox="allow-scripts allow-forms"'),'Generated HTML must use sandboxed preview');
  assert.ok(css.includes('body.dh-home-active .main-content'),'Chat should replace homepage styling only');
  assert.ok(css.includes('.dh-shell [hidden]'),'Hidden state must be respected');
