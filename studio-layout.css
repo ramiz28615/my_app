@@ -1,0 +1,60 @@
+
+/* Dimensia 8.1: adjustable layouts on desktop + Android, without leaking into page previews */
+.dwp-bar{display:flex;flex-direction:column;gap:8px;padding:10px 12px;background:#131f2e;border-bottom:1px solid #405369;color:#deeff7}
+.dwp-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.dwp-title strong{font-size:11px;letter-spacing:.6px}
+.dwp-title small{font-size:10px;color:#a3e2d4;overflow-wrap:anywhere;flex:1;min-width:165px}
+.dwp-controls{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.dwp-controls .dwp-label{font-size:10px;color:#c5d5e8}
+.dwp-controls select{background:#0c1929;color:#e7f7ff;border:1px solid #67829a;border-radius:8px;padding:8px;min-width:140px;max-width:280px;flex:1 1 165px;font-size:12px}
+.dwp-controls button{font-size:10px!important;background:#263a53;border:1px solid #59718a;color:#e4f2ff;padding:8px 9px;border-radius:8px}
+.dwp-controls button:hover{background:#37516d}
+.dwp-controls button:disabled{opacity:.5}
+#dwpQuickOpen{max-width:170px;overflow:hidden;text-overflow:ellipsis}
+#dhrPanel{height:var(--dl-runner-height,580px)!important;max-height:min(92dvh,980px);flex:0 0 auto!important}
+#dhrEditor{height:var(--dl-editor-height,150px)!important;flex:0 0 var(--dl-editor-height,150px)!important;min-height:90px!important;max-height:650px!important;resize:vertical!important}
+#dhrOutput{height:var(--dl-output-height,160px)!important;max-height:min(var(--dl-output-height,160px),550px)!important;min-height:55px!important;flex:0 0 auto!important;resize:vertical!important}
+#dlChatSplit{display:none}
+.dl-grip{flex:0 0 12px;width:100%;border:0;background:repeating-linear-gradient(90deg,#40516b 0 3px,transparent 3px 8px) center/56px 3px no-repeat #15263a;cursor:ns-resize;touch-action:none;display:block;border-block:1px solid #42506b}
+.dl-grip:hover,.dl-grip:focus-visible{background-color:#385675;outline:2px solid #a4decf;outline-offset:-2px}
+#dcePanel .dce-editor-wrap{flex:0 0 var(--dl-web-editor-height,280px)!important;height:var(--dl-web-editor-height,280px)!important;min-height:160px!important;max-height:850px!important}
+#dcePanel .dce-console{min-height:70px!important;max-height:var(--dl-js-console-height,170px)!important;height:var(--dl-js-console-height,170px)!important;flex:0 0 auto;resize:vertical}
+#dimensiaPolyglot #polyEditor{min-height:var(--dl-poly-editor-height,360px)!important;height:var(--dl-poly-editor-height,360px)!important;flex:0 0 var(--dl-poly-editor-height,360px)!important}
+#siteFrame{min-height:var(--dl-studio-preview-height,400px)!important;height:var(--dl-studio-preview-height,400px)!important}
+@media(min-width:821px){
+ body .sidebar{width:var(--dl-sidebar-width,254px)!important;flex:0 0 var(--dl-sidebar-width,254px)!important}
+ body .dh-main.has-artifact{display:grid!important;grid-template-columns:minmax(0,1fr) 12px minmax(310px,var(--dl-preview-width,500px))!important}
+ body .dh-main.has-artifact #dlChatSplit{display:block;grid-column:2;grid-row:1;height:100%;width:12px;cursor:col-resize;touch-action:none;background:repeating-linear-gradient(0deg,#485c71 0 3px,transparent 3px 8px) center/3px 54px no-repeat #1c2534;border-inline:1px solid #465269}
+ body .dh-main.has-artifact .dh-artifact{grid-column:3;grid-row:1}
+ body .dh-main.has-artifact .dh-conversation{grid-column:1;grid-row:1}
+ body .dh-artifact.editor-open .dh-artifact-window{grid-template-columns:minmax(230px,var(--dl-web-code-width,380px)) minmax(210px,1fr)!important}
+}
+@media(max-width:820px){
+ body .dh-main.has-artifact{display:flex!important;flex-direction:column!important;overflow-y:auto!important}
+ body .dh-main.has-artifact #dlChatSplit{display:block;flex:0 0 13px;height:13px;width:100%;cursor:ns-resize;touch-action:none;background:repeating-linear-gradient(90deg,#566b7c 0 3px,transparent 3px 8px) center/66px 3px no-repeat #1c2534}
+ body .dh-main.has-artifact .dh-conversation{height:var(--dl-chat-height,490px)!important;flex:0 0 var(--dl-chat-height,490px)!important;min-height:300px!important}
+ body .dh-main.has-artifact .dh-artifact{height:auto!important;min-height:var(--dl-preview-height,420px)!important;flex:0 0 auto!important}
+ body .dh-main.has-artifact:not(.editor-open) .dh-artifact-window{height:var(--dl-preview-height,420px)!important;flex:0 0 var(--dl-preview-height,420px)!important}
+ body .dh-main.has-artifact.editor-open .dh-artifact-window{height:auto!important;min-height:calc(var(--dl-web-editor-height,280px) + var(--dl-preview-height,420px) + 270px)!important}
+ body .dh-main.has-artifact.editor-open .dce-panel{height:auto!important;min-height:calc(var(--dl-web-editor-height,280px) + var(--dl-js-console-height,170px) + 190px)!important;flex:0 0 auto!important}
+ body .dh-main.has-artifact.editor-open .dh-artifact-frame{flex:0 0 var(--dl-preview-height,420px)!important;min-height:var(--dl-preview-height,420px)!important}
+ .dwp-controls select{max-width:100%;flex-basis:100%}
+ .dwp-controls button{flex:1 1 auto}
+}
+/* Layout control, separate from the application's own sandboxed preview */
+.dl-toggle{border:1px solid #55506a;border-radius:9px;background:#29263b;color:#f3eaff;padding:8px 10px;font-size:11px;font-weight:750;white-space:nowrap;cursor:pointer}
+.dl-toggle:hover{background:#403555}
+#dlPanel{position:fixed;z-index:9999;top:12px;right:12px;width:min(380px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain;box-shadow:0 20px 90px #000b;border-radius:17px;padding:15px;background:#111827;border:1px solid #526078;color:#eef5ff;font:12px/1.5 system-ui,sans-serif}
+#dlPanel[hidden]{display:none!important}
+#dlPanel *{box-sizing:border-box}
+#dlPanel header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+#dlPanel header strong{font-size:15px}
+#dlPanel button{background:#2c3c53;color:#eef6ff;border:1px solid #5b7489;border-radius:9px;padding:8px 10px;cursor:pointer}
+#dlPanel p{font-size:11px;color:#bbcbd6;line-height:1.6}
+.dl-settings{display:grid;gap:7px}
+.dl-setting{display:grid;gap:2px;padding:6px 8px;background:#1b2636;border:1px solid #3e5167;border-radius:9px}
+.dl-setting label{display:flex;justify-content:space-between;gap:8px;font-weight:650;font-size:11px}
+.dl-setting output{font:11px ui-monospace,monospace;color:#9de3d1}
+.dl-setting input[type=range]{width:100%;accent-color:#8dd5c2;touch-action:pan-y}
+.dl-bottom{display:flex;gap:8px;justify-content:space-between;margin-top:11px}
+@media(max-width:820px){#dlPanel{top:6px;right:6px;width:min(370px,calc(100vw - 12px));max-height:calc(100dvh - 12px)}.dl-toggle{padding:7px;font-size:10px}}

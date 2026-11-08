@@ -1,4 +1,4 @@
-/* Dimensia Chat Multi-Runner 8.0.2.
+/* Dimensia Chat Multi-Runner 8.1.0.
  * The frontend never executes Bash, Perl or PHP. User-approved snippets are sent
  * to a read-only GitHub Actions runner; public stdout/stderr returns to this chat.
  * Auto mode prepares/initiates approval, never silently runs generated code.
@@ -38,20 +38,23 @@ section.innerHTML=
  '<div class="dhr-top-actions"><button type="button" id="dhrGitHub" class="dhr-small">⚙ GitHub</button>'+
  '<button type="button" id="dhrClose" class="dhr-small" aria-label="Kod çalıştırma panelini kapat">✕</button></div></div>'+
  '<div id="dhrTabs" class="dhr-tabs" role="tablist" aria-label="Kodlama dili"></div>'+
- '<div class="dhr-editor-head"><span id="dhrFilename">main.py</span>'+
+ '<div class="dhr-editor-head"><span><b>⌘ Kod editörü</b> · <span id="dhrFilename">main.py</span></span>'+
  '<span id="dhrEditorCount">0 karakter</span></div>'+
  '<textarea id="dhrEditor" rows="6" spellcheck="false" wrap="off" autocorrect="off" autocomplete="off" autocapitalize="off" aria-label="Sohbette çalıştırılacak kodu düzenle" placeholder="Kodunu buraya yaz veya sohbet yanıtındaki Çalıştır düğmesine bas..."></textarea>'+
  '<div class="dhr-toolbar"><button type="button" class="dhr-primary" id="dhrRunOne">▶ Bu dili çalıştır</button>'+
  '<button type="button" class="dhr-primary dhr-all" id="dhrRunAll">⚡ Tüm dilleri birlikte çalıştır</button>'+
  '<button type="button" class="dhr-small" id="dhrExample">▣ 6 dil örneği</button>'+ 
  '<button type="button" class="dhr-small" id="dhrClear">⌫ Temizle</button>'+
- '<button type="button" class="dhr-small" id="dhrToLab">⌘ Kod Lab’a aktar</button></div>'+
+ '<button type="button" class="dhr-small" id="dhrToLab">⌘ Kod Lab’a aktar</button>'+ 
+  '<button type="button" class="dhr-small" id="dhrWrap" aria-pressed="false">↩ Satır kaydır</button></div>'+
  '<label class="dhr-auto"><input id="dhrAuto" type="checkbox">'+
  '<span>AI yeni kod yazdığında otomatik çalıştırma onayını sor</span></label>'+
  '<p class="dhr-warning">Güvenlik: Kodlar ve sonuçlar herkese açık GitHub Actions kayıtlarında görülebilir. Her çalıştırma için açık onay gerekir. Kod GitHub deposundaki mevcut dosyaların üstüne yazılmaz. Gizli bilgi ekleme.</p>'+
  '<div id="dhrStatus" class="dhr-status" role="status" aria-live="polite">Kodunu yaz, sonra Çalıştır’a bas. GitHub Launchpad bağlantısı gerekir.</div>'+
- '<div class="dhr-result-head"><strong>Çalıştırma sonuçları</strong>'+
- '<div><button type="button" id="dhrActions" class="dhr-small" disabled>↗ GitHub İşleri</button>'+
+ '<div class="dhr-result-head"><strong>⌁ Terminal çıktısı · stdout/stderr</strong>'+
+ '<div><button type="button" id="dhrTerminalCopy" class="dhr-small">⌑ Kopyala</button>'+ 
+  '<button type="button" id="dhrTerminalClear" class="dhr-small">⌫ Çıktıyı temizle</button>'+ 
+  '<button type="button" id="dhrActions" class="dhr-small" disabled>↗ GitHub İşleri</button>'+
  '<button type="button" id="dhrDownload" class="dhr-small" disabled>↓ Rapor</button></div></div>'+
  '<div id="dhrResultTabs" class="dhr-results" aria-label="Dil bazında çalışma sonuçları"></div>'+
  '<pre id="dhrOutput" class="dhr-output" aria-live="polite">Çalıştırma sonucu burada gösterilecek.</pre>';
@@ -89,6 +92,7 @@ const extract=text=>{
 function count(){
  $('dhrEditorCount').textContent=editor.value.length.toLocaleString('tr-TR')+' karakter';
 }
+function signalSources(){document.dispatchEvent(new CustomEvent('dimensia:runner-sources-changed',{detail:{sources:{...sources}}}));}
 function saveTab(){sources[current]=editor.value}
 function choose(lang){
  if(!CONFIG[lang])return;
@@ -150,7 +154,7 @@ function fill(request){
   b.setAttribute('aria-selected',String(b.dataset.dhrLang===current));
  });
  report=null;runTask=null;runId='';$('dhrActions').disabled=true;$('dhrDownload').disabled=true;
- count();renderResults();open();
+ count();renderResults();open();signalSources();
  status(provided.map(x=>CONFIG[x].name).join(', ')+' kodu hazır. Kodları kontrol edip çalıştırabilirsin.');
  return provided;
 }
@@ -247,8 +251,8 @@ $('dhrRunOne').onclick=()=>run('one');
 $('dhrRunAll').onclick=()=>run('all');
 $('dhrClear').onclick=()=>{
  if(busy)return;
- if(!confirm('Dört dilin geçici kod editörleri temizlensin mi?'))return;
- sources=empty();editor.value='';report=null;renderResults();count();status('Kod editörleri temizlendi.');
+ if(!confirm('Bu projedeki altı kod dosyasını temizlemek istediğine emin misin?'))return;
+ sources=empty();editor.value='';report=null;renderResults();count();signalSources();status('Kod editörleri temizlendi.');
 };
 $('dhrToLab').onclick=goToLab;
 $('dhrGitHub').onclick=navigateGitHub;
@@ -257,12 +261,15 @@ $('dhrActions').onclick=()=>{
   window.open(runTask.actionsUrl,'_blank','noopener,noreferrer');
 };
 $('dhrDownload').onclick=exportReport;
-editor.addEventListener('input',()=>{sources[current]=editor.value;count()});
+editor.addEventListener('input',()=>{sources[current]=editor.value;count();signalSources()});
 editor.addEventListener('keydown',event=>{
  if(event.key==='Tab'){event.preventDefault();const a=editor.selectionStart,b=editor.selectionEnd;
   editor.setRangeText('  ',a,b,'end');editor.dispatchEvent(new Event('input',{bubbles:true}))}
  if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){event.preventDefault();void run('one')}
 });
+$('dhrWrap').onclick=()=>{const wrap=editor.wrap==='off';editor.wrap=wrap?'soft':'off';$('dhrWrap').setAttribute('aria-pressed',String(wrap));$('dhrWrap').textContent=wrap?'↩ Satır kaydırma açık':'↩ Satır kaydır';};
+$('dhrTerminalCopy').onclick=async()=>{try{await navigator.clipboard.writeText($('dhrOutput').textContent||'');status('Terminal çıktısı kopyalandı.')}catch{status('Kopyalama engellendi; terminal metnini seçerek kopyalayabilirsin.',true)}};
+$('dhrTerminalClear').onclick=()=>{$('dhrOutput').textContent='Terminal görünümü temizlendi. Çalıştırma raporun dil sekmelerinde korunuyor.'};
 $('dhrAuto').onchange=()=>{
  const requested=$('dhrAuto').checked;
  if(requested&&!confirm('AI yeni Python/Bash/Perl/PHP/JavaScript/Rust kodu yazdığında bulut çalıştırma ONAYI otomatik sorulsun mu? Her işlem yine tek tek senin iznini gerektirir.'))$('dhrAuto').checked=false;
@@ -280,12 +287,27 @@ document.addEventListener('dimensia:chat-assistant-code',event=>{
   if(found.length)void run('all'); // confirm before ANY GitHub network submission
  }catch(e){status(e.message,true)}
 });
+function replaceSources(next,lang='python'){
+ if(busy)throw Error('Bulut çalıştırma sırasında proje değiştirilemez.');
+ const rebuilt=empty();
+ for(const key of LANGS){
+  const code=typeof next?.[key]==='string'?next[key]:'';
+  if(new TextEncoder().encode(code).length>10000)throw Error(CONFIG[key].file+' dosyası 10 KB sınırını aşıyor.');
+  rebuilt[key]=code;
+ }
+ sources=rebuilt;current=CONFIG[lang]?lang:'python';
+ editor.value=sources[current];$('dhrFilename').textContent=CONFIG[current].file;
+ section.querySelectorAll('[data-dhr-lang]').forEach(b=>{const selected=b.dataset.dhrLang===current;b.classList.toggle('active',selected);b.setAttribute('aria-selected',String(selected))});
+ report=null;runTask=null;runId='';$('dhrActions').disabled=true;$('dhrDownload').disabled=true;
+ count();renderResults();signalSources();
+ status('Proje kodları editöre yüklendi. Değiştirip seçtiğin dili çalıştırabilirsin.');
+}
 window.DimensiaChatRunner={
- open,fill,run,extract,
+ open,fill,run,extract,replaceSources,selectLanguage:choose,
  getState:()=>({busy,auto,current,hasReport:!!report,runId,sources:Object.fromEntries(LANGS.map(x=>[x,sources[x].length])),
   results:report?.results||null}),
  getSources:()=>({...sources}),
  load:(src)=>fill(src),
- reset:()=>{if(busy)return;sources=empty();choose(current);report=null;renderResults()}
+ reset:()=>{if(busy)return;sources=empty();editor.value='';count();report=null;renderResults();signalSources()}
 };
 })();

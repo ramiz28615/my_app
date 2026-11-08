@@ -527,6 +527,35 @@ try{
  assert.equal(Object.keys(JSON.parse(Buffer.from(chatDispatch.inputs.sources_b64,'base64').toString('utf8'))).length,1,
   'Clicking one code block must run only that snippet');
  assert.equal(await page.evaluate(()=>window.DimensiaChatRunner.getState().results.php.status),'skipped');
+ // User-managed project files stay isolated and layout controls persist in localStorage.
+ assert.ok(await page.locator('#dwpBar').isVisible(),'Project management must be visible in terminal');
+ assert.ok((await page.locator('#dwpSelect option').count())>=1);
+ page.once('dialog',dialog=>dialog.accept('Analiz Projesi'));
+ await page.locator('#dwpNew').click();
+ assert.equal(await page.locator('#dwpSelect').inputValue(),
+  await page.evaluate(()=>window.DimensiaProjects.getActive().id));
+ await page.locator('[data-dhr-lang="python"]').click();
+ await page.locator('#dhrEditor').fill('print("ANALIZ_PROJECT")');
+ await page.locator('[data-dhr-lang="javascript"]').click();
+ await page.locator('#dhrEditor').fill('console.log("JS_PROJECT")');
+ page.once('dialog',dialog=>dialog.accept('Robot Projesi'));
+ await page.locator('#dwpNew').click();
+ assert.equal(await page.locator('#dhrEditor').inputValue(),'','New project should have empty source');
+ await page.locator('#dwpSelect').selectOption({label:'Analiz Projesi'});
+ await page.locator('[data-dhr-lang="javascript"]').click();
+ assert.equal(await page.locator('#dhrEditor').inputValue(),'console.log("JS_PROJECT")',
+  'Switching projects should restore edited source per language');
+ await page.locator('[data-dhr-lang="python"]').click();
+ assert.equal(await page.locator('#dhrEditor').inputValue(),'print("ANALIZ_PROJECT")');
+ assert.ok((await page.evaluate(()=>localStorage.getItem('dimensia-code-projects-v1')||'')).includes('ANALIZ_PROJECT'));
+ await page.locator('#dlChatToggle').click();
+ assert.ok(await page.locator('#dlPanel').isVisible());
+ assert.equal(await page.locator('#dlPanel input[type=range]').count(),12);
+ await page.locator('#dl-runnerHeight').evaluate(input=>{input.value='720';input.dispatchEvent(new Event('input',{bubbles:true}))});
+ assert.equal(await page.evaluate(()=>window.DimensiaLayout.get().runnerHeight),720);
+ assert.ok((await page.evaluate(()=>localStorage.getItem('dimensia-layout-v1')||'')).includes('720'));
+ await page.locator('#dlDone').click();
+ assert.ok(await page.locator('#dlEditorGrip').isVisible(),'Terminal editor must have resizing handle');
  await page.locator('#dhrClose').click();
  checkNoErrors('Chat code runner');
  log('Chat code runner','GitHub API dispatch mocked, six languages, PHP tab, single fence run, results and no source writes passed');
