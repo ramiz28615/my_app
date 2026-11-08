@@ -1,0 +1,79 @@
+{
+  "schema": "dimensia-chat-run-v1",
+  "requestId": "r3vnk8342c6tofm1m",
+  "createdAt": "2026-11-08T06:04:13.824Z",
+  "public": true,
+  "warning": "GitHub Actions inputs and code output may be visible to other people. Never run private code or credentials.",
+  "results": {
+    "python": {
+      "status": "failed",
+      "label": "Python 3",
+      "exitCode": 1,
+      "stdout": "# Python execute\n===================================\n  Python Hesap Makinesi\n===================================\nİşlemler:\n1. Toplama (+)\n2. Çıkarma (-)\n3. Çarpma (*)\n4. Bölme (/)\n5. Çıkış\n-----------------------------------\nYapmak istediğiniz işlemin numarasını girin (1/2/3/4/5): \n",
+      "stderr": "# Python execute\nTraceback (most recent call last):\n  File \"/tmp/dimensia-chat-run-gMv2uk/main.py\", line 54, in <module>\n    calculator()\n  File \"/tmp/dimensia-chat-run-gMv2uk/main.py\", line 28, in calculator\n    secim = input(\"Yapmak istediğiniz işlemin numarasını girin (1/2/3/4/5): \")\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nEOFError: EOF when reading a line\n\n\nExited with code 1",
+      "durationMs": 150,
+      "steps": [
+        {
+          "name": "Python syntax",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 35
+        },
+        {
+          "name": "Python execute",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 112
+        }
+      ]
+    },
+    "bash": {
+      "status": "skipped",
+      "label": "Bash",
+      "exitCode": 0,
+      "stdout": "No Bash code included in this chat request.",
+      "stderr": "",
+      "durationMs": 1,
+      "steps": []
+    },
+    "perl": {
+      "status": "skipped",
+      "label": "Perl 5",
+      "exitCode": 0,
+      "stdout": "No Perl 5 code included in this chat request.",
+      "stderr": "",
+      "durationMs": 7,
+      "steps": []
+    },
+    "php": {
+      "status": "skipped",
+      "label": "PHP 8.3",
+      "exitCode": 0,
+      "stdout": "No PHP 8.3 code included in this chat request.",
+      "stderr": "",
+      "durationMs": 1,
+      "steps": []
+    },
+    "javascript": {
+      "status": "skipped",
+      "label": "JavaScript / Node.js",
+      "exitCode": 0,
+      "stdout": "No JavaScript / Node.js code included in this chat request.",
+      "stderr": "",
+      "durationMs": 3,
+      "steps": []
+    },
+    "rust": {
+      "status": "skipped",
+      "label": "Rust",
+      "exitCode": 0,
+      "stdout": "No Rust code included in this chat request.",
+      "stderr": "",
+      "durationMs": 1,
+      "steps": []
+    }
+  },
+  "passed": 0,
+  "failed": 1,
+  "skipped": 5
+}
