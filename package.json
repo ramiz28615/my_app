@@ -1,15 +1,15 @@
 {
   "name": "dimensia-studio",
-  "version": "8.2.0",
+  "version": "8.3.0",
   "private": true,
   "type": "module",
-  "description": "Dimensia 8.2.0: automatic per-chat projects, complete code continuations and HTML CSS JavaScript inline live previews",
+  "description": "Dimensia 8.3.0: chat linked React Native Expo project editor, ZIP export and Colab debug APK workflow",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "start": "node server.mjs",
-    "check": "node --check server.mjs && node --check studio-reference.js && node --check studio-devtools.js && node --check studio-re-engineer.js && node --check studio-flow.js && node --check studio-launchpad.js && node --check architect-core.mjs && node --check backend-template.mjs && node --check studio-architect.js && node --check studio-code-lab.js && node --check scripts/cloud-scan.mjs && node --check studio-ai-agent.js && node --check studio-mobile-fix.js && node --check studio-chat.js && node --check studio-chat-editor.js && node --check studio-polyglot.js && node --check scripts/run-polyglot.mjs && node --check scripts/publish-polyglot.mjs && node --check studio-chat-runner.js && node --check studio-chat-web.js && node --check studio-workspace-projects.js && node --check studio-layout.js && node --check scripts/run-chat-code.mjs && node --check scripts/collect-chat-code.mjs",
+    "check": "node --check server.mjs && node --check studio-reference.js && node --check studio-devtools.js && node --check studio-re-engineer.js && node --check studio-flow.js && node --check studio-launchpad.js && node --check architect-core.mjs && node --check backend-template.mjs && node --check studio-architect.js && node --check studio-code-lab.js && node --check scripts/cloud-scan.mjs && node --check studio-ai-agent.js && node --check studio-mobile-fix.js && node --check studio-chat.js && node --check studio-chat-editor.js && node --check studio-polyglot.js && node --check scripts/run-polyglot.mjs && node --check scripts/publish-polyglot.mjs && node --check studio-chat-runner.js && node --check studio-chat-web.js && node --check studio-reactnative.js && node --check studio-workspace-projects.js && node --check studio-layout.js && node --check scripts/run-chat-code.mjs && node --check scripts/collect-chat-code.mjs",
     "test": "node --test tests/*.test.mjs"
   }
 }
