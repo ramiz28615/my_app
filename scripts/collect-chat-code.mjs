@@ -5,7 +5,7 @@ import {readFile,mkdir,writeFile} from 'node:fs/promises';
 
 const id=String(process.env.DIMENSIA_RUN_ID||'');
 if(!/^r[a-z0-9]{9,35}$/.test(id))throw Error('Invalid chat run identifier');
-const languages=['python','bash','perl','php'];
+const languages=['python','bash','perl','php','javascript','rust'];
 const safe=text=>String(text??'').replace(/sk-or-v1-[a-z0-9_-]{18,}/gi,'[REDACTED-OPENROUTER]')
  .replace(/github_pat_[a-z0-9_]{18,}/gi,'[REDACTED-GITHUB]')
  .replace(/gh[pousr]_[a-z0-9]{20,}/gi,'[REDACTED-GITHUB]')
