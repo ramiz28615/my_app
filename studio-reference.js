@@ -88,7 +88,7 @@
    renderMode(true);
    return payload.data;
  }
- async function ask(messages,limit=6000){
+ async function askDetailed(messages,limit=6000){
    if(!ready())throw Error('OpenRouter anahtarı eksik.');
    if(!Array.isArray(messages)||messages.length===0)throw Error('Model için mesaj gerekiyor.');
    const selected=model();
@@ -117,8 +117,9 @@
      throw Error(lastError);
    }
    verified='valid';modelResult='ok';lastError='';renderMode(true);
-   return answer.trim();
+   return {text:answer,finishReason:String(choice.finish_reason||'unknown'),model:lastModel};
  }
+ async function ask(messages,limit=6000){return (await askDetailed(messages,limit)).text.trim();}
  async function loadFreeModels(){
    const result=await request('https://openrouter.ai/api/v1/models?output_modalities=text', {needsAuth:false},30000);
    const arr=Array.isArray(result.data)?result.data:[];
@@ -258,6 +259,6 @@
    }catch(err){toast(err.message||'AI üretim başarısız.',true)}
    finally{state.loading=false;$('generateButton').disabled=false;$('generateButtonText').textContent='Siteyi Oluştur'}
  },true);
- window.DimensiaOpenRouter={hasKey:ready,ask,verifyKey,loadFreeModels,getStatus:describeState};window.DimensiaReference={getReport:()=>report,analyse,present};
+ window.DimensiaOpenRouter={hasKey:ready,ask,askDetailed,verifyKey,loadFreeModels,getStatus:describeState};window.DimensiaReference={getReport:()=>report,analyse,present};
  renderMode();
 })();

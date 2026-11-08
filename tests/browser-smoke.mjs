@@ -729,6 +729,77 @@ try{
  checkNoErrors('Chat fenced code and consent');
  log('Chat code fences','six inline Run buttons, message Run All and auto mode require explicit user approval');
 
+ // Each chat should own a distinct project and render complete HTML/CSS/JS code inline.
+ const projectBefore=await page.evaluate(()=>({
+  chat:window.DimensiaChatHub.getState().active,
+  project:window.DimensiaProjects.getActive().id
+ }));
+ await page.locator('#dhNew').click();
+ const projectAfter=await page.evaluate(()=>({
+  chat:window.DimensiaChatHub.getState().active,
+  project:window.DimensiaProjects.getActive().id,
+  linked:window.DimensiaProjects.chatProject(window.DimensiaChatHub.getState().active)
+ }));
+ assert.notEqual(projectBefore.chat,projectAfter.chat);
+ assert.notEqual(projectBefore.project,projectAfter.project,'Every new chat must create a separate code project');
+ assert.equal(projectAfter.project,projectAfter.linked);
+ const webRoute=async route=>{
+  const tick='\x60\x60\x60';
+  const longCSS='/*'+ 'A'.repeat(9650) +'*/';
+  const reply='Tam dosyalar:\n'+
+   tick+'html\n<main><h1 id="webTitle">INLINE_PROJECT_PREVIEW</h1><button id="webButton">Başlat</button></main>\n'+tick+'\n'+
+   tick+'css\nbody{background:rgb(14,32,46);color:white;}'+longCSS+'\n'+tick+'\n'+
+   tick+'javascript\n'+
+   'document.querySelector("#webButton").onclick=()=>{document.querySelector("#webTitle").textContent="INLINE_WORKS";};\n'+tick;
+  await route.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},
+   body:JSON.stringify({model:'mock/web:free',choices:[{finish_reason:'stop',message:{content:reply}}]})});
+ };
+ await page.route('https://openrouter.ai/api/v1/chat/completions',webRoute);
+ await page.locator('#dhInput').fill('Web projesi test: HTML CSS JS kodlarını üret.');
+ await page.locator('#dhSend').click();
+ await page.frameLocator('.dh-inline-preview iframe').locator('#webButton').waitFor({timeout:15000});
+ await page.frameLocator('.dh-inline-preview iframe').locator('#webButton').click();
+ assert.equal(await page.frameLocator('.dh-inline-preview iframe').locator('#webTitle').innerText(),'INLINE_WORKS');
+ assert.equal(await page.frameLocator('.dh-inline-preview iframe').locator('body').evaluate(x=>getComputedStyle(x).backgroundColor),'rgb(14, 32, 46)');
+ assert.ok((await page.evaluate(()=>window.DimensiaWebProjects.getFiles(window.DimensiaChatHub.getState().active).css)).length>9500,'Long assistant source must not be cut at 9,000 chars');
+ assert.ok((await page.evaluate(()=>localStorage.getItem('dimensia-chat-history-v1')||'')).includes('INLINE_PROJECT_PREVIEW'));
+ const webChat=await page.evaluate(()=>window.DimensiaChatHub.getState().active);
+ await page.unroute('https://openrouter.ai/api/v1/chat/completions',webRoute);
+ await page.locator('#dhNew').click();
+ assert.equal(await page.locator('.dh-inline-preview iframe').count(),0,'New chat must not reuse previous project preview');
+ const blankProject=await page.evaluate(()=>window.DimensiaProjects.getActive().id);
+ assert.notEqual(blankProject,projectAfter.project);
+ await page.locator('#dhHistory .dh-history-open').filter({hasText:'Web projesi test'}).click();
+ assert.equal(await page.evaluate(()=>window.DimensiaChatHub.getState().active),webChat);
+ assert.equal(await page.evaluate(()=>window.DimensiaProjects.getActive().id),projectAfter.project);
+ await page.frameLocator('.dh-inline-preview iframe').locator('#webButton').waitFor({timeout:12000});
+ assert.ok((await page.locator('#dhPreview').getAttribute('srcdoc')).includes('INLINE_PROJECT_PREVIEW'));
+ log('Chat web project','per-chat project isolation, long code preservation, inline sandbox execution and reopening passed');
+ // A model can return finish_reason:length. Request only the remainder and never preview partial HTML.
+ let continuationCalls=0;
+ const continuationRoute=async route=>{
+  const request=route.request().postDataJSON();
+  const isContinuation=request.messages.some(x=>x.role==='assistant'&&String(x.content).includes('PARTIAL_SITE'));
+  continuationCalls++;
+  const content=isContinuation?' Tamam</h1><button onclick="this.textContent=\'OK\'">Çalıştır</button></body></html>':
+   '<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>PARTIAL_SITE</title></head><body><h1 id="partialSite">Yarım';
+  await route.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},
+   body:JSON.stringify({model:'mock/split:free',choices:[{finish_reason:isContinuation?'stop':'length',message:{content}}]})});
+ };
+ await page.route('https://openrouter.ai/api/v1/chat/completions',continuationRoute);
+ await page.locator('#dhNew').click();
+ await page.locator('#dhModeBuild').click();
+ await page.locator('#dhInput').fill('Uzun sayfayı kesmeden tam üret.');
+ await page.locator('#dhSend').click();
+ await page.frameLocator('#dhPreview').locator('#partialSite').waitFor({timeout:15000});
+ assert.equal(await page.frameLocator('#dhPreview').locator('#partialSite').innerText(),'Yarım Tamam');
+ assert.equal(continuationCalls,2,'Incomplete HTML must trigger an explicit continuation');
+ assert.ok(await page.locator('.dh-inline-preview iframe').count()===1,'Finished build should show its inline chat preview');
+ await page.unroute('https://openrouter.ai/api/v1/chat/completions',continuationRoute);
+ checkNoErrors('Chat inline preview, continuation and auto projects');
+ log('Chat partial code completion','finish_reason length recovered, complete HTML validated and preview rendered');
+
+
 
  await page.locator('[data-nav="settings"]').click();
  await page.locator('#orForget').click();
