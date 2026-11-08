@@ -211,6 +211,19 @@ function renderArtifact(){
  document.dispatchEvent(new CustomEvent('dimensia:chat-artifact-change',{detail:{id:available?artifactChat:'',available,html:available?artifact.html:'',name:available?artifact.name:''}}));
 }
 function showPreview(){if(!artifact)return;renderArtifact();$('dhArtifact').scrollIntoView({behavior:'smooth',block:'nearest'})}
+function setWebArtifact(html,name){
+ if(typeof html!=='string'||html.length>650000||!/<html\b/i.test(html)||!/<\/html>/i.test(html)||unsafe(html))throw Error('Önizleme için eksiksiz HTML gerekli.');
+ artifact={html,name:cut(name||'Web projesi',64)};artifactChat=active;
+ showHTML(html,artifact.name);renderArtifact();renderMessages();
+ return artifact.html;
+}
+function refreshWebArtifact(){
+ const preview=window.DimensiaWebProjects?.getPreview?.(active);
+ artifact=preview?{html:preview.html,name:preview.name}:null;
+ artifactChat=preview?active:'';
+ if(preview)showHTML(preview.html,preview.name);
+ renderArtifact();renderMessages();
+}
 function renderAttachment(){
  const root=$('dhAttachment');root.replaceChildren();root.hidden=!attachment;
  if(!attachment)return;
@@ -340,6 +353,7 @@ function updateArtifact(html){
  if(typeof html!=='string'||html.length<45||html.length>650000||!/<html\b/i.test(html)||!/<\/html>/i.test(html))throw Error('Kaynak en fazla 650 KB boyutlu ve tam HTML dokümanı olmalı.');
  if(unsafe(html))throw Error('HTML içinde olası bir gizli API anahtarı bulundu. Kaydetmeden önce kaldır.');
  artifact={...artifact,html};
+ document.dispatchEvent(new CustomEvent('dimensia:chat-artifact-edited',{detail:{chatId:active,html,name:artifact.name}}));
  showHTML(html,artifact.name);
  renderArtifact();
  return artifact.html;
@@ -349,6 +363,6 @@ window.DimensiaChatHub={
  getState:()=>({active,mode,pending,hasArtifact:!!artifact&&artifactChat===active}),
  getChats:()=>chats.map(s=>({id:s.id,title:s.title,count:s.messages.length})),
  getArtifact:()=>artifact&&artifactChat===active?{html:artifact.html,name:artifact.name,id:artifactChat}:null,
- updateArtifact,openStudio
+ updateArtifact,setWebArtifact,refreshWebArtifact,showPreview,openStudio
 };
 })();
