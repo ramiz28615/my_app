@@ -662,15 +662,17 @@ try{
     fence+'python\nprint("CHAT_FENCE_PY")\n'+fence+'\n'+
     fence+'bash\nprintf "CHAT_FENCE_BASH\\n"\n'+fence+'\n'+
     fence+'perl\nprint "CHAT_FENCE_PERL\\n";\n'+fence+'\n'+
-    fence+'php\n<?php echo "CHAT_FENCE_PHP\\n";\n'+fence;
+    fence+'php\n<?php echo "CHAT_FENCE_PHP\\n";\n'+fence+'\n'+
+    fence+'javascript\nconsole.log("CHAT_FENCE_JAVASCRIPT");\n'+fence+'\n'+
+    fence+'rust\nfn main() { println!("CHAT_FENCE_RUST"); }\n'+fence;
   await route.fulfill({status:200,contentType:'application/json',
    headers:{'access-control-allow-origin':'*'},
    body:JSON.stringify({model:'mock/fences:free',choices:[{finish_reason:'stop',message:{content:reply}}]})});
  };
  await page.route('https://openrouter.ai/api/v1/chat/completions',fenceRoute);
- await page.locator('#dhInput').fill('Python Bash Perl PHP için küçük birer kod yaz.');
+ await page.locator('#dhInput').fill('Python Bash Perl PHP JavaScript Rust için küçük birer kod yaz.');
  await page.locator('#dhSend').click();
- await page.waitForFunction(()=>document.querySelectorAll('#dhThread .dh-code-run').length===4,{timeout:12000});
+ await page.waitForFunction(()=>document.querySelectorAll('#dhThread .dh-code-run').length===6,{timeout:12000});
  assert.equal(await page.locator('#dhThread .dh-run-all').count(),1,'Multi-language code reply needs Run All button');
  const originalDispatch=chatDispatch;
  page.once('dialog',dialog=>dialog.dismiss());
@@ -696,7 +698,7 @@ try{
  await page.locator('#dhrClose').click();
  await page.unroute('https://openrouter.ai/api/v1/chat/completions',fenceRoute);
  checkNoErrors('Chat fenced code and consent');
- log('Chat code fences','four inline Run buttons, message Run All and auto mode require explicit user approval');
+ log('Chat code fences','six inline Run buttons, message Run All and auto mode require explicit user approval');
 
 
  await page.locator('[data-nav="settings"]').click();
