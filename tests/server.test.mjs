@@ -151,7 +151,7 @@ test('Chat-first homepage remains separate from legacy Studio without storing an
   readFile('studio-chat.js','utf8'),
   readFile('studio-chat.css','utf8')
  ]);
- assert.ok(html.includes('studio-chat.js?v=8.0.2')&&html.includes('studio-chat.css?v=6.0.2'));
+ assert.ok(html.includes('studio-chat.js?v=8.2.0')&&html.includes('studio-chat.css?v=6.0.2'));
  assert.ok(html.includes('id="page-home"')&&html.includes('id="page-studio"'),'Legacy sections must stay');
  for(const id of ['dimensiaChatHub','dhConversation','dhInput','dhSend','dhNewSide','dhHistory','dhModeBuild','dhPreview','dhSave','dhPublish']){
   assert.ok(chat.includes(id),'Missing chat feature '+id);
