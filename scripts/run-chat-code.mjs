@@ -56,7 +56,8 @@ try{
   const safeEnv={
    PATH:process.env.PATH||'/usr/local/bin:/usr/bin:/bin',HOME:folder,TMPDIR:folder,
    LANG:'C.UTF-8',LC_ALL:'C.UTF-8',PYTHONNOUSERSITE:'1',PYTHONDONTWRITEBYTECODE:'1',
-   COMPOSER_DISABLE_XDEBUG_WARN:'1'
+   COMPOSER_DISABLE_XDEBUG_WARN:'1',
+   ...(lang==='rust'?{RUSTUP_HOME:process.env.RUSTUP_HOME||join(process.env.HOME||'/home/runner','.rustup')}:{}),
   };
   output.status='passed';
   for(const [label,command,args] of runner.steps){
