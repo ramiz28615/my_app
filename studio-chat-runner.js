@@ -1,4 +1,4 @@
-/* Dimensia Chat Multi-Runner 8.0.
+/* Dimensia Chat Multi-Runner 8.0.2.
  * The frontend never executes Bash, Perl or PHP. User-approved snippets are sent
  * to a read-only GitHub Actions runner; public stdout/stderr returns to this chat.
  * Auto mode prepares/initiates approval, never silently runs generated code.
@@ -8,29 +8,33 @@
 const $=id=>document.getElementById(id);
 const chat=$('dhConversation');
 if(!chat||!window.DimensiaChatHub)return;
-const LANGS=['python','bash','perl','php'];
+const LANGS=['python','bash','perl','php','javascript','rust'];
 const CONFIG={
  python:{name:'Python 3',file:'main.py'},
  bash:{name:'Bash / SH',file:'main.sh'},
  perl:{name:'Perl 5',file:'main.pl'},
- php:{name:'PHP 8.3',file:'main.php'}
+ php:{name:'PHP 8.3',file:'main.php'},
+ javascript:{name:'JavaScript / Node.js',file:'main.js'},
+ rust:{name:'Rust',file:'main.rs'}
 };
-const aliases={python:'python',py:'python',bash:'bash',sh:'bash',shell:'bash',perl:'perl',pl:'perl',php:'php'};
-const empty=()=>({python:'',bash:'',perl:'',php:''});
+const aliases={python:'python',py:'python',bash:'bash',sh:'bash',shell:'bash',perl:'perl',pl:'perl',php:'php',js:'javascript',javascript:'javascript',node:'javascript',nodejs:'javascript',rs:'rust',rust:'rust'};
+const empty=()=>({python:'',bash:'',perl:'',php:'',javascript:'',rust:''});
 const examples={
  python:'print("Merhaba Dimensia Python!")\nprint("Toplam:", sum([1,2,3,4,5]))',
  bash:'#!/usr/bin/env bash\nset -eu\nprintf "Merhaba Dimensia Bash!\\n"\nprintf "Toplam: %s\\n" "$((1+2+3+4+5))"',
  perl:'#!/usr/bin/env perl\nuse strict;\nuse warnings;\nprint "Merhaba Dimensia Perl!\\n";\nmy $sum=1+2+3+4+5;\nprint "Toplam: $sum\\n";',
- php:'<?php\n echo "Merhaba Dimensia PHP!\\n";\n echo "Toplam: ".(1+2+3+4+5)."\\n";'
+ php:'<?php\n echo "Merhaba Dimensia PHP!\\n";\n echo "Toplam: ".(1+2+3+4+5)."\\n";',
+ javascript:'console.log("Merhaba Dimensia JavaScript!");\nconsole.log("Toplam:", [1,2,3,4,5].reduce((a,b)=>a+b,0));',
+ rust:'fn main() {\n    println!("Merhaba Dimensia Rust!");\n    let toplam: i32 = (1..=5).sum();\n    println!("Toplam: {}", toplam);\n}'
 };
 
 let sources=empty(),current='python',busy=false,auto=false,report=null,runTask=null,runId='',polling=0,loadedChat='';
 const section=document.createElement('section');
 section.id='dhrPanel';section.className='dhr-panel';section.hidden=true;
-section.setAttribute('aria-label','Sohbet Python Bash Perl PHP kod çalıştırma alanı');
+section.setAttribute('aria-label','Sohbet Python Bash Perl PHP JavaScript Rust kod çalıştırma alanı');
 section.innerHTML=
  '<div class="dhr-head"><div><strong>▶ Sohbette Kod Çalıştırıcı</strong>'+
- '<small>Python · Bash · Perl · PHP — gerçek GitHub Actions bulut çalıştırması</small></div>'+
+ '<small>Python · Bash · Perl · PHP · Node.js · Rust — gerçek GitHub Actions bulut çalıştırması</small></div>'+
  '<div class="dhr-top-actions"><button type="button" id="dhrGitHub" class="dhr-small">⚙ GitHub</button>'+
  '<button type="button" id="dhrClose" class="dhr-small" aria-label="Kod çalıştırma panelini kapat">✕</button></div></div>'+
  '<div id="dhrTabs" class="dhr-tabs" role="tablist" aria-label="Kodlama dili"></div>'+
@@ -38,8 +42,8 @@ section.innerHTML=
  '<span id="dhrEditorCount">0 karakter</span></div>'+
  '<textarea id="dhrEditor" rows="6" spellcheck="false" wrap="off" autocorrect="off" autocomplete="off" autocapitalize="off" aria-label="Sohbette çalıştırılacak kodu düzenle" placeholder="Kodunu buraya yaz veya sohbet yanıtındaki Çalıştır düğmesine bas..."></textarea>'+
  '<div class="dhr-toolbar"><button type="button" class="dhr-primary" id="dhrRunOne">▶ Bu dili çalıştır</button>'+
- '<button type="button" class="dhr-primary dhr-all" id="dhrRunAll">⚡ Dört dili birlikte çalıştır</button>'+
- '<button type="button" class="dhr-small" id="dhrExample">▣ 4 dil örneği</button>'+ 
+ '<button type="button" class="dhr-primary dhr-all" id="dhrRunAll">⚡ Tüm dilleri birlikte çalıştır</button>'+
+ '<button type="button" class="dhr-small" id="dhrExample">▣ 6 dil örneği</button>'+ 
  '<button type="button" class="dhr-small" id="dhrClear">⌫ Temizle</button>'+
  '<button type="button" class="dhr-small" id="dhrToLab">⌘ Kod Lab’a aktar</button></div>'+
  '<label class="dhr-auto"><input id="dhrAuto" type="checkbox">'+
@@ -74,7 +78,7 @@ const id=()=>{
 const extract=text=>{
  const src=String(text||'');
  const blocks=empty();
- const exp=/(?:^|\n)\x60{3}(python|py|bash|sh|shell|perl|pl|php)[ \t]*\r?\n([\s\S]*?)\x60{3}/gi;
+ const exp=/(?:^|\n)\x60{3}(python|py|bash|sh|shell|perl|pl|php|javascript|js|node|nodejs|rust|rs)[ \t]*\r?\n([\s\S]*?)\x60{3}/gi;
  let match;
  while((match=exp.exec(src))!==null){
   const language=aliases[match[1].toLowerCase()];
@@ -131,7 +135,7 @@ function hide(){section.hidden=true}
 function fill(request){
  const next=request||{};
  const provided=LANGS.filter(x=>typeof next[x]==='string'&&next[x].trim().length);
- if(!provided.length)throw Error('Sohbet mesajında Python, Bash, Perl veya PHP kod bloğu bulunamadı.');
+ if(!provided.length)throw Error('Sohbet mesajında desteklenen Python, Bash, Perl, PHP, JavaScript veya Rust kod bloğu bulunamadı.');
  if(busy)throw Error('Bir bulut çalıştırma işlemi devam ediyor.');
  const merged=empty();
  for(const lang of provided){
@@ -153,7 +157,7 @@ function fill(request){
 function setBusy(value){
  busy=value;
  for(const key of ['dhrRunOne','dhrRunAll','dhrClear','dhrToLab'])$(key).disabled=value;
- $('dhrRunAll').textContent=value?'◌ Bulut kod çalıştırılıyor…':'⚡ Dört dili birlikte çalıştır';
+ $('dhrRunAll').textContent=value?'◌ Bulut kod çalıştırılıyor…':'⚡ Tüm dilleri birlikte çalıştır';
 }
 async function run(which='all'){
  if(busy)return;
@@ -168,7 +172,7 @@ async function run(which='all'){
   send[lang]=code;
  }
  const names=Object.keys(send);
- if(!names.length)return status('Çalıştırılacak kod yok. Önce Python/Bash/Perl/PHP kodu yaz.',true);
+ if(!names.length)return status('Çalıştırılacak kod yok. Önce desteklenen altı dilden birinde kod yaz.',true);
  const api=window.DimensiaLaunchpad;
  if(!api?.startChatRun||!api?.fetchChatRunReport)
   return status('GitHub Launchpad erişilemiyor. Stüdyo → GitHub alanını kontrol et.',true);
@@ -237,7 +241,7 @@ function handleRequest(data){
  }catch(e){status(e.message,true);open()}
 }
 createTabs();renderResults();choose('python');
-$('dhrExample').onclick=()=>{if(busy)return;fill(examples);status('Dört dilin örnek kodu yüklendi. Çalıştır düğmesi gerçek GitHub bulutunda çalıştırır.');};
+$('dhrExample').onclick=()=>{if(busy)return;fill(examples);status('Altı dilin örnek kodu yüklendi. Çalıştır düğmesi gerçek GitHub bulutunda çalıştırır.');};
 $('dhrClose').onclick=hide;
 $('dhrRunOne').onclick=()=>run('one');
 $('dhrRunAll').onclick=()=>run('all');
@@ -261,7 +265,7 @@ editor.addEventListener('keydown',event=>{
 });
 $('dhrAuto').onchange=()=>{
  const requested=$('dhrAuto').checked;
- if(requested&&!confirm('AI yeni Python/Bash/Perl/PHP kodu yazdığında bulut çalıştırma ONAYI otomatik sorulsun mu? Her işlem yine tek tek senin iznini gerektirir.'))$('dhrAuto').checked=false;
+ if(requested&&!confirm('AI yeni Python/Bash/Perl/PHP/JavaScript/Rust kodu yazdığında bulut çalıştırma ONAYI otomatik sorulsun mu? Her işlem yine tek tek senin iznini gerektirir.'))$('dhrAuto').checked=false;
  auto=$('dhrAuto').checked;
  status(auto?'Otomatik onay isteme açık. Her çalışma için ayrıca izin sorulacak.':'Otomatik onay isteme kapalı.');
 };
