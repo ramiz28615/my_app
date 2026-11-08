@@ -1,0 +1,37 @@
+/* Dimensia 8.3 React Native APK Studio — touch-first responsive code workstation */
+.drn-panel{height:min(var(--dl-runner-height,580px),90dvh);min-height:370px;flex:0 0 auto;display:flex;flex-direction:column;margin:5px clamp(12px,3vw,42px) 0;border:1px solid #506679;background:#101b2c;color:#ebf6ff;border-radius:14px;overflow:auto;overscroll-behavior:contain;box-shadow:0 15px 35px #0005;font:12px/1.55 system-ui,sans-serif}
+.drn-panel[hidden]{display:none!important}
+.drn-panel *{box-sizing:border-box}
+.drn-panel button{cursor:pointer;touch-action:manipulation}
+.drn-panel button:focus-visible,.drn-panel textarea:focus-visible{outline:2px solid #8fdbcc;outline-offset:2px}
+.drn-head{padding:11px 13px;background:#1c2d42;border-bottom:1px solid #3e5770;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.drn-head strong{display:block;font-size:12px;color:#f3fbff}
+.drn-head small{display:block;color:#a5c6d5;font-size:10px;margin-top:3px}
+.drn-btn{font:11px/1.35 system-ui,sans-serif!important;white-space:nowrap;background:#273e57;color:#e4f7ff;border:1px solid #5c7994;border-radius:8px;padding:8px 10px}
+.drn-btn:hover{background:#355573}
+.drn-primary{background:#33816f;border-color:#82cbb8;color:#fff;font-weight:750}
+.drn-primary:hover{background:#439684}
+.drn-project{padding:10px 13px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.drn-project span{display:block;font-size:9px;color:#9bb9cf;letter-spacing:.7px}
+.drn-project strong{display:block;font-size:13px;overflow-wrap:anywhere;color:#e5fff1}
+.drn-tabs{display:flex;overflow-x:auto;gap:5px;padding:7px;border-block:1px solid #3b4f64;background:#111e30;scrollbar-width:thin;flex:none}
+.drn-tabs button{font-size:10px;color:#c2d5e6;background:#213650;border:1px solid #3b566f;padding:7px 10px;white-space:nowrap;border-radius:7px}
+.drn-tabs button.active{background:#396b64;border-color:#90ddcf;color:#fff;font-weight:750}
+.drn-editor-bar{display:flex;justify-content:space-between;background:#071423;padding:6px 12px;gap:10px;color:#9fc5c0;font:10px ui-monospace,Consolas,monospace}
+#drnEditor{display:block;flex:0 0 170px;height:var(--dl-editor-height,170px);width:100%;min-height:120px;max-height:800px;resize:vertical;background:#081625;color:#b3ead7;border:0;border-block:1px solid #34516a;outline:none;padding:10px 13px;font:12px/1.6 ui-monospace,Consolas,monospace!important;white-space:pre;overflow:auto;tab-size:2}
+.drn-toolbar{padding:9px;display:flex;flex-wrap:wrap;gap:6px}
+.drn-flow{padding:10px 13px;display:flex;align-items:center;flex-wrap:wrap;gap:7px;border-top:1px solid #38516b;background:#15253a}
+.drn-flow strong{width:100%;font-size:10px;color:#a4efdf;letter-spacing:.3px}
+.drn-flow p{width:100%;margin:0;font-size:10px;color:#c8dbeb}
+.drn-status{background:#183d3d;color:#b3f6dc;border-block:1px solid #48786b;padding:8px 12px;font-size:10px;overflow-wrap:anywhere}
+.drn-status.error{background:#422835;color:#ffd1d7;border-color:#8d596b}
+.drn-help{margin:0;padding:8px 12px 14px;font-size:10px;color:#b2c2d6;line-height:1.6}
+@media(max-width:760px){
+ .drn-panel{margin:5px 8px 0;height:min(var(--dl-runner-height,590px),88dvh);border-radius:11px}
+ .drn-head{padding:9px 10px}
+ .drn-head strong{font-size:11px}
+ .drn-project{padding:8px 10px}
+ .drn-toolbar button,.drn-flow button{flex:1 1 125px}
+ #drnEditor{min-height:170px;font-size:12px!important}
+}
+@media(prefers-reduced-motion:reduce){.drn-panel *{transition:none!important;animation:none!important}}
