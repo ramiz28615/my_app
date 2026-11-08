@@ -728,6 +728,9 @@ try{
  await page.unroute('https://openrouter.ai/api/v1/chat/completions',fenceRoute);
  checkNoErrors('Chat fenced code and consent');
  log('Chat code fences','six inline Run buttons, message Run All and auto mode require explicit user approval');
+ // Legacy fenced-code workflow is an intentional manual chat request.
+ await page.locator('#dauToggle').click();
+ assert.equal(await page.locator('#dauToggle').getAttribute('aria-pressed'),'false');
 
  // Each chat should own a distinct project and render complete HTML/CSS/JS code inline.
  const projectBefore=await page.evaluate(()=>({
@@ -850,6 +853,9 @@ try{
  await page.locator('#drnClose').click();
  checkNoErrors('Native APK Studio');
  log('Native APK Studio','per-chat Expo App editor, isolation, AI source sync, ZIP export, TSX support and Colab handoff');
+ // Re-enable automatic intent routing for the new no-code conversation tests.
+ await page.locator('#dauToggle').click();
+ assert.equal(await page.locator('#dauToggle').getAttribute('aria-pressed'),'true');
 
  // Chat-first autopilot: no coding mode selection required, even after returning to an old project.
  const planData=await page.evaluate(()=>{
