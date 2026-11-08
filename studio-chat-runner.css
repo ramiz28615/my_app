@@ -1,4 +1,4 @@
-/* Dimensia chat-native Python / Bash / Perl / PHP runtime controls, v8.0 */
+/* Dimensia chat-native Python / Bash / Perl / PHP / Node.js / Rust, v8.0.2 */
 .dhr-panel{flex:0 1 auto;min-height:0;height:min(56dvh,580px);display:flex;flex-direction:column;gap:0;overflow-y:auto;overscroll-behavior-y:contain;background:#101925;border:1px solid #45617a;border-radius:14px;margin:5px clamp(12px,3vw,42px) 0;color:#e8ebf4;box-shadow:0 18px 40px #0005;scrollbar-width:thin;scrollbar-color:#46516a transparent}
 .dhr-panel[hidden]{display:none!important}
 .dhr-panel *{box-sizing:border-box}
@@ -32,7 +32,7 @@
 .dhr-result-head{padding:8px 12px;display:flex;justify-content:space-between;align-items:center;gap:7px;border-bottom:1px solid #2a394b}
 .dhr-result-head strong{font-size:11px;color:#e5edf5}
 .dhr-result-head>div{display:flex;gap:5px;flex-wrap:wrap}
-.dhr-results{padding:7px 10px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.dhr-results{padding:7px 10px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
 .dhr-result{min-width:0;border:1px solid #425264;background:#202e40;color:#b7c7d5;border-radius:9px;padding:8px 5px;font-size:10px!important;line-height:1.4;overflow-wrap:anywhere}
 .dhr-result.active{border-color:#a88bde;color:#fff;background:#3b3250}
 .dhr-result.passed{border-color:#518772;color:#c6f2df}
