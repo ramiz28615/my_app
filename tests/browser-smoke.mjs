@@ -880,6 +880,47 @@ try{
  await page.locator('#drnClose').click();
  checkNoErrors('Native APK Studio');
  log('Native APK Studio','per-chat Expo App editor, isolation, AI source sync, ZIP export, TSX support and Colab handoff');
+
+ // Single click APK cloud orchestration shows real build result within this conversation.
+ await page.evaluate(()=>{
+  window.__savedApkApi={
+   start:window.DimensiaLaunchpad.startNativeApkBuild,
+   fetch:window.DimensiaLaunchpad.fetchNativeApkBuild
+  };
+  window.__apkPayloads=[];
+  window.DimensiaLaunchpad.startNativeApkBuild=async payload=>{
+   window.__apkPayloads.push(payload);
+   return{owner:'ramiz28615',repo:'my_app',branch:'main',id:payload.id,submittedAt:Date.now(),
+    actionsUrl:'https://github.com/ramiz28615/my_app/actions/workflows/native-apk-build.yml'};
+  };
+  window.DimensiaLaunchpad.fetchNativeApkBuild=async task=>({
+   state:'success',requestId:task.id,
+   runUrl:'https://github.com/ramiz28615/my_app/actions/runs/8765',
+   downloadUrl:'https://github.com/ramiz28615/my_app/actions/runs/8765/artifacts/4567'
+  });
+ });
+ await page.locator('#drnQuick').click();
+ assert.ok(await page.locator('#dabBuild').isVisible(),'One-click APK cloud build must appear in chat panel');
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#dabBuild').click();
+ await page.waitForFunction(()=>document.getElementById('dabProgress')?.textContent.includes('başarıyla derlendi'),{timeout:12000});
+ assert.equal(await page.evaluate(()=>window.__apkPayloads.length),1,'One approved request = one workflow dispatch');
+ const requestMeta=await page.evaluate(()=>window.__apkPayloads[0]);
+ assert.equal(requestMeta.language,'tsx');
+ assert.ok(requestMeta.appB64.length>40,'Cloud build must transfer actual user-approved app source');
+ assert.ok(await page.locator('#dabDownload').isVisible(),'Download action must appear after successful cloud build');
+ assert.ok((await page.locator('#dabDownload').getAttribute('href')).includes('/artifacts/4567'));
+ assert.ok(await page.locator('#dhThread [data-auto-action="apkdownload"]').count(),'Assistant must expose APK download from same chat');
+ const savedRun=await page.evaluate(()=>JSON.parse(localStorage.getItem('dimensia-native-build-history-v1')||'{}'));
+ assert.ok(Object.values(savedRun).some(x=>x.state==='success'&&x.downloadUrl.includes('4567')),'Store only build metadata, not token or source');
+ await page.evaluate(()=>{
+  window.DimensiaLaunchpad.startNativeApkBuild=window.__savedApkApi.start;
+  window.DimensiaLaunchpad.fetchNativeApkBuild=window.__savedApkApi.fetch;
+ });
+ await page.locator('#drnClose').click();
+ checkNoErrors('One-click cloud APK');
+ log('One-click cloud APK','user consent, mocked dispatch, live chat progress, artifact download and metadata storage passed');
+
  // Re-enable automatic intent routing for the new no-code conversation tests.
  await page.locator('#dauToggle').click();
  assert.equal(await page.locator('#dauToggle').getAttribute('aria-pressed'),'true');
