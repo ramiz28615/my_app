@@ -728,6 +728,9 @@ try{
  await page.unroute('https://openrouter.ai/api/v1/chat/completions',fenceRoute);
  checkNoErrors('Chat fenced code and consent');
  log('Chat code fences','six inline Run buttons, message Run All and auto mode require explicit user approval');
+ // Legacy fenced-code workflow is an intentional manual chat request.
+ await page.locator('#dauToggle').click();
+ assert.equal(await page.locator('#dauToggle').getAttribute('aria-pressed'),'false');
 
  // Each chat should own a distinct project and render complete HTML/CSS/JS code inline.
  const projectBefore=await page.evaluate(()=>({
@@ -850,6 +853,58 @@ try{
  await page.locator('#drnClose').click();
  checkNoErrors('Native APK Studio');
  log('Native APK Studio','per-chat Expo App editor, isolation, AI source sync, ZIP export, TSX support and Colab handoff');
+ // Re-enable automatic intent routing for the new no-code conversation tests.
+ await page.locator('#dauToggle').click();
+ assert.equal(await page.locator('#dauToggle').getAttribute('aria-pressed'),'true');
+
+ // Chat-first autopilot: no coding mode selection required, even after returning to an old project.
+ const planData=await page.evaluate(()=>{
+  const pilot=window.DimensiaAutoPilot;
+  return{
+   enabled:pilot.enabled(),
+   app:pilot.classify('Profesyonel bir Android uygulaması oluştur','chat','chat'),
+   web:pilot.classify('Modern bir web sitesi tasarla','chat','chat'),
+   followup:pilot.classify('Butonları büyüt','chat','native'),
+   local:pilot.classify('önizlemeyi aç','chat','chat')
+  };
+ });
+ assert.equal(planData.enabled,true,'Autopilot should default on');
+ assert.equal(planData.app.mode,'native');
+ assert.equal(planData.web.mode,'build');
+ assert.equal(planData.followup.mode,'native','Follow-ups should use the last active project mode');
+ assert.equal(planData.local.action,'preview');
+ await page.locator('#dhNew').click();
+ const autoNativeRoute=async route=>{
+  const source='React Native:\n'+'\x60\x60\x60'+'jsx\nimport React from "react";\nimport { Text } from "react-native";\nexport default function App(){return <Text>AUTO_NATIVE_CHAT</Text>}\n'+'\x60\x60\x60';
+  await route.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},
+   body:JSON.stringify({model:'mock/auto:free',choices:[{finish_reason:'stop',message:{content:source}}]})});
+ };
+ await page.route('https://openrouter.ai/api/v1/chat/completions',autoNativeRoute);
+ await page.locator('#dhInput').fill('Android uygulaması oluştur; ekranda AUTO_NATIVE_CHAT yazsın.');
+ await page.locator('#dhSend').click();
+ await page.waitForFunction(()=>window.DimensiaNativeStudio?.getFiles()['App.js']?.includes('AUTO_NATIVE_CHAT'),{timeout:15000});
+ assert.equal(await page.evaluate(()=>window.DimensiaChatHub.getState().mode),'native');
+ assert.ok(await page.locator('#dhThread [data-auto-action="zip"]').count()>=1,'Generated code should offer one-click ZIP');
+ await page.unroute('https://openrouter.ai/api/v1/chat/completions',autoNativeRoute);
+ await page.locator('#drnClose').click();
+ await page.locator('#dhNew').click();
+ await page.locator('#dhInput').fill('Modern bir web sitesi oluştur. Responsive olsun.');
+ await page.locator('#dhSend').click();
+ await page.frameLocator('#dhPreview').locator('h1').waitFor({timeout:15000});
+ assert.equal(await page.evaluate(()=>window.DimensiaChatHub.getState().mode),'build','Natural language should route to web builder');
+ assert.ok(await page.locator('#dhThread [data-auto-action="preview"]').count()>=1);
+ await page.locator('#dhInput').fill('önizlemeyi aç');
+ await page.locator('#dhSend').click();
+ await page.waitForFunction(()=>document.querySelector('#dhThread')?.textContent.includes('Canlı site önizlemesi açıldı.'),{timeout:5000});
+ assert.ok(await page.locator('#dhArtifact').isVisible());
+ await page.locator('#dauToggle').click();
+ assert.equal(await page.locator('#dauToggle').getAttribute('aria-pressed'),'false');
+ assert.equal(await page.evaluate(()=>window.DimensiaAutoPilot.classify('Android uygulaması oluştur','chat','chat').mode),'chat');
+ await page.locator('#dauToggle').click();
+ assert.equal(await page.locator('#dauToggle').getAttribute('aria-pressed'),'true');
+ checkNoErrors('Chat AI autopilot');
+ log('Chat AI autopilot','natural intent routing, per-chat modes, one-click actions, no-code commands and manual override passed');
+
 
 
 
