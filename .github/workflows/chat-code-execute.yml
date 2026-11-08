@@ -1,4 +1,4 @@
-name: Dimensia Chat — Execute Python Bash Perl PHP
+name: Dimensia Chat — Execute Python Bash Perl PHP JavaScript Rust
 on:
   workflow_dispatch:
     inputs:
@@ -7,7 +7,7 @@ on:
         required: true
         type: string
       sources_b64:
-        description: Base64 JSON with up to four source snippets, max 38 KB decoded
+        description: Base64 JSON with up to six source snippets, max 38 KB decoded
         required: true
         type: string
 permissions:
@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [python, bash, perl, php]
+        language: [python, bash, perl, php, javascript, rust]
     steps:
       - name: Checkout runner source only
         uses: actions/checkout@v4
