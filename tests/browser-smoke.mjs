@@ -494,14 +494,14 @@ try{
  checkNoErrors('Polyglot repair');
  log('Polyglot repair','failed language diagnostics, AI suggestion review, explicit apply and zero silent uploads passed');
 
- // Chat-native four-language runner: editable snippets, explicit public-run consent,
- // and displayed PHP/Python/Bash/Perl stdout without editing existing GitHub code.
+ // Chat-native six-language runner: editable snippets, explicit public-run consent,
+ // and displayed runtime output without editing existing GitHub code.
  await page.locator('[data-nav="home"]').evaluate(el=>el.click());
  await page.locator('#dhRunQuick').click();
  assert.ok(await page.locator('#dhrPanel').isVisible(),'The in-chat code console must open');
- assert.equal(await page.locator('#dhrTabs [data-dhr-lang]').count(),4);
+ assert.equal(await page.locator('#dhrTabs [data-dhr-lang]').count(),6);
  await page.locator('#dhrExample').click();
- for(const lang of ['python','bash','perl','php']){
+ for(const lang of ['python','bash','perl','php','javascript','rust']){
   assert.ok((await page.evaluate(language=>window.DimensiaChatRunner.getSources()[language],lang)).length>15);
  }
  await page.locator('[data-dhr-lang="php"]').click();
@@ -512,7 +512,7 @@ try{
 
  await page.waitForFunction(()=>window.DimensiaChatRunner.getState().hasReport,{timeout:30000});
  assert.equal(chatDispatch.ref,'main');
- assert.equal(Object.keys(JSON.parse(Buffer.from(chatDispatch.inputs.sources_b64,'base64').toString('utf8'))).length,4);
+ assert.equal(Object.keys(JSON.parse(Buffer.from(chatDispatch.inputs.sources_b64,'base64').toString('utf8'))).length,6);
  assert.equal(await page.evaluate(()=>window.DimensiaChatRunner.getState().results.php.status),'passed');
  assert.ok((await page.locator('#dhrOutput').innerText()).includes('HELLO_CHAT_PHP'));
  assert.equal(cloudUploads.length,beforeUploads,'Chat run must not write submitted source into repository contents');
@@ -529,7 +529,7 @@ try{
  assert.equal(await page.evaluate(()=>window.DimensiaChatRunner.getState().results.php.status),'skipped');
  await page.locator('#dhrClose').click();
  checkNoErrors('Chat code runner');
- log('Chat code runner','real GitHub API dispatch mocked, 4 languages, PHP tab, single fence run, results and no source writes passed');
+ log('Chat code runner','GitHub API dispatch mocked, six languages, PHP tab, single fence run, results and no source writes passed');
  await page.locator('[data-nav="studio"]').evaluate(el=>el.click());
  await page.locator('#launchTokenForget').click();
 
@@ -767,7 +767,7 @@ try{
  assert.ok((await page.locator('#dhrEditor').inputValue()).includes('<?php'),'Mobile PHP tab must be editable');
  await page.locator('#dhrClose').click();
  checkNoErrors('Chat runner mobile');
- log('Chat runner mobile','four-language source editor fits narrow phone viewport');
+ log('Chat runner mobile','six-language source editor fits narrow phone viewport');
 
  await page.locator('[data-nav="studio"]').evaluate(el=>el.click());
  await page.locator('#navPolyglot').evaluate(el=>el.click());
