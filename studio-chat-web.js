@@ -117,7 +117,7 @@ function openInline(container,id){
  const edit=document.createElement('button');edit.type='button';edit.textContent='⌘ Düzenle';
  const expand=document.createElement('button');expand.type='button';expand.textContent='⛶ Tam ekran';
  const frame=document.createElement('iframe');frame.title='Bu sohbete ait web projesi';
- frame.sandbox='allow-scripts allow-forms';frame.referrerPolicy='no-referrer';frame.loading='lazy';
+ frame.setAttribute('sandbox','allow-scripts allow-forms');frame.referrerPolicy='no-referrer';frame.loading='lazy';
  frame.srcdoc=window.DimensiaDevTools?.instrument?.(preview.html)??preview.html;
  refresh.onclick=()=>{const p=getPreview(id);if(p)frame.srcdoc=window.DimensiaDevTools?.instrument?.(p.html)??p.html};
  edit.onclick=()=>{
