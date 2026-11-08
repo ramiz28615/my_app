@@ -799,6 +799,59 @@ try{
  checkNoErrors('Chat inline preview, continuation and auto projects');
  log('Chat partial code completion','finish_reason length recovered, complete HTML validated and preview rendered');
 
+ // React Native / Expo source editing is linked to the current conversation.
+ await page.locator('#dhNew').click();
+ const mobileChat=await page.evaluate(()=>window.DimensiaChatHub.getState().active);
+ await page.locator('#dhModeNative').click();
+ assert.ok(await page.locator('#drnPanel').isVisible(),'React Native editor must open in the conversation');
+ assert.equal(await page.evaluate(()=>window.DimensiaChatHub.getState().mode),'native');
+ assert.ok((await page.locator('#drnEditor').inputValue()).includes('export default function App'));
+ assert.ok((await page.evaluate(()=>window.DimensiaNativeStudio.getFiles()['package.json'])).includes('"expo"'));
+ await page.locator('#drnEditor').fill('import React from "react";\nexport default function App() { return null; } // EDITED_REACT_NATIVE');
+ await page.locator('[data-drn-file="app.json"]').click();
+ await page.locator('[data-drn-file="App.js"]').click();
+ assert.ok((await page.locator('#drnEditor').inputValue()).includes('EDITED_REACT_NATIVE'),'Native source must persist across tabs');
+ await page.locator('#drnCheck').click();
+ assert.ok((await page.locator('#drnStatus').innerText()).includes('kontrol edildi'));
+ const nativeZIP=await page.evaluate(async()=>{
+  const b=window.DimensiaNativeStudio.makeZIP(window.DimensiaNativeStudio.getFiles());
+  const arr=new Uint8Array(await b.arrayBuffer());
+  return {signature:Array.from(arr.slice(0,4)),bytes:arr.length,colab:window.DimensiaNativeStudio.colabUrl};
+ });
+ assert.deepEqual(nativeZIP.signature,[80,75,3,4],'Expo project ZIP must have valid local file header');
+ assert.ok(nativeZIP.bytes>1200);
+ assert.ok(nativeZIP.colab.includes('dimensia_apk_builder.ipynb'));
+ const dPromise=page.waitForEvent('download');
+ await page.locator('#drnExport').click();
+ const d=await dPromise;
+ assert.match(d.suggestedFilename(),/^dimensia-[a-z0-9]+\.zip$/);
+ await page.locator('#dhNew').click();
+ assert.notEqual(await page.evaluate(()=>window.DimensiaChatHub.getState().active),mobileChat);
+ await page.locator('#dhModeNative').click();
+ assert.ok(!(await page.locator('#drnEditor').inputValue()).includes('EDITED_REACT_NATIVE'),
+  'New chat should have isolated React Native project');
+ await page.locator('#dhHistory .dh-history-open').filter({hasText:'Yeni sohbet'}).first().count();
+ const mobileReply='React Native kaynak:\n'+'\x60\x60\x60'+'jsx\n'+
+  'import React from "react";\nimport { Text } from "react-native";\nexport default function App(){ return <Text>NEW_NATIVE_FROM_AI</Text>; }\n'+
+  '\x60\x60\x60';
+ const nativeRoute=async route=>route.fulfill({status:200,contentType:'application/json',
+  headers:{'access-control-allow-origin':'*'},
+  body:JSON.stringify({model:'mock/native:free',choices:[{finish_reason:'stop',message:{content:mobileReply}}]})});
+ await page.route('https://openrouter.ai/api/v1/chat/completions',nativeRoute);
+ await page.locator('#dhInput').fill('Bana çalışan React Native uygulaması oluştur.');
+ await page.locator('#dhSend').click();
+ await page.waitForFunction(()=>window.DimensiaNativeStudio?.getFiles()['App.js']?.includes('NEW_NATIVE_FROM_AI'),{timeout:15000});
+ assert.ok((await page.locator('#drnEditor').inputValue()).includes('NEW_NATIVE_FROM_AI'),
+  'AI generated code should replace editor source without stale-text override');
+ await page.unroute('https://openrouter.ai/api/v1/chat/completions',nativeRoute);
+ await page.locator('#drnType').click();
+ assert.equal(await page.evaluate(()=>window.DimensiaNativeStudio.getState().entry),'App.tsx');
+ assert.ok((await page.evaluate(()=>window.DimensiaNativeStudio.getFiles()['tsconfig.json'])).includes('expo/tsconfig.base'));
+ await page.locator('#drnClose').click();
+ checkNoErrors('Native APK Studio');
+ log('Native APK Studio','per-chat Expo App editor, isolation, AI source sync, ZIP export, TSX support and Colab handoff');
+
+
 
 
  await page.locator('[data-nav="settings"]').click();
