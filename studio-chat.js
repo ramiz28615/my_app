@@ -1,4 +1,4 @@
-/* Dimensia Conversational Workspace 6.0. OpenRouter key only in Settings memory. */
+/* Dimensia Conversational Workspace 8.2.0. OpenRouter key stays in Settings memory. */
 (()=>{
 'use strict';
 const $=id=>document.getElementById(id),home=$('page-home'),side=$('sidebar');
@@ -63,7 +63,7 @@ function alertUser(msg,bad){
 }
 const session=()=>chats.find(x=>x.id===active);
 function newID(){return'dh-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8)}
-function cleanMsg(m){return {role:m.role==='assistant'?'assistant':'user',text:String(m.text||'').slice(0,9000),
+function cleanMsg(m){return {role:m.role==='assistant'?'assistant':'user',text:String(m.text||'').slice(0,m.role==='assistant'?200000:12000),
  ...(m.artifact?{artifact:true,label:cut(m.label,75),bytes:Number(m.bytes)||0}:{})}}
 function restore(){
  try{
@@ -85,6 +85,7 @@ function createChat(){
  const s={id:newID(),title:'Yeni sohbet',time:Date.now(),messages:[]};
  chats.unshift(s);chats=chats.slice(0,24);active=s.id;artifact=null;artifactChat='';attachment=null;
  saveHistory();renderHistory();renderMessages();renderArtifact();renderAttachment();
+ document.dispatchEvent(new CustomEvent('dimensia:chat-activated',{detail:{chatId:s.id,title:s.title,created:true}}));
  return s;
 }
 function requireChat(){return session()||createChat()}
@@ -92,6 +93,11 @@ function appendMessage(m){
  const s=requireChat(),msg=cleanMsg(m);s.messages.push(msg);s.messages=s.messages.slice(-40);
  if(msg.role==='user'&&s.title==='Yeni sohbet')s.title=cut(msg.text,46)||'Yeni sohbet';
  s.time=Date.now();chats.sort((a,b)=>b.time-a.time);saveHistory();renderHistory();renderMessages();
+ if(msg.role==='assistant'&&msg.text){
+  document.dispatchEvent(new CustomEvent('dimensia:chat-assistant-web',{detail:{text:msg.text,chatId:active,name:s.title}}));
+ }
+ if(msg.role==='user'&&s.messages.length===1)
+  document.dispatchEvent(new CustomEvent('dimensia:chat-titled',{detail:{chatId:active,title:s.title}}));
  if(msg.role==='assistant'&&msg.text&&/(?:^|\n)\x60{3}(?:python|py|bash|sh|shell|perl|pl|php|javascript|js|node|nodejs|rust|rs)\s*\n/i.test(msg.text))
   document.dispatchEvent(new CustomEvent('dimensia:chat-assistant-code',{detail:{text:msg.text,chatId:active}}));
 }
@@ -101,7 +107,8 @@ function renderHistory(){
  for(const s of chats){
   const row=document.createElement('div');row.className='dh-history-entry'+(s.id===active?' active':'');
   const open=document.createElement('button');open.className='dh-history-open';open.type='button';open.title=s.title;open.textContent='◌ '+s.title;
-  open.onclick=()=>{if(pending)return;active=s.id;artifact=null;artifactChat='';renderMessages();renderHistory();renderArtifact();
+  open.onclick=()=>{if(pending)return;active=s.id;artifact=null;artifactChat='';refreshWebArtifact();renderHistory();
+   document.dispatchEvent(new CustomEvent('dimensia:chat-activated',{detail:{chatId:s.id,title:s.title,created:false}}));
    document.querySelector('[data-nav="home"]')?.click();side.classList.remove('open');$('sidebarScrim')?.classList.remove('open')};
   const del=document.createElement('button');del.className='dh-history-delete';del.type='button';del.textContent='×';del.title='Sohbeti sil';
   del.setAttribute('aria-label',s.title+' sohbetini sil');
@@ -109,7 +116,8 @@ function renderHistory(){
    if(!confirm('Bu sohbet ve mesajları tarayıcıdan silinsin mi?'))return;
    chats=chats.filter(x=>x.id!==s.id);
    if(active===s.id){active=chats[0]?.id||'';artifact=null;artifactChat=''}
-   saveHistory();renderHistory();renderMessages();renderArtifact();
+   saveHistory();renderHistory();refreshWebArtifact();
+   document.dispatchEvent(new CustomEvent('dimensia:chat-activated',{detail:{chatId:active,title:session()?.title||'',created:false}}));
   };
   row.append(open,del);root.append(row);
  }
@@ -147,6 +155,7 @@ function safeText(root,text){
 }
 function renderMessages(){
  const messages=session()?.messages||[];
+ const lastAssistant=[...messages].reverse().find(m=>m.role==='assistant');
  $('dhWelcome').hidden=!!messages.length;$('dhSuggestions').hidden=!!messages.length;$('dhWelcomeNote').hidden=!!messages.length;
  const root=$('dhThread');root.replaceChildren();root.hidden=!messages.length&&!pending;
  for(const m of messages){
@@ -180,6 +189,8 @@ function renderMessages(){
     body.append(footer);
    }
   }
+  if(m===lastAssistant&&window.DimensiaWebProjects?.getPreview?.(active))
+   window.DimensiaWebProjects.openInline(body,active);
   row.append(avatar,body);root.append(row);
  }
  if(pending){
