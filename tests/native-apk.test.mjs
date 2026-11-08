@@ -41,6 +41,6 @@ test('Native APK builder rejects wrong package, invalid input and leaked secrets
   assert.throws(()=>prepareNativeBuild(input({DIMENSIA_ANDROID_PACKAGE:'com.bad;rm -rf /'}),path.join(dir,'a')),/package/);
   assert.throws(()=>prepareNativeBuild(input({DIMENSIA_APP_B64:'notbase64!'}),path.join(dir,'b')),/payload/);
   assert.throws(()=>prepareNativeBuild(input({DIMENSIA_APP_B64:Buffer.from(validCode+'\nconst key="github_pat_abcdefghijklmnopqrstuvwxyz123456";').toString('base64')}),path.join(dir,'c')),/credentials/);
-  assert.throws(()=>prepareNativeBuild(input({DIMENSIA_APP_B64:Buffer.from('const a=123;').toString('base64')}),path.join(dir,'d')),/export default/);
+  assert.throws(()=>prepareNativeBuild(input({DIMENSIA_APP_B64:Buffer.from('import React from "react";\nconst App=() => null;').toString('base64')}),path.join(dir,'d')),/export default/);
  }finally{fs.rmSync(dir,{recursive:true,force:true})}
 });
