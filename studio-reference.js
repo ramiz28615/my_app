@@ -117,9 +117,9 @@
      throw Error(lastError);
    }
    verified='valid';modelResult='ok';lastError='';renderMode(true);
-   return {text:answer.trim(),finishReason:String(choice.finish_reason||'unknown'),model:lastModel};
+   return {text:answer,finishReason:String(choice.finish_reason||'unknown'),model:lastModel};
  }
- async function ask(messages,limit=6000){return (await askDetailed(messages,limit)).text;}
+ async function ask(messages,limit=6000){return (await askDetailed(messages,limit)).text.trim();}
  async function loadFreeModels(){
    const result=await request('https://openrouter.ai/api/v1/models?output_modalities=text', {needsAuth:false},30000);
    const arr=Array.isArray(result.data)?result.data:[];
