@@ -103,8 +103,8 @@ function choose(name){
  saveEditor();selected=name;loading=true;editor.value=active().files[name];
  $('drnFileName').textContent=name;$('drnCount').textContent=editor.value.length+' karakter';loading=false;tabs();
 }
-function activate(id){
- if(!id)return;saveEditor();
+function activate(id,{skipSave=false}={}){
+ if(!id)return;if(!skipSave)saveEditor();
  const p=ensure(id);openedFor=id;selected=p.entry;loading=true;
  $('drnProjectName').textContent=p.name;editor.value=p.files[selected]||'';
  $('drnFileName').textContent=selected;$('drnCount').textContent=editor.value.length+' karakter';
@@ -182,7 +182,7 @@ function capture(text,id){
  if(!/\bexport\s+default\b/.test(last.source)||bytes(last.source)>LIMIT||SENSITIVE.test(last.source)){
   status('AI yanıtı tam App dosyası içermiyor veya güvenlik/uzunluk kontrolünden geçmedi.',true);return false;
  }
- const p=ensure(id);delete p.files[p.entry];p.entry=last.entry;p.files[p.entry]=last.source;
+ saveEditor();const p=ensure(id);delete p.files[p.entry];p.entry=last.entry;p.files[p.entry]=last.source;
  if(last.entry==='App.tsx'){
   p.files['tsconfig.json']=JSON.stringify({extends:'expo/tsconfig.base',compilerOptions:{strict:true}},null,2)+'\n';
   const pkg=JSON.parse(p.files['package.json']);
@@ -190,7 +190,7 @@ function capture(text,id){
   p.files['package.json']=JSON.stringify(pkg,null,2)+'\n';
  }else delete p.files['tsconfig.json'];
  p.updatedAt=Date.now();persist();
- if(id===activeId()){activate(id);status('✓ AI '+last.entry+' dosyasını projene uyguladı. ZIP ve Colab ile APK derleyebilirsin.')}
+ if(id===activeId()){activate(id,{skipSave:true});status('✓ AI '+last.entry+' dosyasını projene uyguladı. ZIP ve Colab ile APK derleyebilirsin.')}
  return true;
 }
 editor.addEventListener('input',()=>{if(loading)return;saveEditor();$('drnCount').textContent=editor.value.length+' karakter'});
@@ -200,7 +200,7 @@ $('drnRename').onclick=()=>{
  const p=active(),name=prompt('Uygulama adı:',p.name);if(name===null)return;
  p.name=cleanName(name);$('drnProjectName').textContent=p.name;
  try{const cfg=JSON.parse(p.files['app.json']);cfg.expo.name=p.name;p.files['app.json']=JSON.stringify(cfg,null,2)+'\n'}catch{}
- p.updatedAt=Date.now();persist();if(selected==='app.json')choose('app.json');
+ p.updatedAt=Date.now();persist();if(selected==='app.json'){loading=true;editor.value=p.files['app.json'];loading=false;}
 };
 $('drnCheck').onclick=()=>{saveEditor();try{status('✓ '+Math.round(validate(active())/1024)+' KB proje yapısı kontrol edildi. Gerçek derlemeyi Colab/Gradle yapar.')}catch(e){status('Hata: '+e.message,true)}};
 $('drnType').onclick=()=>{
@@ -214,11 +214,11 @@ $('drnType').onclick=()=>{
   delete p.files['tsconfig.json'];
   if(pkg.devDependencies){delete pkg.devDependencies.typescript;delete pkg.devDependencies['@types/react']}
  }
- p.files['package.json']=JSON.stringify(pkg,null,2)+'\n';p.updatedAt=Date.now();persist();activate(activeId());
+ p.files['package.json']=JSON.stringify(pkg,null,2)+'\n';p.updatedAt=Date.now();persist();activate(activeId(),{skipSave:true});
 };
 $('drnExample').onclick=()=>{
  if(!confirm('Aktif App dosyasının yerine örnek React Native uygulaması yüklensin mi?'))return;
- const p=active();p.files[p.entry]=APP;p.updatedAt=Date.now();persist();activate(activeId());
+ const p=active();p.files[p.entry]=APP;p.updatedAt=Date.now();persist();activate(activeId(),{skipSave:true});
 };
 $('drnExport').onclick=exportZIP;
 $('drnColab').onclick=()=>{window.open(NOTEBOOK,'_blank','noopener,noreferrer');status('Colab açıldı. ZIP dosyanı yükleyip hücreleri çalıştır.')};
@@ -240,7 +240,7 @@ window.DimensiaNativeStudio={
  getState:()=>({chatId:activeId(),projectName:active().name,entry:active().entry,visible:!panel.hidden}),
  updateFile:(name,content)=>{
   const p=active();if(!Object.hasOwn(p.files,name)||typeof content!=='string'||bytes(content)>LIMIT||SENSITIVE.test(content))throw Error('Dosya geçersiz.');
-  p.files[name]=content;p.updatedAt=Date.now();persist();if(selected===name)activate(activeId());
+  saveEditor();p.files[name]=content;p.updatedAt=Date.now();persist();if(selected===name){loading=true;editor.value=content;loading=false;}
  },
  colabUrl:NOTEBOOK
 };
