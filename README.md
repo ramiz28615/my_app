@@ -1,4 +1,4 @@
-# Dimensia AI Workspace 8.0.2 · Sohbette 6 Dili Çalıştırma
+# Dimensia AI Workspace 8.1.0 · Boyutlandırılabilir ekranlar ve çoklu projeler
 
 **AI destekli HTML/CSS/JavaScript oluştur, düzenle, önizle ve GitHub Pages'e yayınla.** Bu sürüm, kişisel deneyler ve statik web projeleri için çalışan açık kaynaklı bir stüdyodur. Bir SaaS platformunun tüm kurumsal özelliklerini veya dünya sıralamasında üstünlüğü iddia etmez.
 
@@ -9,6 +9,13 @@
 | **Örneğin kaynak kodu** | https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html |
 | **Otomatik testler** | https://github.com/ramiz28615/my_app/actions |
 
+
+## 8.1.0 — Kullanıcıya özel ekran düzeni ve çoklu proje
+
+- **Ekran Boyutları:** Sohbet üst menüsündeki **▦ Boyutlar** ile sol menü, önizleme genişliği/yüksekliği, mobil sohbet yüksekliği, terminal, terminal editörü, stdout/stderr, HTML/CSS/JS editörü ve konsolu, Code Lab editörü ve Studio önizleme boyutu ayrı ayrı ayarlanır. Kaydırıcılar Android'de de çalışır. Masaüstünde sohbet/önizleme ayırıcı çubuğu sürüklenir; terminal kod editörü ve çıktı alanlarında sürükleme tutamaçları bulunur.
+- **Projelerim:** Sohbet içindeki **▦ Proje** ve Kod Çalıştır panelindeki **Projelerim** alanından yeni proje oluşturabilir, seçebilir, adlandırabilir, kopyalayabilir, silebilir, yedeğini JSON olarak indirebilir ve içe aktarabilirsin. Python, Bash, Perl, PHP, JavaScript ve Rust kaynakları proje başına ayrı tutulur.
+- **Kaydetme:** Tarayıcıdaki yerel depolama kullanılır; hesaplar/cihazlar arası otomatik senkronizasyon değildir. Projeleri başka cihaza taşımak için **İndir / Yükle** kullan. **Gizli API anahtarı/şifre kaynaklara yazma**.
+- **Terminal:** Kod editörü kullanıcı tarafından değiştirilebilir; çalıştırmadan önce açık onay gerekir. Gerçek terminal çıktısında stdout/stderr, exit code ve aşama durumları görüntülenir, kopyalanır ve temizlenebilir. Terminal GitHub Actions tabanlı tek seferlik çalışma ortamıdır; kalıcı, interaktif Linux SSH terminali değildir.
 
 ## 8.0.2 — Sohbette altı dil ve seçilen kodu çalıştırma
 
