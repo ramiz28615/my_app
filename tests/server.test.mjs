@@ -151,7 +151,7 @@ test('Chat-first homepage remains separate from legacy Studio without storing an
   readFile('studio-chat.js','utf8'),
   readFile('studio-chat.css','utf8')
  ]);
- assert.ok(html.includes('studio-chat.js?v=8.0.1')&&html.includes('studio-chat.css?v=6.0.2'));
+ assert.ok(html.includes('studio-chat.js?v=8.0.2')&&html.includes('studio-chat.css?v=6.0.2'));
  assert.ok(html.includes('id="page-home"')&&html.includes('id="page-studio"'),'Legacy sections must stay');
  for(const id of ['dimensiaChatHub','dhConversation','dhInput','dhSend','dhNewSide','dhHistory','dhModeBuild','dhPreview','dhSave','dhPublish']){
   assert.ok(chat.includes(id),'Missing chat feature '+id);
@@ -229,7 +229,7 @@ test('Polyglot 7.1 keeps shared input, reviewed repairs and opt-in local drafts'
 });
 
 
-test('Chat 8.0 provides four language tabs and user-approved cloud execution',async()=>{
+test('Chat 8.0.2 provides six language tabs and user-approved cloud execution',async()=>{
  const [html,source,style,launchpad,runner,workflow,collector]=await Promise.all([
   readFile('index.html','utf8'),readFile('studio-chat-runner.js','utf8'),
   readFile('studio-chat-runner.css','utf8'),readFile('studio-launchpad.js','utf8'),
@@ -237,10 +237,10 @@ test('Chat 8.0 provides four language tabs and user-approved cloud execution',as
   readFile('.github/workflows/chat-code-execute.yml','utf8'),
   readFile('scripts/collect-chat-code.mjs','utf8')
  ]);
- for(const item of ['studio-chat-runner.js?v=8.0.0','studio-chat-runner.css?v=8.0.0'])assert.ok(html.includes(item));
+ for(const item of ['studio-chat-runner.js?v=8.0.2','studio-chat-runner.css?v=8.0.2'])assert.ok(html.includes(item));
  for(const id of ['dhrPanel','dhrRunOne','dhrRunAll','dhrEditor','dhrAuto','dhrOutput','dhrExample'])
   assert.ok(source.includes(id),'Missing chat code runner UI '+id);
- for(const lang of ['python','bash','perl','php'])assert.ok(source.includes(lang),'Missing language '+lang);
+ for(const lang of ['python','bash','perl','php','javascript','rust'])assert.ok(source.includes(lang),'Missing language '+lang);
  assert.ok(source.includes('confirm(disclosure)'),'No code execution without explicit user consent');
  assert.ok(source.includes('dimensia:chat-code-request'),'Chat reply code must connect to runner');
  assert.ok(launchpad.includes('startChatRun')&&launchpad.includes('fetchChatRunReport'));
