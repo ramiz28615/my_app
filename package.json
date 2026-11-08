@@ -1,9 +1,9 @@
 {
   "name": "dimensia-studio",
-  "version": "8.0.1",
+  "version": "8.0.2",
   "private": true,
   "type": "module",
-  "description": "Dimensia 8.0.1: chat-native Python Bash Perl PHP runner with fixed per-snippet copy/run source binding",
+  "description": "Dimensia 8.0.2: six-language chat-native Python Bash Perl PHP JavaScript Rust cloud runner",
   "engines": {
     "node": ">=20"
   },

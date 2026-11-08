@@ -1,4 +1,4 @@
-/* Dimensia Chat Code Runner 8.0
+/* Dimensia Chat Code Runner 8.0.2
  * GitHub-hosted Ubuntu worker only; code is executed in a temporary directory.
  * Job has read-only repo permission, no checkout credentials and no forwarded secrets.
  * This is NOT a hardened untrusted-code sandbox (runner has filesystem/network access).
@@ -14,7 +14,9 @@ const languages={
  python:{file:'main.py',name:'Python 3',steps:[['Python syntax','python3',['-I','-m','py_compile','main.py']],['Python execute','python3',['-I','-B','main.py']]]},
  bash:{file:'main.sh',name:'Bash',steps:[['Bash syntax','bash',['-n','main.sh']],['Bash execute','bash',['--noprofile','--norc','main.sh']]]},
  perl:{file:'main.pl',name:'Perl 5',steps:[['Perl syntax','perl',['-c','main.pl']],['Perl execute','perl',['main.pl']]]},
- php:{file:'main.php',name:'PHP 8.3',steps:[['PHP syntax','php',['-l','main.php']],['PHP execute','php',['-d','allow_url_fopen=0','main.php']]]}
+ php:{file:'main.php',name:'PHP 8.3',steps:[['PHP syntax','php',['-l','main.php']],['PHP execute','php',['-d','allow_url_fopen=0','main.php']]]},
+ javascript:{file:'main.js',name:'JavaScript / Node.js',steps:[['JavaScript syntax','node',['--check','main.js']],['Node.js execute','node',['main.js']]]},
+ rust:{file:'main.rs',name:'Rust',steps:[['Rust compile','rustc',['--edition=2021','-C','opt-level=0','-o','chat_app','main.rs']],['Rust execute','./chat_app',[]]]}
 };
 if(!/^r[a-z0-9]{9,35}$/.test(id)||!Object.hasOwn(languages,lang))throw Error('Unsupported run ID or language');
 const safe=text=>String(text??'').replace(/sk-or-v1-[a-z0-9_-]{18,}/gi,'[REDACTED-OPENROUTER]')
@@ -54,7 +56,8 @@ try{
   const safeEnv={
    PATH:process.env.PATH||'/usr/local/bin:/usr/bin:/bin',HOME:folder,TMPDIR:folder,
    LANG:'C.UTF-8',LC_ALL:'C.UTF-8',PYTHONNOUSERSITE:'1',PYTHONDONTWRITEBYTECODE:'1',
-   COMPOSER_DISABLE_XDEBUG_WARN:'1'
+   COMPOSER_DISABLE_XDEBUG_WARN:'1',
+   ...(lang==='rust'?{RUSTUP_HOME:process.env.RUSTUP_HOME||join(process.env.HOME||'/home/runner','.rustup')}:{}),
   };
   output.status='passed';
   for(const [label,command,args] of runner.steps){

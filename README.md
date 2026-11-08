@@ -1,14 +1,22 @@
-# Dimensia AI Workspace 8.0.1 · Sohbette Python / Bash / Perl / PHP Çalıştırma
+# Dimensia AI Workspace 8.0.2 · Sohbette 6 Dili Çalıştırma
 
 **AI destekli HTML/CSS/JavaScript oluştur, düzenle, önizle ve GitHub Pages'e yayınla.** Bu sürüm, kişisel deneyler ve statik web projeleri için çalışan açık kaynaklı bir stüdyodur. Bir SaaS platformunun tüm kurumsal özelliklerini veya dünya sıralamasında üstünlüğü iddia etmez.
 
 | | Bağlantı |
 |---|---|
-| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=8.0.1#home |
+| **Canlı stüdyo** | https://ramiz28615.github.io/my_app/?v=8.0.2#home |
 | **Gerçek yayınlanmış örnek** | https://ramiz28615.github.io/my_app/sites/aurora-demo/ |
 | **Örneğin kaynak kodu** | https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html |
 | **Otomatik testler** | https://github.com/ramiz28615/my_app/actions |
 
+
+## 8.0.2 — Sohbette altı dil ve seçilen kodu çalıştırma
+
+- **Yeni sohbet dilleri:** Python 3, Bash, Perl 5 ve PHP'ye ek olarak **JavaScript (Node.js)** ve **Rust (rustc)** editörleri eklendi.
+- AI mesajlarındaki `javascript`, `js`, `node`, `nodejs`, `rust` ve `rs` Markdown kod bloklarında **▶ Çalıştır** çıkar. Kodu ilgili dil editörüne aktarır ve her bulut gönderimi için kullanıcıdan açık onay ister.
+- **Tüm dilleri birlikte çalıştır** altı ayrı GitHub Actions matris işini kullanır. Rust derlenir ve çalıştırılır; JavaScript önce sözdizimi kontrolünden geçer, sonra Node.js ile çalıştırılır.
+- Bulut çıktıları `stdout/stderr`, çıkış kodu, çalıştırılan aşamalar ve hata durumu olarak ayrı dil sekmelerinde görünür.
+- **Sınırlar:** dil başına 10 KB, toplam kaynak paketi 38 KB, aşama başına 20 saniye; uzaktan çalıştırma kişisel denemeler içindir ve izole güvenilir çok kullanıcılı bir üretim sandbox'ı değildir. Kod ve çıktılar public GitHub Actions üzerinden başkalarınca görülebilir.
 
 ## 8.0.1 — Kod bloklarında Çalıştır/Kopyala düzeltmesi
 

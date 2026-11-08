@@ -494,14 +494,14 @@ try{
  checkNoErrors('Polyglot repair');
  log('Polyglot repair','failed language diagnostics, AI suggestion review, explicit apply and zero silent uploads passed');
 
- // Chat-native four-language runner: editable snippets, explicit public-run consent,
- // and displayed PHP/Python/Bash/Perl stdout without editing existing GitHub code.
+ // Chat-native six-language runner: editable snippets, explicit public-run consent,
+ // and displayed runtime output without editing existing GitHub code.
  await page.locator('[data-nav="home"]').evaluate(el=>el.click());
  await page.locator('#dhRunQuick').click();
  assert.ok(await page.locator('#dhrPanel').isVisible(),'The in-chat code console must open');
- assert.equal(await page.locator('#dhrTabs [data-dhr-lang]').count(),4);
+ assert.equal(await page.locator('#dhrTabs [data-dhr-lang]').count(),6);
  await page.locator('#dhrExample').click();
- for(const lang of ['python','bash','perl','php']){
+ for(const lang of ['python','bash','perl','php','javascript','rust']){
   assert.ok((await page.evaluate(language=>window.DimensiaChatRunner.getSources()[language],lang)).length>15);
  }
  await page.locator('[data-dhr-lang="php"]').click();
@@ -512,7 +512,7 @@ try{
 
  await page.waitForFunction(()=>window.DimensiaChatRunner.getState().hasReport,{timeout:30000});
  assert.equal(chatDispatch.ref,'main');
- assert.equal(Object.keys(JSON.parse(Buffer.from(chatDispatch.inputs.sources_b64,'base64').toString('utf8'))).length,4);
+ assert.equal(Object.keys(JSON.parse(Buffer.from(chatDispatch.inputs.sources_b64,'base64').toString('utf8'))).length,6);
  assert.equal(await page.evaluate(()=>window.DimensiaChatRunner.getState().results.php.status),'passed');
  assert.ok((await page.locator('#dhrOutput').innerText()).includes('HELLO_CHAT_PHP'));
  assert.equal(cloudUploads.length,beforeUploads,'Chat run must not write submitted source into repository contents');
@@ -529,7 +529,7 @@ try{
  assert.equal(await page.evaluate(()=>window.DimensiaChatRunner.getState().results.php.status),'skipped');
  await page.locator('#dhrClose').click();
  checkNoErrors('Chat code runner');
- log('Chat code runner','real GitHub API dispatch mocked, 4 languages, PHP tab, single fence run, results and no source writes passed');
+ log('Chat code runner','GitHub API dispatch mocked, six languages, PHP tab, single fence run, results and no source writes passed');
  await page.locator('[data-nav="studio"]').evaluate(el=>el.click());
  await page.locator('#launchTokenForget').click();
 
@@ -662,15 +662,17 @@ try{
     fence+'python\nprint("CHAT_FENCE_PY")\n'+fence+'\n'+
     fence+'bash\nprintf "CHAT_FENCE_BASH\\n"\n'+fence+'\n'+
     fence+'perl\nprint "CHAT_FENCE_PERL\\n";\n'+fence+'\n'+
-    fence+'php\n<?php echo "CHAT_FENCE_PHP\\n";\n'+fence;
+    fence+'php\n<?php echo "CHAT_FENCE_PHP\\n";\n'+fence+'\n'+
+    fence+'javascript\nconsole.log("CHAT_FENCE_JAVASCRIPT");\n'+fence+'\n'+
+    fence+'rust\nfn main() { println!("CHAT_FENCE_RUST"); }\n'+fence;
   await route.fulfill({status:200,contentType:'application/json',
    headers:{'access-control-allow-origin':'*'},
    body:JSON.stringify({model:'mock/fences:free',choices:[{finish_reason:'stop',message:{content:reply}}]})});
  };
  await page.route('https://openrouter.ai/api/v1/chat/completions',fenceRoute);
- await page.locator('#dhInput').fill('Python Bash Perl PHP için küçük birer kod yaz.');
+ await page.locator('#dhInput').fill('Python Bash Perl PHP JavaScript Rust için küçük birer kod yaz.');
  await page.locator('#dhSend').click();
- await page.waitForFunction(()=>document.querySelectorAll('#dhThread .dh-code-run').length===4,{timeout:12000});
+ await page.waitForFunction(()=>document.querySelectorAll('#dhThread .dh-code-run').length===6,{timeout:12000});
  assert.equal(await page.locator('#dhThread .dh-run-all').count(),1,'Multi-language code reply needs Run All button');
  const originalDispatch=chatDispatch;
  page.once('dialog',dialog=>dialog.dismiss());
@@ -696,7 +698,7 @@ try{
  await page.locator('#dhrClose').click();
  await page.unroute('https://openrouter.ai/api/v1/chat/completions',fenceRoute);
  checkNoErrors('Chat fenced code and consent');
- log('Chat code fences','four inline Run buttons, message Run All and auto mode require explicit user approval');
+ log('Chat code fences','six inline Run buttons, message Run All and auto mode require explicit user approval');
 
 
  await page.locator('[data-nav="settings"]').click();
@@ -767,7 +769,7 @@ try{
  assert.ok((await page.locator('#dhrEditor').inputValue()).includes('<?php'),'Mobile PHP tab must be editable');
  await page.locator('#dhrClose').click();
  checkNoErrors('Chat runner mobile');
- log('Chat runner mobile','four-language source editor fits narrow phone viewport');
+ log('Chat runner mobile','six-language source editor fits narrow phone viewport');
 
  await page.locator('[data-nav="studio"]').evaluate(el=>el.click());
  await page.locator('#navPolyglot').evaluate(el=>el.click());
