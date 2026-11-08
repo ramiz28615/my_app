@@ -1,4 +1,4 @@
-/* Dimensia AI 8.4 — chat-first low-code orchestration.
+/* Dimensia AI 8.5 — chat-first low-code orchestration.
  * The assistant may prepare and preview locally; publication/cloud execution always needs user approval.
  */
 (()=>{
@@ -10,6 +10,7 @@ const STORE='dimensia-chat-autopilot-v1';
 const ACTIONS={
  preview:'◎ Önizleme',editweb:'⌘ Web kodu',downloadweb:'↓ Siteyi indir',
  publish:'↗ Yayınla',native:'📱 Mobil editör',zip:'↓ APK için ZIP',
+ apkbuild:'⚡ APK oluştur',apkstatus:'⌁ APK durumu',apkdownload:'↓ APK paketini indir',
  colab:'↗ Google Colab',terminal:'▶ Terminal',projects:'▦ Projeler',
  layout:'▦ Boyutlar',settings:'⚙ AI Bağlantısı'
 };
@@ -24,6 +25,7 @@ bar.innerHTML='<div class="dau-top"><button type="button" id="dauToggle" aria-pr
  '<button type="button" data-dau="site">✦ Site yap</button>'+
  '<button type="button" data-dau="app">📱 Uygulama yap</button>'+
  '<button type="button" data-dau="preview">◎ Önizleme</button>'+
+ '<button type="button" data-dau="apkbuild">⚡ APK oluştur</button>'+ 
  '<button type="button" data-dau="zip">↓ APK ZIP</button>'+
  '<button type="button" data-dau="colab">↗ Colab</button>'+
  '<button type="button" data-dau="projects">▦ Projeler</button>'+
@@ -50,7 +52,10 @@ function localCommand(text){
  if(/^(?:onizleme(?:yi)?.(?:ac|goster|yenile)|siteyi.goster|canli.onizleme|onizle)$/i.test(q))return'preview';
  if(/^(?:siteyi.indir|html.indir|web.projeyi.indir)$/i.test(q))return'downloadweb';
  if(/^(?:web.kodunu.(?:ac|duzenle)|html.(?:editor|duzenle)|kod.(?:editorunu.ac|duzenle))$/i.test(q))return'editweb';
- if(/^(?:apk.(?:olustur|indir|hazirla)|apk.yap|apk.icin.zip.hazirla|android.apk)$/i.test(q))return'apkguide';
+ if(/^(?:apk.(?:olustur|yap|hazirla)|android.apk|uygulamayi.apk.yap|apk.derle|apk.derlemesini.baslat)$/i.test(q))return'apkbuild';
+ if(/^(?:apk.(?:indir|dosyasini.indir)|apk.paketini.indir)$/i.test(q))return'apkdownload';
+ if(/^(?:apk.(?:durum|durumu)|derleme.durumu|apk.nereye.geldi)$/i.test(q))return'apkstatus';
+ if(/^(?:apk.icin.zip.hazirla|apk.zip)$/i.test(q))return'zip';
  if(/^(?:colab.(?:ac|baglan|goster)|google.colab(?:.ac)?)$/i.test(q))return'colab';
  if(/^(?:github.a.yayinla|siteyi.yayinla|yayinlama.ekranini.ac)$/i.test(q))return'publish';
  if(/^(?:terminal(?:i)?.ac|kod.calistir(?:ma.alanini.ac)?)$/i.test(q))return'terminal';
@@ -109,12 +114,25 @@ function execute(action){
   $('dhDownload')?.click();setStatus('HTML indirme işlemi başlatıldı.');
   return{message:'Web sitenin HTML dosyasının indirilmesi başlatıldı.',actions:['preview']}
  }
- if(key==='native'||key==='apkguide'||key==='zip'){
+ if(key==='apkbuild'){
+  hub.setMode('native');window.DimensiaNativeStudio?.open?.();
+  void window.DimensiaNativeBuild?.build?.({fromChat:true});
+  return{message:'APK oluşturma isteği işlendi. GitHub bağlantısı ve onay doğrulanınca gerçek bulut derlemesi başlayacak.',actions:['apkstatus','colab']};
+ }
+ if(key==='apkstatus'){
+  window.DimensiaNativeBuild?.openStatus?.();
+  return{message:'Bu sohbetin APK derleme kayıtlarını ve GitHub durumunu açtım.',actions:['apkdownload']};
+ }
+ if(key==='apkdownload'){
+  window.DimensiaNativeBuild?.download?.();
+  return{message:'APK hazırsa GitHub Actions derleme paketinin indirme bağlantısı açıldı.',actions:['apkstatus']};
+ }
+ if(key==='native'||key==='zip'){
   hub.setMode('native');window.DimensiaNativeStudio?.open?.();setStatus('Mobil uygulama projesi ve APK adımları açıldı.');
   if(key==='zip')window.DimensiaNativeStudio?.exportZIP?.();
   return{message:key==='zip'?'Mobil proje ZIP paketi hazırlama/indirme işlemi başlatıldı. APK için Colab’da derleme yapmalısın.':
-   'APK derlemesi Google Colab’da, senin onayınla yapılır. Mobil editörde kaynakları hazırla, ZIP indir, Colab’a yükleyip derle.',
-   actions:['native','zip','colab']}
+   'Otomatik APK için GitHub Actions düğmesini kullanabilir; Colab’ı etkileşimli alternatif olarak açabilirsin.',
+   actions:['native','apkbuild','zip','colab']}
  }
  if(key==='colab'){
   window.DimensiaNativeStudio?.open?.();
