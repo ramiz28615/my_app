@@ -1,4 +1,4 @@
-# Dimensia AI Workspace 8.3.0 · Sohbetten React Native / Android APK ve Google Colab
+# Dimensia AI Workspace 8.4.0 · Sohbetten Yönetilen Otomatik AI Üretim Stüdyosu
 
 **AI destekli HTML/CSS/JavaScript oluştur, düzenle, önizle ve GitHub Pages'e yayınla.** Bu sürüm, kişisel deneyler ve statik web projeleri için çalışan açık kaynaklı bir stüdyodur. Bir SaaS platformunun tüm kurumsal özelliklerini veya dünya sıralamasında üstünlüğü iddia etmez.
 
@@ -9,6 +9,15 @@
 | **Örneğin kaynak kodu** | https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html |
 | **Otomatik testler** | https://github.com/ramiz28615/my_app/actions |
 
+
+## 8.4.0 — Sohbetten her şeyi yönet: No-code AI Autopilot
+
+- **✦ Otomatik AI açık (varsayılan):** Kullanıcı teknoloji/dil seçmeden "Android uygulaması oluştur" veya "web sitesi tasarla" dediğinde sohbetin doğru üretim moduna yönlendirilir. Konuşma içinde "butonları büyüt", "menüyü ekle" gibi takip istekleri aynı proje türünden devam eder. Otomatik modu kapatıp klasik manuel moda dönmek mümkündür.
+- **Tek komutla proje araçları:** "önizlemeyi aç", "web kodunu düzenle", "siteyi indir", "apk oluştur", "colab aç", "terminali aç", "proje seç", "boyutları aç", "OpenRouter ayarları" gibi kısa sohbet komutları beklemeden ilgili panele bağlanır. Yerel panel komutları API anahtarı olmadan çalışır.
+- **Görünür sohbet komut çubuğu:** **✦ Site yap**, **📱 Uygulama yap**, **◎ Önizleme**, **↓ APK ZIP**, **↗ Colab**, **▦ Projeler**, **☷ Boyutlar** tek yerden ulaşılabilir. AI bağlıysa üretim düğmesi hazır istemi otomatik gönderir; değilse istemi saklar ve bağlantı gereğini açıklar.
+- **AI çıktılarına bağlı eylemler:** Site oluşturulunca **önizleme / kod düzenleme / HTML indirme / yayın paneli**, mobil App.js üretilince **mobil editör / ZIP / Colab** düğmeleri sohbet yanıtının altında görünür.
+- **Proje bağlamı:** Sohbetin üretim modu (web / native / sohbet), geçmiş konuşmalarda tarayıcıda saklanır. Sohbet değiştirilince önceki proje türü geri seçilir. HTML önizlemesi, Expo kaynakları ve terminal projeleri önceki sürümlerin yerel kayıt modeliyle korunur.
+- **Güvenlik:** Web önizlemesi izole iframe içindedir. APK Colab’da kullanıcı yüklediği ZIP ile, bulut kod yürütmesi açık onayla, GitHub yayınlama kendi onayınla gerçekleşir. Otomatik AI ne arka planda Colab hesabını yönetir ne de sana haber vermeden kod yayımlar. Gerçek dünyadaki servisleri birbirine bağlamak için ayrıca güvenli backend, bağlantılar ve yetkiler gerekir.
 
 ## 8.3.0 — Mobil uygulama / APK Stüdyosu
 
