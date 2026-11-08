@@ -1,4 +1,4 @@
-# Dimensia AI Workspace 8.4.0 · Sohbetten Yönetilen Otomatik AI Üretim Stüdyosu
+# Dimensia AI Workspace 8.5.0 · Sohbetten Tek Komutla Android APK
 
 **AI destekli HTML/CSS/JavaScript oluştur, düzenle, önizle ve GitHub Pages'e yayınla.** Bu sürüm, kişisel deneyler ve statik web projeleri için çalışan açık kaynaklı bir stüdyodur. Bir SaaS platformunun tüm kurumsal özelliklerini veya dünya sıralamasında üstünlüğü iddia etmez.
 
@@ -9,6 +9,15 @@
 | **Örneğin kaynak kodu** | https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html |
 | **Otomatik testler** | https://github.com/ramiz28615/my_app/actions |
 
+
+## 8.5.0 — Sohbetten bir tıkla Android debug APK derleme
+
+- **⚡ APK oluştur:** Dimensia'da React Native/Expo mobil projesini yapay zekâyla üret; aynı sohbette **APK oluştur** yaz veya **⚡ APK oluştur** düğmesine bas. Bağlı GitHub hesabının Actions izni ve açık kullanıcı onayıyla `.github/workflows/native-apk-build.yml` otomatik tetiklenir.
+- **Kod/ZIP ile uğraşmadan:** Uygulamanın mevcut `App.js` veya `App.tsx` kaynağı, geçerli uygulama adı ve Android paket adı kullanılır. Yalnızca bu alanlar GitHub Actions'a gönderilir; kullanıcı tarafından düzenlenen `package.json` komutları ve ek bağımlılıkları otomatik çalıştırılmaz. Kod 40 KB sınırını aşarsa veya desteklenmeyen bağımlılık varsa açıklayıcı hata gösterilir.
+- **Sohbet içinde durum:** Derleme sırada/çalışıyor/hatalı/başarılı durumlarını GitHub Actions REST API üzerinden izler. Başarılı olursa **APK paketini indir** bağlantısı ve GitHub işlem kaydı görünür. GitHub Actions artefaktı **ZIP** olarak indirir; içindeki `app-debug.apk` telefona kurulur. Bu bir test/debug APK'dir, Play Store release sürümü değildir.
+- **Bağlantı:** GitHub Launchpad'de **ramiz28615 / my_app** deposunu, yalnızca bu depoya erişen kişisel erişim tokeninle bağla. Token izinleri **Actions: Read and write**, **Contents: Read**; bağlantı bellekte tutulur, yerel depolamada saklanmaz.
+- **Colab alternatifi:** Google Colab açık notebook üzerinden yine kullanılabilir; ücretsiz Colab hesabının arayüzünü uzaktan/robotik olarak yönetmeyiz. Bu kullanım ücretsiz Colab'ın kısıtlarına uygun değildir; gerçek otomatik iş GitHub Actions üzerinde çalışır.
+- **Sınırlar ve gizlilik:** İş akışı GitHub'ın kullanıcı hesabındaki kota/izin ve Expo/Android indirmelerine bağlıdır; gerçek APK derlemesinin her projede başarı garantisi yok. Her iş kullanıcı tarafından onaylanır ve kod, kamuya açık depo iş akışı girdilerinde gözükebilir. Anahtar/şifreleri mobil uygulama dosyasına koyma. İndirme artefaktları GitHub'ın sınırlı saklama süresinde kalır. Tarayıcı kapatılırsa otomatik durum takibi durur ama GitHub işi devam eder.
 
 ## 8.4.0 — Sohbetten her şeyi yönet: No-code AI Autopilot
 

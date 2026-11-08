@@ -56,7 +56,7 @@ test('Public repository site includes module references',async()=>{
  assert.ok(source.includes('studio-mobile-fix.css'));
  assert.ok(source.includes('studio-mobile-fix.js'));
  assert.match(source,/studio-mobile-fix\.js\?v=5\.2\.1/);
- assert.match(source,/studio-launchpad\.js\?v=8\.0\.0/)
+ assert.match(source,/studio-launchpad\.js\?v=8\.5\.0/)
  assert.ok(source.includes('DimensiaDevTools.instrument'));
 });
 
@@ -151,7 +151,7 @@ test('Chat-first homepage remains separate from legacy Studio without storing an
   readFile('studio-chat.js','utf8'),
   readFile('studio-chat.css','utf8')
  ]);
- assert.ok(html.includes('studio-chat.js?v=8.4.0')&&html.includes('studio-chat.css?v=6.0.2'));
+ assert.ok(html.includes('studio-chat.js?v=8.5.0')&&html.includes('studio-chat.css?v=6.0.2'));
  assert.ok(html.includes('id="page-home"')&&html.includes('id="page-studio"'),'Legacy sections must stay');
  for(const id of ['dimensiaChatHub','dhConversation','dhInput','dhSend','dhNewSide','dhHistory','dhModeBuild','dhPreview','dhSave','dhPublish']){
   assert.ok(chat.includes(id),'Missing chat feature '+id);

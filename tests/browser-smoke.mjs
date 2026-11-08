@@ -167,11 +167,12 @@ try{
  const previewSite=await page.locator('#launchPreviewFrame').getAttribute('srcdoc');
  assert.ok(previewSite.includes('Düzenlenmiş Buton'),'Launchpad preview must reflect current generated HTML');
  const ghWrites=[];
+ const ghNativeRuns=[];
  let fileExists=false;
  const cors={
    'Access-Control-Allow-Origin':'*',
    'Access-Control-Allow-Headers':'Authorization,Content-Type,Accept,X-GitHub-Api-Version',
-   'Access-Control-Allow-Methods':'GET,PUT,OPTIONS'
+   'Access-Control-Allow-Methods':'GET,PUT,POST,OPTIONS'
  };
  await page.route('https://api.github.com/**',async route=>{
    const req=route.request(),u=new URL(req.url()),method=req.method();
@@ -192,6 +193,13 @@ try{
      }
    }
    if(u.pathname==='/repos/ramiz28615/my_app/contents/sites'&&method==='GET')return reply(200,[{name:'e2e-lansman',type:'dir'},{name:'aurora-demo',type:'dir'}]);
+   if(u.pathname==='/repos/ramiz28615/my_app/actions/workflows/native-apk-build.yml/dispatches'&&method==='POST'){
+    ghNativeRuns.push(req.postDataJSON());return route.fulfill({status:204,headers:cors});
+   }
+   if(u.pathname==='/repos/ramiz28615/my_app/actions/workflows/native-apk-build.yml/runs'&&method==='GET')
+    return reply(200,{workflow_runs:[{id:8765,display_title:'Dimensia APK a0123456789abcd',created_at:new Date().toISOString(),status:'completed',conclusion:'success'}]});
+   if(u.pathname==='/repos/ramiz28615/my_app/actions/runs/8765/artifacts')
+    return reply(200,{artifacts:[{id:4567,name:'dimensia-apk-a0123456789abcd',expired:false,size_in_bytes:12345678}]});
    if(u.pathname==='/repos/ramiz28615/my_app/actions/runs')return reply(200,{workflow_runs:[{name:'Deploy Dimensia Studio to GitHub Pages',path:'.github/workflows/deploy.yml',status:'completed',conclusion:'success',html_url:'https://github.com/ramiz28615/my_app/actions/runs/123'}]});
    return reply(404,{message:'Not Found'});
  });
@@ -216,6 +224,25 @@ try{
  await page.waitForFunction(()=>document.querySelector('#launchFeedback')?.textContent.includes('GitHub Pages dağıtımı başarılı'));
  checkNoErrors('Launchpad initial publish');
  log('Launchpad publish','GitHub API create, live link, deployment status passed');
+
+ // GitHub APK dispatch + status + artifact retrieval use the existing in-memory token.
+ const apiBuild=await page.evaluate(async()=>{
+  const runner=window.DimensiaLaunchpad;
+  const source=btoa('import React from "react";\nexport default function App(){return null;}');
+  const task=await runner.startNativeApkBuild({
+   id:'a0123456789abcd',appB64:source,language:'jsx',
+   name:'Uygulamam',androidPackage:'com.dimensia.e2e'
+  });
+  return {task,report:await runner.fetchNativeApkBuild(task)};
+ });
+ assert.equal(ghNativeRuns.length,1,'Approved build dispatch should send exactly one cloud job request');
+ assert.equal(ghNativeRuns[0].inputs.build_id,'a0123456789abcd');
+ assert.equal(ghNativeRuns[0].inputs.app_name,'Uygulamam');
+ assert.equal(apiBuild.report.state,'success');
+ assert.ok(apiBuild.report.downloadUrl.includes('/actions/runs/8765/artifacts/4567'));
+ assert.equal(ghWrites.length,1,'APK dispatch must not write app source into repository files');
+ log('Native APK GitHub API','workflow dispatch, status discovery and artifact link via session-only GitHub token passed');
+
 
  await page.locator('#launchPublish').click();
  await page.waitForFunction(()=>document.querySelector('#launchFeedback')?.textContent.includes('HTML GitHub’a kaydedildi')&&document.querySelector('#launchFeedback')?.textContent.includes('Yayın Durumunu'),{timeout:11000});
@@ -853,6 +880,47 @@ try{
  await page.locator('#drnClose').click();
  checkNoErrors('Native APK Studio');
  log('Native APK Studio','per-chat Expo App editor, isolation, AI source sync, ZIP export, TSX support and Colab handoff');
+
+ // Single click APK cloud orchestration shows real build result within this conversation.
+ await page.evaluate(()=>{
+  window.__savedApkApi={
+   start:window.DimensiaLaunchpad.startNativeApkBuild,
+   fetch:window.DimensiaLaunchpad.fetchNativeApkBuild
+  };
+  window.__apkPayloads=[];
+  window.DimensiaLaunchpad.startNativeApkBuild=async payload=>{
+   window.__apkPayloads.push(payload);
+   return{owner:'ramiz28615',repo:'my_app',branch:'main',id:payload.id,submittedAt:Date.now(),
+    actionsUrl:'https://github.com/ramiz28615/my_app/actions/workflows/native-apk-build.yml'};
+  };
+  window.DimensiaLaunchpad.fetchNativeApkBuild=async task=>({
+   state:'success',requestId:task.id,
+   runUrl:'https://github.com/ramiz28615/my_app/actions/runs/8765',
+   downloadUrl:'https://github.com/ramiz28615/my_app/actions/runs/8765/artifacts/4567'
+  });
+ });
+ await page.locator('#drnQuick').click();
+ assert.ok(await page.locator('#dabBuild').isVisible(),'One-click APK cloud build must appear in chat panel');
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#dabBuild').click();
+ await page.waitForFunction(()=>document.getElementById('dabProgress')?.textContent.includes('başarıyla derlendi'),{timeout:12000});
+ assert.equal(await page.evaluate(()=>window.__apkPayloads.length),1,'One approved request = one workflow dispatch');
+ const requestMeta=await page.evaluate(()=>window.__apkPayloads[0]);
+ assert.equal(requestMeta.language,'tsx');
+ assert.ok(requestMeta.appB64.length>40,'Cloud build must transfer actual user-approved app source');
+ assert.ok(await page.locator('#dabDownload').isVisible(),'Download action must appear after successful cloud build');
+ assert.ok((await page.locator('#dabDownload').getAttribute('href')).includes('/artifacts/4567'));
+ assert.ok(await page.locator('#dhThread [data-auto-action="apkdownload"]').count(),'Assistant must expose APK download from same chat');
+ const savedRun=await page.evaluate(()=>JSON.parse(localStorage.getItem('dimensia-native-build-history-v1')||'{}'));
+ assert.ok(Object.values(savedRun).some(x=>x.state==='success'&&x.downloadUrl.includes('4567')),'Store only build metadata, not token or source');
+ await page.evaluate(()=>{
+  window.DimensiaLaunchpad.startNativeApkBuild=window.__savedApkApi.start;
+  window.DimensiaLaunchpad.fetchNativeApkBuild=window.__savedApkApi.fetch;
+ });
+ await page.locator('#drnClose').click();
+ checkNoErrors('One-click cloud APK');
+ log('One-click cloud APK','user consent, mocked dispatch, live chat progress, artifact download and metadata storage passed');
+
  // Re-enable automatic intent routing for the new no-code conversation tests.
  await page.locator('#dauToggle').click();
  assert.equal(await page.locator('#dauToggle').getAttribute('aria-pressed'),'true');
@@ -884,7 +952,7 @@ try{
  await page.locator('#dhSend').click();
  await page.waitForFunction(()=>window.DimensiaNativeStudio?.getFiles()['App.js']?.includes('AUTO_NATIVE_CHAT'),{timeout:15000});
  assert.equal(await page.evaluate(()=>window.DimensiaChatHub.getState().mode),'native');
- assert.ok(await page.locator('#dhThread [data-auto-action="zip"]').count()>=1,'Generated code should offer one-click ZIP');
+ assert.ok(await page.locator('#dhThread [data-auto-action="apkbuild"]').count()>=1,'Generated code should offer one-click APK build');
  await page.unroute('https://openrouter.ai/api/v1/chat/completions',autoNativeRoute);
  await page.locator('#drnClose').click();
  await page.locator('#dhNew').click();
