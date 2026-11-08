@@ -1,0 +1,79 @@
+{
+  "schema": "dimensia-chat-run-v1",
+  "requestId": "rycw6u1xoycg20c9k",
+  "createdAt": "2026-11-08T06:25:29.025Z",
+  "public": true,
+  "warning": "GitHub Actions inputs and code output may be visible to other people. Never run private code or credentials.",
+  "results": {
+    "python": {
+      "status": "skipped",
+      "label": "Python 3",
+      "exitCode": 0,
+      "stdout": "No Python 3 code included in this chat request.",
+      "stderr": "",
+      "durationMs": 2,
+      "steps": []
+    },
+    "bash": {
+      "status": "failed",
+      "label": "Bash",
+      "exitCode": 2,
+      "stdout": "",
+      "stderr": "# Bash execute\npython: can't open file '/tmp/dimensia-chat-run-Fa9EIc/main.py': [Errno 2] No such file or directory\n\n\nExited with code 2",
+      "durationMs": 25,
+      "steps": [
+        {
+          "name": "Bash syntax",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3
+        },
+        {
+          "name": "Bash execute",
+          "status": "failed",
+          "exitCode": 2,
+          "durationMs": 16
+        }
+      ]
+    },
+    "perl": {
+      "status": "skipped",
+      "label": "Perl 5",
+      "exitCode": 0,
+      "stdout": "No Perl 5 code included in this chat request.",
+      "stderr": "",
+      "durationMs": 5,
+      "steps": []
+    },
+    "php": {
+      "status": "skipped",
+      "label": "PHP 8.3",
+      "exitCode": 0,
+      "stdout": "No PHP 8.3 code included in this chat request.",
+      "stderr": "",
+      "durationMs": 18,
+      "steps": []
+    },
+    "javascript": {
+      "status": "skipped",
+      "label": "JavaScript / Node.js",
+      "exitCode": 0,
+      "stdout": "No JavaScript / Node.js code included in this chat request.",
+      "stderr": "",
+      "durationMs": 1,
+      "steps": []
+    },
+    "rust": {
+      "status": "skipped",
+      "label": "Rust",
+      "exitCode": 0,
+      "stdout": "No Rust code included in this chat request.",
+      "stderr": "",
+      "durationMs": 37,
+      "steps": []
+    }
+  },
+  "passed": 0,
+  "failed": 1,
+  "skipped": 5
+}
