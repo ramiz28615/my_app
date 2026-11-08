@@ -647,9 +647,58 @@
       throw Error('Sohbet raporu başka bir çalışmaya ait.');
     return report;
   }
+  async function startNativeApkBuild(payload){
+    if(!payload||!/^a[a-z0-9]{10,32}$/.test(payload.id))throw Error('APK derleme istek kimliği geçersiz.');
+    if(!['jsx','tsx'].includes(payload.language)||typeof payload.appB64!=='string'||!/^[A-Za-z0-9+/]+={0,2}$/.test(payload.appB64)||payload.appB64.length>57000)
+      throw Error('APK kodu bozuk ya da 40 KB sınırını aşıyor.');
+    if(typeof payload.name!=='string'||payload.name.length>60||!payload.name.trim())throw Error('APK uygulama adı geçersiz.');
+    if(typeof payload.androidPackage!=='string'||!/^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*){2,}$/.test(payload.androidPackage))throw Error('Android paket adı geçersiz.');
+    const t={owner:el('launchOwner').value.trim(),repo:el('launchRepo').value.trim()};
+    if(!validOwner(t.owner)||!validRepo(t.repo))throw Error('GitHub depo bilgileri geçersiz.');
+    if(t.owner!=='ramiz28615'||t.repo!=='my_app')
+      throw Error('Otomatik APK için GitHub Launchpad hedefi ramiz28615/my_app olmalı.');
+    if(!accessToken||accessToken.length<20)
+      throw Error('GitHub Launchpad bölümüne Actions (Read and write) ve Contents (Read) izni olan tokeni bağla.');
+    if(connectedRepo!==t.owner.toLowerCase()+'/'+t.repo.toLowerCase()||!authenticated)await connect(t);
+    if(connectedBranch!=='main')throw Error('APK workflow main dalında kurulu olmalı.');
+    await api('POST',paths(t)+'/actions/workflows/native-apk-build.yml/dispatches',{
+      ref:connectedBranch,
+      inputs:{build_id:payload.id,app_b64:payload.appB64,language:payload.language,
+        app_name:payload.name,android_package:payload.androidPackage}
+    });
+    return{owner:t.owner,repo:t.repo,branch:connectedBranch,id:payload.id,submittedAt:Date.now(),
+      actionsUrl:'https://github.com/'+t.owner+'/'+t.repo+'/actions/workflows/native-apk-build.yml'};
+  }
+  async function fetchNativeApkBuild(task){
+    if(!task||!/^a[a-z0-9]{10,32}$/.test(task.id)||task.owner!=='ramiz28615'||task.repo!=='my_app')
+      throw Error('APK derleme talebi geçersiz.');
+    const base=paths(task);
+    const collection=await api('GET',base+'/actions/workflows/native-apk-build.yml/runs?event=workflow_dispatch&per_page=40');
+    const run=(collection.workflow_runs||[]).find(x=>
+      x.display_title==='Dimensia APK '+task.id&&
+      (new Date(x.created_at||0).getTime()>=task.submittedAt-300000));
+    if(!run)return{state:'queued',requestId:task.id,actionsUrl:task.actionsUrl};
+    const runUrl='https://github.com/'+task.owner+'/'+task.repo+'/actions/runs/'+run.id;
+    if(run.status!=='completed')return{state:run.status||'in_progress',requestId:task.id,runUrl};
+    if(run.conclusion!=='success'){
+      let failedStep='Derleme hatası';
+      try{
+        const jobs=await api('GET',base+'/actions/runs/'+run.id+'/jobs?per_page=10');
+        const job=(jobs.jobs||[]).find(x=>x.conclusion==='failure');
+        failedStep=job?.steps?.find(x=>x.conclusion==='failure')?.name||failedStep;
+      }catch{}
+      return{state:'failed',conclusion:run.conclusion,failedStep,requestId:task.id,runUrl};
+    }
+    const artifacts=await api('GET',base+'/actions/runs/'+run.id+'/artifacts?per_page=20');
+    const artifact=(artifacts.artifacts||[]).find(x=>x.name==='dimensia-apk-'+task.id&&!x.expired);
+    if(!artifact)return{state:'uploading',requestId:task.id,runUrl};
+    return{state:'success',requestId:task.id,runUrl,
+      artifactId:artifact.id,artifactName:artifact.name,sizeBytes:artifact.size_in_bytes,
+      downloadUrl:runUrl+'/artifacts/'+artifact.id};
+  }
   window.DimensiaLaunchpad={slug,validSlug,validOwner,validRepo,pageURL,checkStatus,refreshPreview,
     startCloudAnalysis,fetchCloudAnalysis,saveCodeLabFile,savePolyglotFiles,startPolyglotRun,fetchPolyglotReport,
-    startChatRun,fetchChatRunReport};
+    startChatRun,fetchChatRunReport,startNativeApkBuild,fetchNativeApkBuild};
 
   el('launchSlug').value=slug(state.siteName||'yeni-site')||'yeni-site';
   refreshAddress();renderRecords();refreshPreview();step(0);
