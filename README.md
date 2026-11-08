@@ -1,4 +1,4 @@
-# Dimensia AI Workspace 8.2.0 · Sohbet Başına Proje ve Otomatik HTML/CSS/JS Önizleme
+# Dimensia AI Workspace 8.3.0 · Sohbetten React Native / Android APK ve Google Colab
 
 **AI destekli HTML/CSS/JavaScript oluştur, düzenle, önizle ve GitHub Pages'e yayınla.** Bu sürüm, kişisel deneyler ve statik web projeleri için çalışan açık kaynaklı bir stüdyodur. Bir SaaS platformunun tüm kurumsal özelliklerini veya dünya sıralamasında üstünlüğü iddia etmez.
 
@@ -9,6 +9,15 @@
 | **Örneğin kaynak kodu** | https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html |
 | **Otomatik testler** | https://github.com/ramiz28615/my_app/actions |
 
+
+## 8.3.0 — Mobil uygulama / APK Stüdyosu
+
+- **Sohbet içi React Native modu:** Mesaj alanındaki **📱 Mobil APK** düğmesi, mobil kod üretimine özel AI sistem istemini ve **📱 APK Stüdyo** editörünü açar. AI tarafından eksiksiz `jsx` veya `tsx` bloğu ile döndürülen `App.js`/`App.tsx`, aynı sohbetin mobil projesine kaydedilir. Mevcut mobil uygulamayı geliştirmek için kodun önceki hali modele bağlam olarak gönderilir (44 KB sınırı, aksi halde açıklayıcı hata).
+- **Her sohbetin kendi mobil projesi:** Ayrı `App.js` veya `App.tsx`, `app.json`, `package.json`, `babel.config.js`, `eas.json`, `README.md` ve TSX için `tsconfig.json` dosyaları tarayıcıda saklanır. Sekmelerle düzenle, isim değiştir, dosya yapısını denetle.
+- **ZIP proje indir:** Kod paketleme/ZIP için harici JS kütüphanesi kullanılmaz. GitHub'a hiçbir dosya otomatik yüklenmez. ZIP içinde gizli anahtar olmamalıdır.
+- **Google Colab bağlantısı:** ZIP indirdikten sonra **② Google Colab’ı aç** düğmesi `notebooks/dimensia_apk_builder.ipynb` adlı GitHub üzerinden açılan interaktif not defterine gider. ZIP'i yükle; Node 22, JDK 17, Android SDK kurulumu, `npm install`, `npx expo prebuild --platform android` ve Gradle `:app:assembleDebug` adımlarıyla **test amaçlı debug APK** üretmeyi dene. Başarılı APK son hücreden telefona iner.
+- **Alternatif EAS Build:** Projede `eas.json` içindeki `preview.android.buildType: apk` hazırdır. Expo hesabınla EAS Build ücretsiz kota şartları kapsamında kullanılabilir. `npm install -g eas-cli && eas login && eas build -p android --profile preview`.
+- **Gerçek sınırlar:** GitHub Pages/Dimensia sitesi APK derlemez ve yönetilen Colab'a arka planda API/SSH ile emir göndermez. Colab'da kullanıcı tarafından onaylanan notebook çalışması gerekir. Colab ücretsiz kaynakları, Android Gradle derlemesi, üçüncü taraf paketler veya süre garantili değildir. APK Google Play için imzalanmış üretim sürümü değil, debug APK'dir. Android uygulamasının gerçek cihaz görünümü için Expo Go ya da emülatör kullan.
 
 ## 8.2.0 — Her sohbetin kendi projesi ve otomatik canlı web önizlemesi
 
