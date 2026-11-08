@@ -13,9 +13,11 @@ const example={
  python:'print("HELLO_PYTHON")\nprint(sum([1,2,3,4,5]))\n',
  bash:'#!/usr/bin/env bash\nset -eu\nprintf "HELLO_BASH\\n"\nprintf "%s\\n" "$((1+2+3+4+5))"\n',
  perl:'use strict;\nuse warnings;\nprint "HELLO_PERL\\n";\nprint (1+2+3+4+5), "\\n";\n',
- php:'<?php\necho "HELLO_PHP\\n";\necho (1+2+3+4+5)."\\n";\n'
+ php:'<?php\necho "HELLO_PHP\\n";\necho (1+2+3+4+5)."\\n";\n',
+ javascript:'console.log("HELLO_JAVASCRIPT");\nconsole.log([1,2,3,4,5].reduce((a,b)=>a+b,0));\n',
+ rust:'fn main() { println!("HELLO_RUST"); println!("{}", (1..=5).sum::<i32>()); }\n'
 };
-const binaries={python:'python3',bash:'bash',perl:'perl',php:'php'};
+const binaries={python:'python3',bash:'bash',perl:'perl',php:'php',javascript:'node',rust:'rustc'};
 function supports(language){return spawnSync(binaries[language],['--version'],{encoding:'utf8',timeout:4000}).status===0}
 function execute(language,payload,directory){
  const encoded=Buffer.from(JSON.stringify(payload),'utf8').toString('base64');
@@ -31,7 +33,7 @@ function execute(language,payload,directory){
  return report;
 }
 
-test('Chat runner executes Python, Bash, Perl and PHP source and returns actual stdout',()=>{
+test('Chat runner executes all six languages and returns actual stdout',()=>{
  const dir=mkdtempSync(join(tmpdir(),'dim-chat-langs-'));
  try{
   for(const language of Object.keys(example)){
@@ -96,7 +98,7 @@ test('Collector returns one result per interpreter without interpreting user sou
   const doc=JSON.parse(readFileSync(join(dir,'code-lab/chat-reports',id+'.json'),'utf8'));
   assert.equal(doc.schema,'dimensia-chat-run-v1');
   assert.equal(doc.requestId,id);
-  assert.equal(doc.passed,3);
+  assert.equal(doc.passed,5);
   assert.equal(doc.failed,1);
   assert.equal(doc.skipped,0);
   assert.match(doc.results.php.stderr,/parse error/);
@@ -106,7 +108,7 @@ test('Collector returns one result per interpreter without interpreting user sou
 
 test('Public chat execution workflow never grants write permission to untrusted code',()=>{
  const workflow=readFileSync(join(root,'.github/workflows/chat-code-execute.yml'),'utf8');
- assert.ok(workflow.includes('language: [python, bash, perl, php]'));
+ assert.ok(workflow.includes('language: [python, bash, perl, php, javascript, rust]'));
  assert.match(workflow,/execute:[\s\S]*?permissions:/i); // top-level read-only applies to execute
  assert.ok(workflow.includes('permissions:\n  contents: read'));
  assert.ok(workflow.includes('persist-credentials: false'));
