@@ -952,7 +952,7 @@ try{
  await page.locator('#dhSend').click();
  await page.waitForFunction(()=>window.DimensiaNativeStudio?.getFiles()['App.js']?.includes('AUTO_NATIVE_CHAT'),{timeout:15000});
  assert.equal(await page.evaluate(()=>window.DimensiaChatHub.getState().mode),'native');
- assert.ok(await page.locator('#dhThread [data-auto-action="zip"]').count()>=1,'Generated code should offer one-click ZIP');
+ assert.ok(await page.locator('#dhThread [data-auto-action="apkbuild"]').count()>=1,'Generated code should offer one-click APK build');
  await page.unroute('https://openrouter.ai/api/v1/chat/completions',autoNativeRoute);
  await page.locator('#drnClose').click();
  await page.locator('#dhNew').click();
