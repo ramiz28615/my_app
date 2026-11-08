@@ -8,7 +8,11 @@ const panel=document.getElementById('dhrPanel');
 const chat=document.getElementById('dhConversation');
 if(!runner||!panel||!chat)return;
 const LANGS=['python','bash','perl','php','javascript','rust'],KEY='dimensia-code-projects-v1';
-const MAX_PROJECTS=16,MAX_CODE_BYTES=10000;
+const MAX_PROJECTS=48,MAX_CODE_BYTES=10000;
+const CHAT_MAP='dimensia-chat-project-links-v1';
+let chatLinks={};
+try{const data=JSON.parse(localStorage.getItem(CHAT_MAP)||'{}');if(data&&typeof data==='object'&&!Array.isArray(data))chatLinks=data}catch{}
+function persistLinks(){try{localStorage.setItem(CHAT_MAP,JSON.stringify(chatLinks))}catch{}}
 const $=id=>document.getElementById(id);
 const bytes=value=>new TextEncoder().encode(value).length;
 const blank=()=>Object.fromEntries(LANGS.map(x=>[x,'']));
@@ -84,7 +88,7 @@ function saveCurrent(){
  try{project.files=normalize(runner.getSources());project.updatedAt=Date.now();persist();}
  catch(e){notice(e.message,true)}
 }
-function activate(id){
+function activate(id,{silent=false,link=true}={}){
  if(!ensureIdle())return repaint();
  const project=state.items.find(x=>x.id===id);
  if(!project)return repaint();
@@ -92,12 +96,14 @@ function activate(id){
  loading=true;
  try{
   runner.replaceSources(project.files);
-  state.active=id;persist();repaint();runner.open();
+  state.active=id;
+  if(link){const chatId=window.DimensiaChatHub?.getState?.().active;if(chatId){chatLinks[chatId]=id;persistLinks()}}
+  persist();repaint();if(!silent)runner.open();
   notice('Aktif proje: '+project.name+' · Kodlarını düzenleyebilir ve çalıştırabilirsin.');
  }catch(e){notice(e.message,true)}
  finally{loading=false}
 }
-function create(name,files=blank()){
+function create(name,files=blank(),{silent=false,link=true}={}){
  if(!ensureIdle())return;
  if(state.items.length>=MAX_PROJECTS)return notice('En fazla '+MAX_PROJECTS+' yerel proje oluşturabilirsin.',true);
  const label=safeName(name);
@@ -108,7 +114,9 @@ function create(name,files=blank()){
  state.items.push(project);state.active=project.id;
  loading=true;
  try{runner.replaceSources(clean)}finally{loading=false}
- persist();repaint();runner.open();notice('Yeni proje oluşturuldu: '+label);
+ if(link){const chatId=window.DimensiaChatHub?.getState?.().active;if(chatId){chatLinks[chatId]=project.id;persistLinks()}}
+ persist();repaint();if(!silent)runner.open();notice('Yeni proje oluşturuldu: '+label);
+ return project.id;
 }
 $('dwpSelect').onchange=e=>activate(e.target.value);
 $('dwpNew').onclick=()=>{
@@ -131,7 +139,9 @@ $('dwpDelete').onclick=()=>{
  const item=current();
  if(!confirm('“'+item.name+'” projesini ve bu cihazdaki kodlarını kalıcı olarak silmek istiyor musun?'))return;
  state.items=state.items.filter(x=>x.id!==item.id);
- state.active=state.items[0].id;
+ for(const [chat,id] of Object.entries(chatLinks))if(id===item.id)delete chatLinks[chat];
+ persistLinks();state.active=state.items[0].id;
+ const chatId=window.DimensiaChatHub?.getState?.().active;if(chatId){chatLinks[chatId]=state.active;persistLinks()}
  loading=true;try{runner.replaceSources(current().files)}finally{loading=false}
  persist();repaint();notice('Proje silindi.');
 };
@@ -155,16 +165,43 @@ $('dwpImportFile').onchange=async e=>{
   create(safeName(data.name)||'İçe aktarılan proje',normalize(data.files));
  }catch(error){notice('Proje içe aktarılamadı: '+String(error.message||error).slice(0,100),true)}
 };
+function bindToChat(chatId,title){
+ if(!/^dh-[\w-]{1,85}$/.test(String(chatId||'')))return;
+ if(runner.getState().busy)return notice('Bulut kodu çalışırken sohbet proje eşlemesi yapılamaz.',true);
+ const linked=chatLinks[chatId];
+ if(linked&&state.items.some(item=>item.id===linked)){
+  if(state.active!==linked)activate(linked,{silent:true,link:false});
+  return;
+ }
+ const label='Sohbet: '+safeName(title==='Yeni sohbet'?'Yeni web projesi':title||'Yeni web projesi').slice(0,35);
+ const id=create(label,blank(),{silent:true,link:false});
+ if(id){chatLinks[chatId]=id;persistLinks()}
+}
+document.addEventListener('dimensia:chat-activated',event=>{
+ const {chatId,title}=event.detail||{};
+ if(chatId)bindToChat(chatId,title);
+});
+document.addEventListener('dimensia:chat-titled',event=>{
+ const {chatId,title}=event.detail||{};
+ const item=state.items.find(x=>x.id===chatLinks[chatId]);
+ if(item&&item.name.startsWith('Sohbet:')){
+  item.name='Sohbet: '+safeName(title).slice(0,35);
+  persist();repaint();
+ }
+});
 quick.onclick=()=>{runner.open();bar.scrollIntoView({behavior:'smooth',block:'nearest'})};
 document.addEventListener('dimensia:runner-sources-changed',saveCurrent);
 loading=true;
 try{runner.replaceSources(current().files)}finally{loading=false}
 repaint();persist();
+const firstChat=window.DimensiaChatHub?.getState?.().active;
+if(firstChat)bindToChat(firstChat,window.DimensiaChatHub.getChats()?.find(x=>x.id===firstChat)?.title);
 window.DimensiaProjects={
  list:()=>state.items.map(x=>({id:x.id,name:x.name,updatedAt:x.updatedAt})),
  getActive:()=>({id:state.active,name:current()?.name}),
  create:(name)=>create(name),
  select:(id)=>activate(id),
+ chatProject:(chatId)=>chatLinks[chatId]||null,
  save:saveCurrent,
 };
 })();
