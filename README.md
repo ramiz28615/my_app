@@ -1,4 +1,4 @@
-# Dimensia AI Workspace 8.1.0 · Boyutlandırılabilir ekranlar ve çoklu projeler
+# Dimensia AI Workspace 8.2.0 · Sohbet Başına Proje ve Otomatik HTML/CSS/JS Önizleme
 
 **AI destekli HTML/CSS/JavaScript oluştur, düzenle, önizle ve GitHub Pages'e yayınla.** Bu sürüm, kişisel deneyler ve statik web projeleri için çalışan açık kaynaklı bir stüdyodur. Bir SaaS platformunun tüm kurumsal özelliklerini veya dünya sıralamasında üstünlüğü iddia etmez.
 
@@ -9,6 +9,14 @@
 | **Örneğin kaynak kodu** | https://github.com/ramiz28615/my_app/blob/main/sites/aurora-demo/index.html |
 | **Otomatik testler** | https://github.com/ramiz28615/my_app/actions |
 
+
+## 8.2.0 — Her sohbetin kendi projesi ve otomatik canlı web önizlemesi
+
+- **Sohbet otomatik proje açar:** Yeni sohbet, boş ve ayrı bir kod projesine bağlanır. Önceki sohbete döndüğünde o sohbetin Python/Bash/Perl/PHP/JavaScript/Rust dosyaları seçilir. Kullanıcı isterse proje yöneticisinden elle proje değiştirebilir.
+- **HTML/CSS/JS gerçekten çalışır:** AI yanıtındaki `html`, `css` ve `javascript` kod blokları otomatik olarak ilgili web dosyasına işlenir. HTML parçaları belgeye dönüştürülür, CSS ve JavaScript eklenir; sonuç **sohbet yanıtının altında ayrı bir sandbox iframe içinde çalıştırılır**. Yenile, düzenle ve tam ekran tuşları vardır. Web editörü mevcut geri al/ileri al ve tarayıcı konsolu özelliklerini kullanır.
+- **Kodun kesilmesini azaltır:** Sohbet geçmişindeki eski **9.000 karakterlik kesme** kaldırıldı. OpenRouter `finish_reason=length` ile erken durursa veya HTML kapanış etiketi/kod fence tamamlanmamışsa sınırlı devam isteği yapılır. Tamamlanmamış HTML geçerli bir site gibi gösterilmez; önceki çalışan proje korunur. Sağlayıcının çıktı/kota sınırı nedeniyle her istekte tamamlanma garantisi yoktur.
+- **Sohbete özel yerel kayıt:** Web kaynakları ve önizleme, sohbet kimliğiyle tarayıcıdaki yerel depolamada korunur; sohbet geçmişine dönünce yeniden açılır. Otomatik olarak GitHub'a veya başka cihaza gönderilmez. Gizli anahtarları üretilen koda veya projelere koyma.
+- **Sınır:** HTML/CSS/JS önizlemesi tarayıcı kodudur; Python, PHP, Bash, Perl, Rust ve Node sunucusu burada çalışmaz. Bunlar ayrıca açık onayla GitHub Actions üzerinden yürütülür.
 
 ## 8.1.0 — Kullanıcıya özel ekran düzeni ve çoklu proje
 
