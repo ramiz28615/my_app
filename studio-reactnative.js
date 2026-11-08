@@ -111,7 +111,9 @@ function activate(id,{skipSave=false}={}){
  loading=false;tabs();
 }
 function open(){
- const id=activeId();if(!id)return status('Önce sohbet başlat.',true);
+ let id=activeId();
+ if(!id){hub.newChat();hub.setMode('native');id=activeId()}
+ if(!id)return status('Sohbet başlatılamadı.',true);
  if(id!==openedFor)activate(id);
  panel.hidden=false;panel.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
