@@ -237,7 +237,7 @@ test('Chat 8.0.2 provides six language tabs and user-approved cloud execution',a
   readFile('.github/workflows/chat-code-execute.yml','utf8'),
   readFile('scripts/collect-chat-code.mjs','utf8')
  ]);
- for(const item of ['studio-chat-runner.js?v=8.0.2','studio-chat-runner.css?v=8.0.2'])assert.ok(html.includes(item));
+ for(const item of ['studio-chat-runner.js?v=8.1.0','studio-chat-runner.css?v=8.1.0'])assert.ok(html.includes(item));
  for(const id of ['dhrPanel','dhrRunOne','dhrRunAll','dhrEditor','dhrAuto','dhrOutput','dhrExample'])
   assert.ok(source.includes(id),'Missing chat code runner UI '+id);
  for(const lang of ['python','bash','perl','php','javascript','rust'])assert.ok(source.includes(lang),'Missing language '+lang);
