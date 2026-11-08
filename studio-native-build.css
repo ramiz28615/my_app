@@ -1,0 +1,16 @@
+/* Dimensia APK Auto Build — chat-integrated cloud job progress */
+.dab-box{padding:12px 13px;margin:8px 11px;border:1px solid #4c6b88;border-radius:12px;background:#172a3e;color:#e4f3ff;display:grid;gap:8px}
+.dab-title{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap}
+.dab-title strong{font-size:13px;color:#b5f7db}
+.dab-title span{font-size:10px;color:#b7c8de}
+.dab-box p,.dab-box small{margin:0;line-height:1.55;font-size:10px;color:#bbcbdc}
+.dab-box small{font-size:9px}
+.dab-controls,.dab-links{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.dab-controls button{flex:1 1 115px}
+.dab-controls button:disabled{cursor:wait;opacity:.55}
+#dabProgress{font:650 11px/1.55 system-ui,sans-serif;border:1px solid #3f7184;background:#183c4c;padding:9px;border-radius:8px;color:#c9fff0;overflow-wrap:anywhere}
+#dabProgress.error{border-color:#ae7381;background:#422535;color:#ffe1e6}
+.dab-links a{border:1px solid #66b9a1;background:#224d52;padding:8px 12px;border-radius:8px;color:#e2fff7;text-decoration:none!important;font-size:11px;font-weight:750}
+.dab-links a[hidden]{display:none}
+.dab-links a:hover{background:#2c6970}
+@media(max-width:760px){.dab-box{padding:10px;margin:7px 8px}.dab-title strong{font-size:12px}.dab-controls .drn-btn{min-width:0}}
